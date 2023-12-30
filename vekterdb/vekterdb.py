@@ -4,7 +4,7 @@ import numpy as np
 import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, Iterator, List
 
 
 class VekterDB:
@@ -212,7 +212,7 @@ class VekterDB:
         X = np.zeros((sample_size, self.d), dtype=np.float32)
         for i, record in enumerate(
             self.fetch_records(
-                self.idx_name, sample_idxs, columns=["vector"], batch_size=batch_size
+                self.idx_name, sample_idxs, self.vector_name, batch_size=batch_size
             )
         ):
             X[i] = record[self.vector_name]
@@ -315,20 +315,32 @@ class VekterDB:
     def search_by_vectors(
         self,
         query_vectors: np.ndarray,
-        k_nearest_neighbors: int = 10,
+        k_nearest_neighbors: int,
+        *col_names: str,
         k_extra_neighbors: int = 0,
         rerank: bool = True,
         threshold: float = None,
         search_parameters: faiss.SearchParameters = None,
-    ) -> List[Dict]:
-        """_summary_
+    ) -> List[List[Dict]]:
+        """
+        For each query vector, find the `k_nearest_neighbors` records in the database
+        based whose vectors are the most similar to the query vector. If `threshold`
+        is provided, then drop any candidate neighbors whose similarity fails to meet
+        that value.
+
+        If you proved any `col_names`, then only those columns from the database will
+        be returned for each neighbor in the dict. Each dict will add "metric" key
+        which holds the similarity between the query vector and that neighbor's vector
 
         Parameters
         ----------
         query_vectors : np.ndarray
             Vector(s) to search with. Shape should be (n, d). This is the same as FAISS
-        k_nearest_neighbors : int, optional
-            Number of nearest neighbors to return. Default is 10
+        k_nearest_neighbors : int
+            Number of nearest neighbors to return.
+        \*col_names : str
+            Specify specific columns from the database to be returned for each
+            neighbor. If none are provided, then all columns are returned.
         k_extra_neighbors : int, optional
             Extra neighbors to return from FAISS index before reranking. Default 0
         rerank : bool, optional
@@ -346,17 +358,42 @@ class VekterDB:
                 nprobe=20,
                 quantizer_params=faiss.SearchParamsHNSW(efSearch=40),
             )
+
+        Returns
+        -------
+        List[List[Dict]]
+            For each query, return a list of the neighbors. For each neighbor of a
+            query, return a dictionary of the neighbor's record with "metric" add to
+            it that holds the similarity between query and vector.
         """
+
+        if len(query_vectors.shape) == 1 and query_vectors.shape[0] == self.d:
+            query_vectors = query_vectors.reshape(1, self.d)
+        elif len(query_vectors.shape) == 2 and query_vectors.shape[1] != self.d:
+            raise ValueError(f"query_vectors dimension is not {self.d}")
+        elif len(query_vectors.shape) != 2:
+            raise ValueError(
+                f"query_vectors is not (d,) or (n, d). You gave {query_vectors.shape}"
+            )
+        # TODO: Maybe let people provide columns they want back in the record?
+        #       Thinking about changing these to *col_names instead of col_names:List
         k = k_nearest_neighbors + k_extra_neighbors
         _, I = self.index.search(query_vectors, k, params=search_parameters)
         idx_neighbors = list(set(I.reshape(-1).tolist()))
 
         # Get records for all the neighbors
         neighbor_records = {}
-        for record in self.fetch_records(self.idx_name, idx_neighbors):
+        # I need both the idx and vector columns so add those in if not requested.
+        tmp_col_names = list(col_names)
+        if self.idx_name not in tmp_col_names:
+            tmp_col_names.append(self.idx_name)
+        if self.vector_name not in tmp_col_names:
+            tmp_col_names.append(self.vector_name)
+        tmp_col_names = tuple(tmp_col_names)
+        for record in self.fetch_records(self.idx_name, idx_neighbors, *tmp_col_names):
             neighbor_records[record[self.idx_name]] = record
 
-        # Now loop through the queries
+        # For each query, check that neighbors are close enough and reorder accordingly
         results = []
         for query_vec, I_row in zip(query_vectors, I):
             query_result = []
@@ -366,6 +403,10 @@ class VekterDB:
                 )
                 if similarity is not None:
                     neighbor = neighbor_records[idx].copy()
+                    if self.idx_name not in col_names:
+                        neighbor.pop(self.idx_name)
+                    if self.vector_name not in col_names:
+                        neighbor.pop(self.vector_name)
                     neighbor["metric"] = similarity
                     query_result.append(neighbor)
             if rerank:
@@ -381,7 +422,7 @@ class VekterDB:
                     )
                 else:
                     raise ValueError(f"Not properly handling {self.metric} metric")
-            results.append(query_result)
+            results.append(query_result[:k_nearest_neighbors])
 
         return results
 
@@ -389,9 +430,9 @@ class VekterDB:
         self,
         fetch_column: str,
         fetch_values: List,
-        columns: List[str] = None,
+        *col_names: str,
         batch_size: int = 10_000,
-    ) -> Dict:
+    ) -> Iterator[Dict]:
         """_summary_
 
         Parameters
@@ -400,17 +441,18 @@ class VekterDB:
             Column name to fetch by
         fetch_values : List
             Values of fetch_column to fetch
-        columns : List[str], optional
-            List of column names to be returned. Include fetch_column if you want that
-            returned. Default is None which gets all columns.
+        \*col_names : str, optional
+            Specify which columns to be fetched. If not provided, then all columns will
+            be fetched.
         batch_size : int, optional
             Number of values to fetch at one time. Default 10_000
 
         Yields
-        -------
-        Dict
+        ------
+        Iterator[Dict]
             Keys are the elements of columns and values are corresponding values
         """
+
         if (
             self.columns[fetch_column].index is None
             and not self.columns[fetch_column].primary_key
@@ -420,8 +462,12 @@ class VekterDB:
             )
         n_records = len(fetch_values)
         n_batches = n_records // batch_size + 1
-        if columns is None:
-            columns = list(self.columns.keys())
+
+        if not col_names:
+            col_names = tuple(self.columns.keys())
+
+        # if columns is None:
+        #    columns = list(self.columns.keys())
 
         with self.Session() as session:
             for n in range(n_batches):
@@ -432,7 +478,7 @@ class VekterDB:
                 )
                 for row in session.scalars(stmt):
                     record = {}
-                    for col_name in columns:
+                    for col_name in col_names:
                         value = row.__dict__[col_name]
                         if col_name == self.vector_name:
                             value = self.deserialize_vector(value)
