@@ -118,7 +118,7 @@ class VekterDB:
     def insert(
         self,
         records: Iterable[Dict],
-        batch_size: int = 5000,
+        batch_size: int = 10_000,
         serialize_vectors: bool = True,
     ) -> int:
         """
@@ -148,31 +148,63 @@ class VekterDB:
         n_records : int
             Number of records added to the table
         """
+        # TODO: Allow passing of SearchParams when adding into faiss index.
+        insert_into_faiss = False
+        if self.index is not None and self.index.is_trained:
+            insert_into_faiss = True
+        if not insert_into_faiss:
+            logging.warning(
+                "FAISS index either doesn't exist or isn't trained so "
+                + "records will only be inserted into the database."
+            )
+
         n_records = 0
         with self.Session() as session:
             batch = []
+            vectors = []
             for i, record in enumerate(records):
-                # Set the dimension of the vectors using the first record
+                # Use the first record to set dimension if not already set
+                # and do some checking
                 if i == 0:
                     if serialize_vectors:
-                        if self.d is None:
-                            self.d = record[self.vector_name].shape[0]
-                    elif self.d is None:
-                        self.d = self.deserialize_vector(
+                        vector_d = record[self.vector_name].shape[0]
+                    else:
+                        vector_d = self.deserialize_vector(
                             record[self.vector_name]
                         ).shape[0]
+
+                    if self.d is None:
+                        self.d = vector_d
+                    elif self.d != vector_d:
+                        raise ValueError(
+                            f"New vector dimension {vector_d} != existing dimension {self.d}"
+                        )
+
                 if serialize_vectors:
+                    if insert_into_faiss:
+                        vectors.append(record[self.vector_name].copy())
                     record[self.vector_name] = self.serialize_vector(
                         record[self.vector_name]
                     )
+                elif insert_into_faiss:
+                    vectors.append(self.deserialize_vector(record[self.vector_name]))
                 batch.append(record)
                 n_records += 1
                 if len(batch) == batch_size:
                     session.execute(sa.insert(self.Record), batch)
                     batch = []
+                    if insert_into_faiss:
+                        X = np.vstack(vectors)
+                        self.index.add(vectors)
+                        vectors = []
             if len(batch) > 0:
                 session.execute(sa.insert(self.Record), batch)
+                if insert_into_faiss:
+                    self.index.add(np.vstack(vectors))
             session.commit()
+            if insert_into_faiss:
+                # Save the index to disk
+                faiss.write_index(self.index, self.faiss_index)
 
         return n_records
 
@@ -219,7 +251,7 @@ class VekterDB:
 
         return X
 
-    def similarity_metric(
+    def similarity(
         self, v1: np.ndarray, v2: np.ndarray, threshold: float = None
     ) -> float:
         """Return the appropriate similarity metric between vector v1 and v2.
@@ -258,6 +290,11 @@ class VekterDB:
                 return similarity
             else:
                 return None
+        else:
+            raise ValueError(
+                f"Not properly handling {self.metric} metric. "
+                + "Only inner_product and l2 are currently supported"
+            )
 
     def create_index(
         self,
@@ -269,7 +306,9 @@ class VekterDB:
         use_gpu: bool = False,
     ):
         if self.index is not None:
-            raise FileExistsError(f"Index has already been assigned to this table")
+            raise FileExistsError(
+                f"Index at {self.faiss_index} has already been assigned to this table"
+            )
         if faiss_index == self.faiss_index:
             raise FileExistsError(f"{self.faiss_index} file already exists")
         else:
@@ -310,9 +349,9 @@ class VekterDB:
                 self.index.add(X)
 
         # Save the index to disk
-        faiss.write_index(self.index, faiss_index)
+        faiss.write_index(self.index, self.faiss_index)
 
-    def search_by_vectors(
+    def search(
         self,
         query_vectors: np.ndarray,
         k_nearest_neighbors: int,
@@ -398,7 +437,7 @@ class VekterDB:
         for query_vec, I_row in zip(query_vectors, I):
             query_result = []
             for idx in I_row:
-                similarity = self.similarity_metric(
+                similarity = self.similarity(
                     query_vec, neighbor_records[idx][self.vector_name], threshold
                 )
                 if similarity is not None:
@@ -423,6 +462,62 @@ class VekterDB:
                 else:
                     raise ValueError(f"Not properly handling {self.metric} metric")
             results.append(query_result[:k_nearest_neighbors])
+
+        return results
+
+    def nearest_neighbors(
+        self,
+        fetch_column: str,
+        fetch_values: List,
+        k_nearest_neighbors: int,
+        *col_names: str,
+        k_extra_neighbors: int = 0,
+        rerank: bool = True,
+        threshold: float = None,
+        search_parameters: faiss.SearchParameters = None,
+        batch_size: int = 10_000,
+    ) -> List[Dict]:
+        # TODO: Need to handle removing of finding yourself. I can just make sure to
+        # add one to the k_extra_neighbors and then remove yourself?
+        results = []
+        query_vectors = []
+        tmp_col_names = tuple(list(col_names) + [self.idx_name, self.vector_name])
+        for record in self.fetch_records(
+            fetch_column,
+            fetch_values,
+            *tmp_col_names,
+            batch_size=batch_size,
+        ):
+            results.append(record)
+            query_vectors.append(record[self.vector_name])
+
+        query_vectors = np.vstack(query_vectors)
+        tmp_col_names_neighbors = tuple(list(col_names) + [self.idx_name])
+        for record, neighbors in zip(
+            results,
+            self.search(
+                query_vectors,
+                k_nearest_neighbors + 1,
+                *tmp_col_names_neighbors,
+                k_extra_neighbors=k_extra_neighbors + 1,
+                rerank=rerank,
+                threshold=threshold,
+                search_parameters=search_parameters,
+            ),
+        ):
+            pop_idx_name = self.idx_name not in col_names
+            pop_vector_name = self.vector_name not in col_names
+            neighbors_without_yourself = []
+            for neighbor in neighbors:
+                if neighbor[self.idx_name] != record[self.idx_name]:
+                    if pop_idx_name:
+                        neighbor.pop(self.idx_name)
+                    neighbors_without_yourself.append(neighbor)
+            record["neighbors"] = neighbors_without_yourself[:k_nearest_neighbors]
+            if pop_idx_name:
+                record.pop(self.idx_name)
+            if pop_vector_name:
+                record.pop(self.vector_name)
 
         return results
 
