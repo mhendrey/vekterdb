@@ -156,6 +156,7 @@ class VekterDB:
             logging.warning(
                 "FAISS index either doesn't exist or isn't trained so "
                 + "records will only be inserted into the database."
+                + ". Call create_index() to make the FAISS index."
             )
 
         n_records = 0
@@ -414,8 +415,6 @@ class VekterDB:
             raise ValueError(
                 f"query_vectors is not (d,) or (n, d). You gave {query_vectors.shape}"
             )
-        # TODO: Maybe let people provide columns they want back in the record?
-        #       Thinking about changing these to *col_names instead of col_names:List
         k = k_nearest_neighbors + k_extra_neighbors
         _, I = self.index.search(query_vectors, k, params=search_parameters)
         idx_neighbors = list(set(I.reshape(-1).tolist()))
@@ -477,8 +476,6 @@ class VekterDB:
         search_parameters: faiss.SearchParameters = None,
         batch_size: int = 10_000,
     ) -> List[Dict]:
-        # TODO: Need to handle removing of finding yourself. I can just make sure to
-        # add one to the k_extra_neighbors and then remove yourself?
         results = []
         query_vectors = []
         tmp_col_names = tuple(list(col_names) + [self.idx_name, self.vector_name])
