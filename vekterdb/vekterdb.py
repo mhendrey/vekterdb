@@ -2,7 +2,7 @@ import faiss
 import logging
 import numpy as np
 import sqlalchemy as sa
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
 
@@ -195,8 +195,7 @@ class VekterDB:
                     session.execute(sa.insert(self.Record), batch)
                     batch = []
                     if insert_into_faiss:
-                        X = np.vstack(vectors)
-                        self.index.add(vectors)
+                        self.index.add(np.vstack(vectors))
                         vectors = []
             if len(batch) > 0:
                 session.execute(sa.insert(self.Record), batch)
@@ -335,19 +334,17 @@ class VekterDB:
 
         # Add records into the index
         with self.Session() as session:
-            batch = []
+            vectors = []
             stmt = sa.select(self.columns[self.vector_name]).order_by(
                 self.columns[self.idx_name]
             )
             for vector_bytes in session.scalars(stmt):
-                batch.append(self.deserialize_vector(vector_bytes))
-                if len(batch) == batch_size:
-                    X = np.vstack(batch)
-                    self.index.add(X)
-                    batch = []
-            if batch:
-                X = np.vstack(batch)
-                self.index.add(X)
+                vectors.append(self.deserialize_vector(vector_bytes))
+                if len(vectors) == batch_size:
+                    self.index.add(np.vstack(vectors))
+                    vectors = []
+            if vectors:
+                self.index.add(np.vstack(vectors))
 
         # Save the index to disk
         faiss.write_index(self.index, self.faiss_index)
@@ -417,7 +414,7 @@ class VekterDB:
             )
         k = k_nearest_neighbors + k_extra_neighbors
         _, I = self.index.search(query_vectors, k, params=search_parameters)
-        idx_neighbors = list(set(I.reshape(-1).tolist()))
+        idx_neighbors = np.unique(I).tolist()
 
         # Get records for all the neighbors
         neighbor_records = {}
@@ -557,9 +554,6 @@ class VekterDB:
 
         if not col_names:
             col_names = tuple(self.columns.keys())
-
-        # if columns is None:
-        #    columns = list(self.columns.keys())
 
         with self.Session() as session:
             for n in range(n_batches):
