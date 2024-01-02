@@ -1,3 +1,19 @@
+"""
+Copyright (C) 2023 Matthew Hendrey
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import faiss
 import logging
 import numpy as np
@@ -19,7 +35,7 @@ class VekterDB:
         idx_name: str = "idx",
         vector_name: str = "vector",
         columns_dict: Dict[str, Dict] = {},
-        url: str = "sqlite://",
+        url: str = "sqlite:///:memory:",
         connect_args: Dict = {},
         faiss_index: str = None,
     ) -> None:
@@ -59,8 +75,8 @@ class VekterDB:
             will be stored. Additional values will be passed as kwargs to SQLAlchemy
             Column. Default is an empty dictionary.
         url : str, optional
-            URL string to connect to the database, by default "sqlite://" which is an
-            in-memory database.
+            URL string to connect to the database, by default "sqlite:///:memory" which
+            is an in-memory database.
         connect_args: Dict, optional
             Any connection arguments to pass to the create_engine(). Default is {}
         faiss_index : str, optional
@@ -109,10 +125,12 @@ class VekterDB:
         self.Record = VekterMapping
         self.Base.metadata.create_all(self.engine)
 
-    def serialize_vector(self, vector: np.ndarray):
+    @staticmethod
+    def serialize_vector(vector: np.ndarray):
         return vector.tobytes()
 
-    def deserialize_vector(self, vector_bytes: bytes):
+    @staticmethod
+    def deserialize_vector(vector_bytes: bytes):
         return np.frombuffer(vector_bytes, dtype=np.float32)
 
     def insert(
