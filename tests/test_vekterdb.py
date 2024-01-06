@@ -20,7 +20,12 @@ import pytest
 import sqlalchemy as sa
 from typing import Dict, List
 
-from vekterdb.vekterdb import VekterDB
+# Bit of a hack, but this way I can run pytests in main directory, but still have IDE
+# aware of VekterDB
+try:
+    from ..vekterdb.vekterdb import VekterDB
+except ImportError:
+    from vekterdb.vekterdb import VekterDB
 
 
 def make_data(
