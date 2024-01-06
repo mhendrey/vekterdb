@@ -150,21 +150,25 @@ class VekterDB:
 
         # Set self.d if there is already some data in existing table
         if table_exists:
-            try:
-                first_vector = next(
-                    self.fetch_records(self.idx_name, [0], self.vector_name)
-                )[self.vector_name]
-            except:
-                pass
-            else:
-                self.d = first_vector.shape[0]
+            with self.Session() as session:
+                try:
+                    stmt = sa.select(self.columns[self.vector_name]).limit(1)
+                    vector_bytes = session.scalar(stmt)
+                    vector = self.deserialize_vector(vector_bytes)
+                except:
+                    self.logger.warning(
+                        f"{table_name} table exists in the database but doesn't "
+                        + "any records in it."
+                    )
+                else:
+                    self.d = vector.shape[0]
 
         if faiss_index:
             self.faiss_index = faiss_index
             self.index = faiss.read_index(faiss_index)
             assert self.d == self.index.d, (
                 f"{table_name} has {self.d} dimensional vectors, "
-                + "but FAISS index has {self.index.d}. This must be equal."
+                + f"but FAISS index has {self.index.d}. They must be equal."
             )
         else:
             self.faiss_index = None
