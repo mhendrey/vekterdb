@@ -152,13 +152,13 @@ class VekterDB:
         if table_exists:
             with self.Session() as session:
                 try:
+                    # Pull a record from the database
                     stmt = sa.select(self.columns[self.vector_name]).limit(1)
                     vector_bytes = session.scalar(stmt)
                     vector = self.deserialize_vector(vector_bytes)
                 except:
                     self.logger.warning(
-                        f"{table_name} table exists in the database but doesn't "
-                        + "any records in it."
+                        f"{table_name} table exists in the database but appears empty."
                     )
                 else:
                     self.d = vector.shape[0]
