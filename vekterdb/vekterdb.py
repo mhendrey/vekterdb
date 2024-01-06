@@ -18,6 +18,7 @@ import faiss
 import logging
 import numpy as np
 import sqlalchemy as sa
+from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
@@ -26,8 +27,8 @@ from typing import Dict, Iterable, Iterator, List
 class VekterDB:
     """Instantiate a VekterDB"""
 
-    class Base(DeclarativeBase):
-        pass
+    # class Base(DeclarativeBase):
+    #    pass
 
     def __init__(
         self,
@@ -82,48 +83,92 @@ class VekterDB:
         faiss_index : str, optional
             If given, then load the existing FAISS index. Default is None
         """
+        self.logger = logging.getLogger(__name__)
         self.idx_name = idx_name
         self.vector_name = vector_name
+        self.d = None
 
         self.engine = sa.create_engine(url, **connect_args)
         self.Session = sessionmaker(bind=self.engine)
 
-        # I'd like to try see if the table exists. If it does then I can
-        # get the self.columns from the existing table.  And maybe define the
-        # class VekterMapping based upon those?
+        self.metadata_obj = sa.MetaData()
+        try:
+            self.metadata_obj.reflect(bind=self.engine, only=[table_name])
+        except:
+            table_exists = False
+        else:
+            table_exists = True
+
+        # Create the table if it doesn't exist
+        if not table_exists:
+            self.logger.warning(f"Creating {table_name} table in the database")
+            # Build up the columns
+            self.columns = {
+                idx_name: sa.Column(idx_name, sa.types.BigInteger, primary_key=True)
+            }
+            for column_name, column_args in columns_dict.items():
+                column_type = column_args.pop("type")
+                self.columns[column_name] = sa.Column(
+                    column_name, column_type, **column_args
+                )
+            # Vectors will be serialized to bytes for storage
+            self.columns[vector_name] = sa.Column(
+                vector_name, sa.types.LargeBinary, nullable=False
+            )
+            table = sa.Table(
+                table_name,
+                self.metadata_obj,
+                *self.columns.values(),
+            )
+        else:
+            self.logger.warning(
+                f"{table_name} already exists in the database. Skipping table creation"
+            )
+            # Load existing table to get column information
+            table = sa.Table(
+                table_name,
+                self.metadata_obj,
+            )
+            self.columns = {}
+            for col in table.columns:
+                self.columns[col.name] = col
+
+            assert (
+                idx_name in self.columns
+            ), f"{idx_name} column not found in {table_name}"
+            assert (
+                vector_name in self.columns
+            ), f"{vector_name} column not found in {table_name}"
+
+        # Following the example of how to generate mappings from an existing MetaData
+        # which also shows how you can add new mappings too.
+        # https://docs.sqlalchemy.org/en/20/orm/extensions/automap.html#generating-mappings-from-an-existing-metadata
+        self.Base = automap_base(metadata=self.metadata_obj)
+        self.Base.prepare()
+        self.Record = self.Base.classes[table_name]
+        self.metadata_obj.create_all(self.engine, tables=[table])
+
+        # Set self.d if there is already some data in existing table
+        if table_exists:
+            try:
+                first_vector = next(
+                    self.fetch_records(self.idx_name, [0], self.vector_name)
+                )[self.vector_name]
+            except:
+                pass
+            else:
+                self.d = first_vector.shape[0]
 
         if faiss_index:
             self.faiss_index = faiss_index
             self.index = faiss.read_index(faiss_index)
-            self.d = self.index.d
+            assert self.d == self.index.d, (
+                f"{table_name} has {self.d} dimensional vectors, "
+                + "but FAISS index has {self.index.d}. This must be equal."
+            )
         else:
             self.faiss_index = None
             self.index = None
-            self.d = None
-
-        self.columns = {
-            idx_name: sa.Column(idx_name, sa.types.BigInteger, primary_key=True)
-        }
-        for column_name, column_args in columns_dict.items():
-            column_type = column_args.pop("type")
-            self.columns[column_name] = sa.Column(
-                column_name, column_type, **column_args
-            )
-        # Vectors will be serialized to bytes for storage
-        self.columns[vector_name] = sa.Column(
-            vector_name, sa.types.LargeBinary, nullable=False
-        )
-
-        # Declare table mapping
-        class VekterMapping(self.Base):
-            __table__ = sa.Table(
-                table_name,
-                self.Base.metadata,
-                *self.columns.values(),
-            )
-
-        self.Record = VekterMapping
-        self.Base.metadata.create_all(self.engine)
 
     @staticmethod
     def serialize_vector(vector: np.ndarray):
@@ -155,7 +200,7 @@ class VekterDB:
             Each element of the Iterable should be a dictionary with a key the column
             name and the value is the corresponding value.
         batch_size : int, optional
-            Batch size to push to the database at one time. Default is 5,000.
+            Batch size to push to the database at one time. Default is 10,000.
         serialize_vectors : bool, optional
             If True, then vectors will be serialized, using numpy's tobytes(), before
             inserting. If False, then the user has already converted numpy arrays to

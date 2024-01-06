@@ -38,16 +38,12 @@ def make_data(
     if normalize:
         faiss.normalize_L2(X)
 
-    records = []
     for idx in range(idx_start, idx_start + n):
-        records.append(
-            {idx_name: idx, id_name: str(idx), vector_name: X[idx - idx_start]}
-        )
-    return records
+        yield {idx_name: idx, id_name: str(idx), vector_name: X[idx - idx_start]}
 
 
 @pytest.fixture(scope="session")
-def sqlite_db(tmp_path_factory: Path):
+def test_db(tmp_path_factory: Path):
     """
     Create a tmp directory to store the sqlite database to be used during the testing
     session. You can then pass this fixture into various test functions.
@@ -60,10 +56,25 @@ def sqlite_db(tmp_path_factory: Path):
 
     Returns
     -------
-    sqlite_db : Path
+    test_db : Path
         Path to the sqlite database that will be used for testing
     """
     dbname = tmp_path_factory.mktemp("db") / "test.db"
+    records = make_data("idx", "id", "vector", n=160_000, seed=930)
+    # Create table using
+    vekter_db = VekterDB(
+        "test_table",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "unique": True,
+                "nullable": False,
+                "index": True,
+            }
+        },
+        url=f"sqlite:///{dbname}",
+    )
+    vekter_db.insert(records)
     return dbname
 
 
@@ -141,6 +152,130 @@ def test_init_custom(tmp_path: Path):
     assert isinstance(
         product_cat_col.type, sa.types.Text
     ), f"{product_cat_col.type=:} should be 'Text'"
+
+
+def test_insert():
+    records = list(
+        make_data(
+            "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
+        )
+    )
+
+    # Create table using in-memory SQLite
+    vekter_db = VekterDB(
+        "insert_test",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "unique": True,
+                "nullable": False,
+                "index": True,
+            }
+        },
+    )
+    records_gen = make_data(
+        "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
+    )
+    n_records = vekter_db.insert(records_gen, batch_size=3_000, serialize_vectors=True)
+
+    assert n_records == len(records), f"{n_records=:} does not equal {len(records):=}"
+
+    # Retrieve a record
+    with vekter_db.Session() as session:
+        stmt = sa.select(vekter_db.Record).where(vekter_db.columns["idx"] == 1234)
+        row = session.scalar(stmt)
+        v = vekter_db.deserialize_vector(row.vector)
+        assert row.id == "1234", f"{row.id=:} should be '1234'"
+        assert row.idx == 1234, f"{row.idx=:} should be 1234"
+        assert np.all(v == records[1234]["vector"]), f"vector retrieved mismatches"
+
+    new_records = list(
+        make_data(
+            "idx",
+            "id",
+            "vector",
+            idx_start=15_000,
+            normalize=True,
+            n=1_000,
+            d=64,
+            seed=853,
+        )
+    )
+    records = records + new_records
+    records_gen = make_data(
+        "idx", "id", "vector", idx_start=15_000, normalize=True, n=1_000, d=64, seed=853
+    )
+    n_new_records = vekter_db.insert(
+        records_gen, batch_size=990, serialize_vectors=True
+    )
+    assert n_new_records == 1000, f"{n_new_records:=} should be 1,000"
+
+    with vekter_db.Session() as session:
+        stmt = sa.select(vekter_db.Record).where(vekter_db.columns["idx"] == 15_500)
+        row = session.scalar(stmt)
+        v = vekter_db.deserialize_vector(row.vector)
+        assert row.id == "15500", f"{row.id=:} should be '15500'"
+        assert row.idx == 15500, f"{row.idx=:} should be 15500"
+        assert np.all(v == records[15500]["vector"]), f"vector retrieved mismatches"
+
+        count = session.scalar(
+            sa.select(sa.sql.functions.count(vekter_db.columns["idx"]))
+        )
+        assert count == len(records), f"{count=:,} should equal {len(records):,}"
+
+
+def test_insert_bytes():
+    records = []
+    for record in make_data(
+        "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
+    ):
+        record["vector"] = record["vector"].tobytes()
+        records.append(record)
+
+    # Create table using in-memory SQLite
+    vekter_db = VekterDB(
+        "insert_bytes_test",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "unique": True,
+                "nullable": False,
+                "index": True,
+            }
+        },
+    )
+    n_records = vekter_db.insert(records, serialize_vectors=False)
+    assert n_records == len(records), f"{n_records=:} does not equal {len(records):=}"
+
+    # Retrieve a record
+    with vekter_db.Session() as session:
+        stmt = sa.select(vekter_db.Record).where(vekter_db.columns["idx"] == 1234)
+        row = session.scalar(stmt)
+        assert row.id == "1234", f"{row.id=:} should be '1234'"
+        assert row.idx == 1234, f"{row.idx=:} should be 1234"
+        assert row.vector == records[1234]["vector"], f"vector retrieved mismatches"
+
+
+def test_flat_index(test_db):
+    vekter_db = VekterDB(
+        "test_table",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "unique": True,
+                "nullable": False,
+                "index": True,
+            }
+        },
+        url=f"sqlite:///{test_db}",
+    )
+    faiss_factory_string = "Flat"
+    vekter_db.create_index(
+        "test_flat.index", faiss_factory_string, metric="inner_product"
+    )
+    assert (
+        vekter_db.index.ntotal == 160_000
+    ), f"{vekter_db.index.ntotal=:,} should be 160,000"
 
 
 def test_serialization(seed: int = None, d: int = 16):
