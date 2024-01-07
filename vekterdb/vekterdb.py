@@ -27,9 +27,6 @@ from typing import Dict, Iterable, Iterator, List
 class VekterDB:
     """Instantiate a VekterDB"""
 
-    # class Base(DeclarativeBase):
-    #    pass
-
     def __init__(
         self,
         table_name: str,
@@ -41,18 +38,25 @@ class VekterDB:
         faiss_index: str = None,
     ) -> None:
         """
-        Initialize the VekterDB. Two columns will be automatically included:
-            idx [BigInteger] = Unique integer based id used by FAISS
-            vector [List[Float]] = Stores vector of np.float32 values
+        Initialize the VekterDB. A minimum of two columns are needed. One column serves
+        as an integer ID that is utilized by the FAISS index. This is of type
+        BigInteger and called idx_name (default is 'idx'). The other stores the vector.
+        Vectors are stored as LargeBinary and non-nullable. To comply with FAISS, these
+        are numpy arrays of np.float32. They are serialized to bytes using numpy's
+        `tobytes()`.
 
-        For example, let's add two additional columns. The first is a string id field
-        which should also be unique and I also want to index it in order to query for
-        records by the easier to use "id" field. The second is a product category which
-        is not unique.
+            \* idx_name : BigInteger, primary_key = True
+            \* vector_name : LargeBytes, nullable = False
+
+        Additional columns may be specified in `columns_dict` argument and should
+        follow the arguments needed for SQLAlchemy's `Column`. For example, let's add
+        two additional columns. The first is a string id field which should also be
+        unique and I also want to index it in order to query for records by the easier
+        to use "id" field. The second is a product category which is not unique.
+
         ```
         my_db = VekterDB(
             "my_table",
-            "idx",
             columns_dict={
                 "id": {"type": Text, "unique": True, "nullable": False, "index": True},
                 "product_category": {"type": Text},
@@ -79,7 +83,7 @@ class VekterDB:
             URL string to connect to the database, by default "sqlite:///:memory" which
             is an in-memory database.
         connect_args: Dict, optional
-            Any connection arguments to pass to the create_engine(). Default is {}
+            Any connection arguments to pass to the sa.create_engine(). Default is {}
         faiss_index : str, optional
             If given, then load the existing FAISS index. Default is None
         """
@@ -91,9 +95,9 @@ class VekterDB:
         self.engine = sa.create_engine(url, **connect_args)
         self.Session = sessionmaker(bind=self.engine)
 
-        self.metadata_obj = sa.MetaData()
+        metadata_obj = sa.MetaData()
         try:
-            self.metadata_obj.reflect(bind=self.engine, only=[table_name])
+            metadata_obj.reflect(bind=self.engine, only=[table_name])
         except:
             table_exists = False
         else:
@@ -117,7 +121,7 @@ class VekterDB:
             )
             table = sa.Table(
                 table_name,
-                self.metadata_obj,
+                metadata_obj,
                 *self.columns.values(),
             )
         else:
@@ -127,7 +131,7 @@ class VekterDB:
             # Load existing table to get column information
             table = sa.Table(
                 table_name,
-                self.metadata_obj,
+                metadata_obj,
             )
             self.columns = {}
             for col in table.columns:
@@ -143,10 +147,10 @@ class VekterDB:
         # Following the example of how to generate mappings from an existing MetaData
         # which also shows how you can add new mappings too.
         # https://docs.sqlalchemy.org/en/20/orm/extensions/automap.html#generating-mappings-from-an-existing-metadata
-        self.Base = automap_base(metadata=self.metadata_obj)
-        self.Base.prepare()
-        self.Record = self.Base.classes[table_name]
-        self.metadata_obj.create_all(self.engine, tables=[table])
+        Base = automap_base(metadata=metadata_obj)
+        Base.prepare()
+        self.Record = Base.classes[table_name]
+        metadata_obj.create_all(self.engine, tables=[table])
 
         # Set self.d if there is already some data in existing table
         if table_exists:
@@ -164,15 +168,24 @@ class VekterDB:
                     self.d = vector.shape[0]
 
         if faiss_index:
-            self.faiss_index = faiss_index
             self.index = faiss.read_index(faiss_index)
+            self.faiss_index = faiss_index
             assert self.d == self.index.d, (
                 f"{table_name} has {self.d} dimensional vectors, "
                 + f"but FAISS index has {self.index.d}. They must be equal."
             )
+            if self.index.metric_type == faiss.METRIC_INNER_PRODUCT:
+                self.metric = "inner_product"
+            elif self.index.metric_type == faiss.METRIC_L2:
+                self.metric = "l2"
+            else:
+                raise TypeError(
+                    "FAISS index's metric type does not match inner_product or L2"
+                )
         else:
             self.faiss_index = None
             self.index = None
+            self.metric = None
 
     @staticmethod
     def serialize_vector(vector: np.ndarray):
@@ -201,8 +214,8 @@ class VekterDB:
         Parameters
         ----------
         records : Iterable[Dict]
-            Each element of the Iterable should be a dictionary with a key the column
-            name and the value is the corresponding value.
+            Each element of the Iterable should be a dictionary with keys the column
+            names and the values are the corresponding values.
         batch_size : int, optional
             Batch size to push to the database at one time. Default is 10,000.
         serialize_vectors : bool, optional
@@ -220,7 +233,7 @@ class VekterDB:
         if self.index is not None and self.index.is_trained:
             insert_into_faiss = True
         if not insert_into_faiss:
-            logging.warning(
+            self.logger.warning(
                 "FAISS index either doesn't exist or isn't trained so "
                 + "records will only be inserted into the database."
                 + ". Call create_index() to make the FAISS index."
@@ -363,6 +376,25 @@ class VekterDB:
                 + "Only inner_product and l2 are currently supported"
             )
 
+    def set_faiss_runtime_parameters(self, runtime_params_str: str):
+        """
+        Change the FAISS runtime parameters with human-readable string. Parameters are
+        separated with a comma. For example, with an 'OPQ64,IVF50000_HNSW32,PQ64' index
+        you can use "nprobe=50,quantizer_efSearch=100" to set both the nprobe in the IVF
+        index and the efSearch in the HNSW quantizer index.
+
+        If a parameter is not recognized, an exception is thrown.
+
+        Parameters
+        ----------
+        runtime_params_str : str
+            Comma separated list of parameters to set.
+        """
+        try:
+            faiss.ParameterSpace().set_index_parameters(self.index, runtime_params_str)
+        except Exception as exc:
+            raise ValueError(f"Unrecognized parameter in {runtime_params_str}. {exc}")
+
     def create_index(
         self,
         faiss_index: str,
@@ -371,7 +403,41 @@ class VekterDB:
         sample_size: int = 0,
         batch_size: int = 10_000,
         use_gpu: bool = False,
+        faiss_runtime_params: str = None,
     ):
+        """_summary_
+
+        Parameters
+        ----------
+        faiss_index : str
+            _description_
+        faiss_factory_str : str
+            _description_
+        metric : str, optional
+            _description_, by default "inner_product"
+        sample_size : int, optional
+            _description_, by default 0
+        batch_size : int, optional
+            _description_, by default 10_000
+        use_gpu : bool, optional
+            _description_, by default False
+        faiss_runtime_params : str, optional
+            Set FAISS index runtime parameters before adding in the vectors. Likely
+            only useful if you have something like "IVF{nlist}_HNSW32" where you have
+            a quantizer index (HNSW in this case). The quantizer index will be used
+            during the index.add() to determine which partition to add a given vector,
+            so you may want to change it from the default. In this case, set this
+            argument to "quantizer_efSearch=40" (note: efSearch defaults to 16)
+
+        Raises
+        ------
+        FileExistsError
+            _description_
+        FileExistsError
+            _description_
+        TypeError
+            _description_
+        """
         if self.index is not None:
             raise FileExistsError(
                 f"Index at {self.faiss_index} has already been assigned to this table"
@@ -387,11 +453,15 @@ class VekterDB:
             metric = faiss.METRIC_INNER_PRODUCT
         elif metric == "l2":
             metric = faiss.METRIC_L2
-            self.keep_below = False
         else:
             raise TypeError(f"You gave {metric=}, but it must be inner_product | l2")
 
         self.index = faiss.index_factory(self.d, faiss_factory_str, metric)
+
+        # See if you can set the runtime parameters provided. If not, then it will throw
+        # an exception, but at least do this before training
+        if faiss_runtime_params:
+            self.set_faiss_runtime_parameters(faiss_runtime_params)
 
         # Needs to be trained
         if not self.index.is_trained:
@@ -485,6 +555,8 @@ class VekterDB:
 
         # Get records for all the neighbors
         neighbor_records = {}
+        if not col_names:
+            col_names = list(self.columns.keys())
         # I need both the idx and vector columns so add those in if not requested.
         tmp_col_names = list(col_names)
         if self.idx_name not in tmp_col_names:

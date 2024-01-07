@@ -168,7 +168,7 @@ def test_insert():
 
     # Create table using in-memory SQLite
     vekter_db = VekterDB(
-        "insert_test",
+        "my_table",
         columns_dict={
             "id": {
                 "type": sa.types.Text,
@@ -239,7 +239,7 @@ def test_insert_bytes():
 
     # Create table using in-memory SQLite
     vekter_db = VekterDB(
-        "insert_bytes_test",
+        "my_table",
         columns_dict={
             "id": {
                 "type": sa.types.Text,
@@ -281,6 +281,202 @@ def test_flat_index(test_db):
     assert (
         vekter_db.index.ntotal == 160_000
     ), f"{vekter_db.index.ntotal=:,} should be 160,000"
+
+    record = next(vekter_db.fetch_records("idx", [123]))
+
+    # Check using search() with no threshold
+    neighbors = vekter_db.search(record["vector"], 5, "idx")[0]
+    assert len(neighbors) == 5, f"There should be 5 neighbors, but {len(neighbors)=:}"
+    for i, neighbor in enumerate(neighbors):
+        if i == 0:
+            assert (
+                neighbor["idx"] == 123
+            ), f"First neighbor should be 123, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                1.0
+            ), f"First neighbor metric should be 1.0, {neighbor['metric']=:}"
+        elif i == 1:
+            assert (
+                neighbor["idx"] == 93137
+            ), f"Second neighbor should be 93137, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.5255275
+            ), f"Second neighbor metric should be 0.5255275, {neighbor['metric']=:}"
+        elif i == 2:
+            assert (
+                neighbor["idx"] == 4035
+            ), f"Third neighbor should be 4035, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.50477433
+            ), f"Third neighbor metric should be 0.50477433, {neighbor['metric']=:}"
+        elif i == 3:
+            assert (
+                neighbor["idx"] == 40940
+            ), f"Fourth neighbor should be 40940, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.49164593
+            ), f"Fourth neighbor metric should be 0.49164593, {neighbor['metric']=:}"
+        elif i == 4:
+            assert (
+                neighbor["idx"] == 80103
+            ), f"Fifth neighbor should be 80103, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.48345646
+            ), f"Fifth neighbor metric should be 0.48345646, {neighbor['metric']=:}"
+
+    # Check using search() with threshold
+    neighbors = vekter_db.search(record["vector"], 5, "idx", threshold=0.5)[0]
+    assert len(neighbors) == 3, f"There should be 3 neighbors, but {len(neighbors)=:}"
+    for i, neighbor in enumerate(neighbors):
+        if i == 0:
+            assert (
+                neighbor["idx"] == 123
+            ), f"First neighbor should be 123, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                1.0
+            ), f"First neighbor metric should be 1.0, {neighbor['metric']=:}"
+        elif i == 1:
+            assert (
+                neighbor["idx"] == 93137
+            ), f"Second neighbor should be 93137, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.5255275
+            ), f"Second neighbor metric should be 0.5255275, {neighbor['metric']=:}"
+        elif i == 2:
+            assert (
+                neighbor["idx"] == 4035
+            ), f"Third neighbor should be 4035, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.50477433
+            ), f"Third neighbor metric should be 0.50477433, {neighbor['metric']=:}"
+
+    # Check using nearest_neighbors() without threshold
+    result = vekter_db.nearest_neighbors("idx", [record["idx"]], 5, "idx")[0]
+    neighbors = result["neighbors"]
+    # Still 5 neighbors, but excluding yourself
+    assert len(neighbors) == 5, f"There should be 5 neighbors, but {len(neighbors)=:}"
+    for i, neighbor in enumerate(neighbors):
+        if i == 0:
+            assert (
+                neighbor["idx"] == 93137
+            ), f"First neighbor should be 93137, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.5255275
+            ), f"First neighbor metric should be 0.5255275, {neighbor['metric']=:}"
+        elif i == 1:
+            assert (
+                neighbor["idx"] == 4035
+            ), f"Second neighbor should be 4035, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.50477433
+            ), f"Second neighbor metric should be 0.550477433, {neighbor['metric']=:}"
+        elif i == 2:
+            assert (
+                neighbor["idx"] == 40940
+            ), f"Third neighbor should be 40940, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.49164593
+            ), f"Third neighbor metric should be 0.49164593, {neighbor['metric']=:}"
+        elif i == 3:
+            assert (
+                neighbor["idx"] == 80103
+            ), f"Fourth neighbor should be 80103, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.48345646
+            ), f"Fourth neighbor metric should be 0.448345646, {neighbor['metric']=:}"
+        elif i == 4:
+            assert (
+                neighbor["idx"] == 150456
+            ), f"Fifth neighbor should be 150456, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.47503218
+            ), f"Fifth neighbor metric should be 0.47503218, {neighbor['metric']=:}"
+
+    # Check using nearest_neighbors() with threshold
+    result = vekter_db.nearest_neighbors(
+        "idx", [record["idx"]], 5, "idx", threshold=0.5
+    )[0]
+    neighbors = result["neighbors"]
+    # Only 2 neighbors, after excluding yourself
+    assert len(neighbors) == 2, f"There should be 2 neighbors, but {len(neighbors)=:}"
+    for i, neighbor in enumerate(neighbors):
+        if i == 0:
+            assert (
+                neighbor["idx"] == 93137
+            ), f"First neighbor should be 93137, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.5255275
+            ), f"First neighbor metric should be 0.5255275, {neighbor['metric']=:}"
+        elif i == 1:
+            assert (
+                neighbor["idx"] == 4035
+            ), f"Second neighbor should be 4035, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.50477433
+            ), f"Second neighbor metric should be 0.550477433, {neighbor['metric']=:}"
+
+
+def test_ivf_index(test_db):
+    vekter_db = VekterDB(
+        "test_table",
+        url=f"sqlite:///{test_db}",
+    )
+    faiss_factory_string = "IVF400,PQ16"
+    vekter_db.create_index(
+        "test_ivf.index",
+        faiss_factory_string,
+        sample_size=20_000,
+    )
+    assert (
+        vekter_db.index.ntotal == 160_000
+    ), f"{vekter_db.index.ntotal=:,} should be 160,000"
+
+    true_neighbors_above_threshold = set([93137, 4035])
+    record = next(vekter_db.fetch_records("idx", [123]))
+
+    # Using the default search parameters, nprobe=1, we don't get the right results
+    # Check using nearest_neighbors() with threshold
+    result = vekter_db.nearest_neighbors(
+        "idx", [record["idx"]], 5, "idx", threshold=0.5
+    )[0]
+    neighbors = result["neighbors"]
+    found_neighbors = set([n["idx"] for n in neighbors])
+    assert (
+        len(true_neighbors_above_threshold.intersection(found_neighbors)) < 2
+    ), f"Using default search is very unlikely to find all true neighbors"
+
+    # Passing search_params and k_extra_neighbors. back to just
+    # the two above threshold as before
+    result = vekter_db.nearest_neighbors(
+        "idx",
+        [record["idx"]],
+        5,
+        "idx",
+        k_extra_neighbors=40,
+        threshold=0.5,
+        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+    )[0]
+    neighbors = result["neighbors"]
+    found_neighbors = set([n["idx"] for n in neighbors])
+    assert (
+        len(true_neighbors_above_threshold.intersection(found_neighbors)) == 2
+    ), "Using search_params should find both neighbors above threshold"
+    # Only 2 neighbors, after excluding yourself
+    for i, neighbor in enumerate(neighbors):
+        if i == 0:
+            assert (
+                neighbor["idx"] == 93137
+            ), f"First neighbor should be 93137, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.5255275
+            ), f"First neighbor metric should be 0.5255275, {neighbor['metric']=:}"
+        elif i == 1:
+            assert (
+                neighbor["idx"] == 4035
+            ), f"Second neighbor should be 4035, {neighbor['idx']=:}"
+            assert neighbor["metric"] == pytest.approx(
+                0.50477433
+            ), f"Second neighbor metric should be 0.550477433, {neighbor['metric']=:}"
 
 
 def test_serialization(seed: int = None, d: int = 16):
