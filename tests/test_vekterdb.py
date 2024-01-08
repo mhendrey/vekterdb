@@ -15,6 +15,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import faiss
 import numpy as np
+import logging
 from pathlib import Path
 import pytest
 import sqlalchemy as sa
@@ -65,7 +66,9 @@ def test_db(tmp_path_factory: Path):
         Path to the sqlite database that will be used for testing
     """
     dbname = tmp_path_factory.mktemp("db") / "test.db"
-    records = make_data("idx", "id", "vector", n=100_000, seed=930)
+    n = 100_000
+    d = 64
+    records = make_data("idx", "id", "vector", n=n, d=d, seed=930)
     # Create table using
     vekter_db = VekterDB(
         "test_table",
@@ -79,7 +82,15 @@ def test_db(tmp_path_factory: Path):
         },
         url=f"sqlite:///{dbname}",
     )
-    vekter_db.insert(records)
+    n_records = vekter_db.insert(records)
+
+    # Make a query record that is summing the first two vectors
+    records = list(vekter_db.fetch_records("idx", [0, 1]))
+    q_vec = 1.05 * records[0]["vector"] + records[1]["vector"]
+    faiss.normalize_L2(q_vec.reshape(1, -1))
+    query_record = {"idx": n_records, "id": "query", "vector": q_vec}
+    vekter_db.insert([query_record])
+
     return dbname
 
 
@@ -107,11 +118,9 @@ def test_init_basic():
     assert len(vekter_db.Record.__table__.columns) == 2
 
 
-def test_init_custom(tmp_path: Path):
-    dbname = tmp_path / "test.db"
-
+def test_init_custom():
     vekter_db = VekterDB(
-        "custom_table",
+        "my_table",
         idx_name="i",
         vector_name="v",
         columns_dict={
@@ -123,7 +132,6 @@ def test_init_custom(tmp_path: Path):
             },
             "product_category": {"type": sa.types.Text},
         },
-        url=f"sqlite:///{dbname}",
     )
 
     # Asserts for the idx column
@@ -143,7 +151,7 @@ def test_init_custom(tmp_path: Path):
     assert (
         len(vekter_db.columns) == 4
     ), f"Should have 4 columns in db table. Instead there are {len(vekter_db.columns)}"
-    assert vekter_db.Record.__table__.name == "custom_table"
+    assert vekter_db.Record.__table__.name == "my_table"
 
     # Asserts for id column
     id_col = vekter_db.columns["id"]
@@ -261,178 +269,302 @@ def test_insert_bytes():
         assert row.vector == records[1234]["vector"], f"vector retrieved mismatches"
 
 
-def test_flat_index_new(tmp_path: Path):
-    tmp_dir = tmp_path / "flat_index"
-    tmp_dir.mkdir()
-    faiss_file = str(tmp_dir / "test_flat.index")
+def check_against_ground_truth(
+    neighbors: List[Dict],
+    self_included: bool,
+):
+    if not neighbors:
+        raise AssertionError(f"{neighbors=:} is empty")
 
-    n_records = 15_000  # Number of records to make
-    d = 64  # Vector dimension
-    q_idx = 858  # idx to query with
+    q_idx = 100_000  # Taken from test_db
+    if self_included:
+        for i, neighbor in enumerate(neighbors):
+            n_idx = neighbor["idx"]
+            similarity = neighbor["metric"]
+            if i == 0:
+                assert n_idx == q_idx, f"{i=:}, {n_idx=:} but should be {q_idx=:}"
+                assert similarity == pytest.approx(
+                    1.0
+                ), f"{similarity=:.4} but should be 1.0"
+            elif i == 1:
+                assert n_idx == 0, f"{i=:}, {n_idx=:} but should be 0"
+                assert similarity == pytest.approx(
+                    0.70678645
+                ), f"{i=:}, {similarity=:.4f} but should be 0.7068"
+            elif i == 2:
+                assert n_idx == 1, f"{i=:}, {n_idx=:} but should be 1"
+                assert similarity == pytest.approx(
+                    0.6695153
+                ), f"{i=:}, {similarity=:.4f} but should be 0.6695"
+    else:
+        for i, neighbor in enumerate(neighbors):
+            n_idx = neighbor["idx"]
+            similarity = neighbor["metric"]
+            if i == 0:
+                assert n_idx == 0, f"Nearest neighbor should be 0, got {n_idx=:}"
+                assert similarity == pytest.approx(
+                    0.70678645
+                ), f"{i=:}, {similarity=:.4f} but should be 0.7068"
 
-    # Use an in-memory SQLite database
+            elif i == 1:
+                assert n_idx == 1, f"Second neighbor should be 1, got {n_idx=:}"
+                assert similarity == pytest.approx(
+                    0.6695153
+                ), f"{i=:}, {similarity=:.4f} but should be 0.6695"
+
+
+def test_flat_index(tmp_path_factory, test_db):
+    faiss_file = str(tmp_path_factory.getbasetemp() / "flat.index")
+
+    # Connect to the existing SQLite Database
     vekter_db = VekterDB(
-        "test",
-        columns_dict={"id": {"type": sa.types.Text, "unique": True, "index": True}},
+        "test_table",
+        url=f"sqlite:///{test_db}",
     )
-    records = list(make_data("idx", "id", "vector", n=n_records, d=d))
-
-    rng = np.random.default_rng()
-    query = records[q_idx].copy()
-    query["idx"] = n_records
-    query["id"] = f"{q_idx}_noise"
-    query["vector"] = query["vector"] + rng.normal(scale=0.10, size=d).astype(
-        np.float32
-    )
-    faiss.normalize_L2(query["vector"].reshape(1, -1))
-
-    vekter_db.insert(records)
+    # Create the FAISS index
     faiss_factory_string = "Flat"
     vekter_db.create_index(faiss_file, faiss_factory_string, metric="inner_product")
 
-    # Search using the query vector with no threshold
+    # Get the test query vector
+    query = next(vekter_db.fetch_records("id", ["query"]))
+
+    # Use search() without threshold. This includes yourself
     neighbors = vekter_db.search(query["vector"], 5, "idx", "id")[0]
-    nearest = neighbors[0]
+    check_against_ground_truth(neighbors, self_included=True)
     assert (
-        nearest["idx"] == q_idx
-    ), f"Queried with noisy version of {q_idx}, but found {nearest['idx']}"
+        len(neighbors) == 5
+    ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
 
-    # Search using the query vector with a threshold
-    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.6)[0]
-    assert len(neighbors) == 1, f"{len(neighbors)=:}, but should have been just 1"
-    nearest = neighbors[0]
+    # Use search() with threshold
+    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.65)[0]
+    check_against_ground_truth(neighbors, self_included=True)
     assert (
-        nearest["idx"] == q_idx
-    ), f"Queried with noisy version of {q_idx}, but found {nearest['idx']}"
+        len(neighbors) == 3
+    ), f"search(threshold=0.65) has {len(neighbors)=:} should be 3 when using threshold"
 
-    # Now add the additional record
-    # Should add the new vector into both the database & the FAISS index
-    vekter_db.insert([query])
-
-    # Query using q_idx to ensure we inserted the new record into FAISS & the database
-    results = vekter_db.nearest_neighbors(
-        "idx", [q_idx], 5, "idx", "id", threshold=0.6
-    )[0]
-    neighbors = results["neighbors"]
-    assert len(neighbors) == 1, f"{len(neighbors)=:}, but should have been just 1"
-    nearest = neighbors[0]
+    # Use the nearest_neighbors() without threshold
+    neighbors = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0][
+        "neighbors"
+    ]
+    check_against_ground_truth(neighbors, self_included=False)
     assert (
-        nearest["idx"] == n_records
-    ), f"{nearest['idx']=:} but should have been {n_records}"
+        len(neighbors) == 5
+    ), f"nearest_neighbors(threshold=None) has {len(neighbors)=:} should still be 5"
+
+    # Use nearest_neighbors() with threshold
+    neighbors = vekter_db.nearest_neighbors(
+        "idx", [query["idx"]], 5, "idx", "id", threshold=0.65
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
+    assert (
+        len(neighbors) == 2
+    ), f"nearest_neighbors(threshold=0.65) has {len(neighbors)=:} should still be 2"
 
 
-def test_ivf_index(tmp_path: Path):
-    tmp_dir = tmp_path / "ivf_index"
-    tmp_dir.mkdir()
-    faiss_file = str(tmp_dir / "test_ivf.index")
-
-    n_records = 100_000  # Number of records to make
-    d = 64  # Vector dimension
-    q_idx = 858  # idx to query with
-
-    # Use an in-memory SQLite database
+def test_ivf_index(tmp_path_factory, test_db):
+    faiss_file = str(tmp_path_factory.getbasetemp() / "ivf.index")
+    # Connect to the existing SQLite Database
     vekter_db = VekterDB(
-        "test",
-        columns_dict={"id": {"type": sa.types.Text, "unique": True, "index": True}},
+        "test_table",
+        url=f"sqlite:///{test_db}",
     )
-    records = list(make_data("idx", "id", "vector", n=n_records, d=d, seed=1046))
-
-    rng = np.random.default_rng(seed=1047)
-    query = records[q_idx].copy()
-    query["idx"] = n_records
-    query["id"] = f"{q_idx}_noise"
-    query["vector"] = query["vector"] + rng.normal(scale=0.10, size=d).astype(
-        np.float32
-    )
-    faiss.normalize_L2(query["vector"].reshape(1, -1))
-
-    vekter_db.insert(records)
+    # Create the FAISS index
     faiss_factory_string = "IVF300,PQ8"
+    vekter_db.create_index(faiss_file, faiss_factory_string, sample_size=50_000)
+
+    # Get the test query vector
+    query = next(vekter_db.fetch_records("id", ["query"]))
+
+    # Use search(threshold=None) and default nprobe=1
+    neighbors = vekter_db.search(query["vector"], 5, "idx")[0]
+    # It is most likely that this will fail to find everyone
+    try:
+        check_against_ground_truth(neighbors, self_included=True)
+    except AssertionError as exc:
+        logging.warning(
+            f"As expected, IVF300,PQ8 search() default params failed ground truth check"
+        )
+
+    # Use search(threshold=None), but with nprobe=100
+    neighbors = vekter_db.search(
+        query["vector"],
+        5,
+        "idx",
+        k_extra_neighbors=15,
+        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+    )[0]
+    check_against_ground_truth(neighbors, self_included=True)
+    assert (
+        len(neighbors) == 5
+    ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
+    neighbor_idxs_no_extra = set([n["idx"] for n in neighbors])
+
+    # Use search(threshold=None, k_extra_neighbors=50) with nprobe=100
+    # This should give a different set of neighbors, but still have the top 3
+    neighbors = vekter_db.search(
+        query["vector"],
+        5,
+        "idx",
+        k_extra_neighbors=100,
+        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+    )[0]
+    check_against_ground_truth(neighbors, self_included=True)
+    neighbor_idxs_extra = set([n["idx"] for n in neighbors])
+    n_overlap = len(neighbor_idxs_no_extra.intersection(neighbor_idxs_extra))
+    assert n_overlap < 5, (
+        "search(k_extra_neighbors) should get different set of "
+        + f"neighbors but {neighbor_idxs_extra} {neighbor_idxs_no_extra}"
+    )
+
+    # Use search(threshold=0.65) with nprobe=100
+    neighbors = vekter_db.search(
+        query["vector"],
+        5,
+        "idx",
+        k_extra_neighbors=50,
+        threshold=0.65,
+        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+    )[0]
+    check_against_ground_truth(neighbors, self_included=True)
+    assert (
+        len(neighbors) == 3
+    ), f"search(threshold=0.65) has {len(neighbors)=:} but should be 3"
+
+    # Set nprobe for this entire runtime to 100
+    vekter_db.set_faiss_runtime_parameters("nprobe=100")
+
+    # Use nearest_neighbor(). You don't have to set search_params now
+    result = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0]
+    assert (
+        result["idx"] == query["idx"]
+    ), f"nearest_neighbors() {result['idx']} should equal {query['idx']}"
+    assert (
+        result["id"] == query["id"]
+    ), f"nearest_neighbors() {result['id']} should equal {query['id']}"
+    neighbors = result["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
+
+    # Do the search with setting nprobe=1 should be wrong
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        search_parameters=faiss.SearchParametersIVF(nprobe=1),
+    )[0]["neighbors"]
+    # It is most likely that this will fail to find everyone
+    try:
+        check_against_ground_truth(neighbors, self_included=False)
+    except AssertionError as exc:
+        logging.warning(
+            f"As expected, IVF300,PQ8 nearest_neighbors with nprobe=1 "
+            + "failed ground truth check"
+        )
+
+    # Use nearest_neighbors(threshold=0.65)
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        k_extra_neighbors=50,
+        threshold=0.65,
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
+    assert (
+        len(neighbors) == 2
+    ), f"search(threshold=0.65) has {len(neighbors)=:} but should be 2"
+
+
+def test_hnsw_index(tmp_path_factory, test_db):
+    faiss_file = str(tmp_path_factory.getbasetemp() / "hnsw.index")
+
+    # Connect to the existing SQLite Database
+    vekter_db = VekterDB(
+        "test_table",
+        url=f"sqlite:///{test_db}",
+    )
+    # Create the FAISS index
+    faiss_factory_string = "HNSW32"
+    vekter_db.create_index(faiss_file, faiss_factory_string)
+
+    # Get the test query vector
+    query = next(vekter_db.fetch_records("id", ["query"]))
+
+    # Quick Test
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        k_extra_neighbors=20,
+        threshold=0.65,
+        search_parameters=faiss.SearchParametersHNSW(efSearch=60),
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
+
+
+def test_opaque_index(tmp_path_factory, test_db):
+    faiss_file = str(tmp_path_factory.getbasetemp() / "ivf_hnsw.index")
+
+    # Connect to the existing SQLite Database
+    vekter_db = VekterDB(
+        "test_table",
+        url=f"sqlite:///{test_db}",
+    )
+    # Create the FAISS index
+    faiss_factory_string = "OPQ8,IVF300_HNSW32,PQ8"
     vekter_db.create_index(faiss_file, faiss_factory_string, sample_size=20_000)
 
-    # Search with default nprobe=1. Fail to find the correct record
-    neighbors = vekter_db.search(query["vector"], 5, "idx", "id")[0]
-    default_idxs = set([n["idx"] for n in neighbors])
-    # It's possible you find the right answer, but generally unlikely
-    # Depends upon some randomness when training the index
+    query = next(vekter_db.fetch_records("id", ["query"]))
 
-    # Search with nprobe=30. Now you find the correct record
-    neighbors = vekter_db.search(
-        query["vector"],
+    # Default search parameters, nprobe=1 & efSearch=16
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
         5,
         "idx",
         "id",
-        search_parameters=faiss.SearchParametersIVF(nprobe=30),
-    )[0]
-    found_idxs = set([n["idx"] for n in neighbors])
-    assert q_idx in found_idxs, f"Should have found {q_idx} amongst {found_idxs}"
-    intersection = found_idxs.intersection(default_idxs)
-    assert (
-        len(intersection) < 5
-    ), f"Increasing nprobe should shuffle which neighbors are returned"
+        threshold=0.65,
+    )[0]["neighbors"]
+    try:
+        check_against_ground_truth(neighbors, self_included=False)
+    except Exception as exc:
+        logging.warning(f"As expected, ivf_hnsw with default failed: {exc}")
 
-    # Repeat that search, but now use k_extra_neighbors = 30 to show that rerank
-    # shuffles the results
-    neighbors = vekter_db.search(
-        query["vector"],
+    # Setting search_parameters per query
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
         5,
         "idx",
         "id",
+        threshold=0.65,
         k_extra_neighbors=30,
-        search_parameters=faiss.SearchParametersIVF(nprobe=10),
-    )[0]
-    found_idxs_k_extra = set([n["idx"] for n in neighbors])
-    assert (
-        q_idx in found_idxs_k_extra
-    ), f"Should have found {q_idx} amongst {found_idxs_k_extra}"
-    assert (
-        len(found_idxs_k_extra.intersection(found_idxs)) < 5
-    ), f"{found_idxs=:} should differ from {found_idxs_k_extra=:}"
+        search_parameters=faiss.SearchParametersPreTransform(
+            index_params=faiss.SearchParametersIVF(
+                nprobe=100,
+                quantizer_params=faiss.SearchParametersHNSW(efSearch=200),
+            )
+        ),
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
 
-    # Set nprobe for this entire runtime to 33
-    vekter_db.set_faiss_runtime_parameters("nprobe=33")
-
-    # Search using threshold, now don't need to give search_parameters
-    neighbors = vekter_db.search(
-        query["vector"], 5, "idx", "id", k_extra_neighbors=30, threshold=0.6
-    )[0]
-    assert (
-        len(neighbors) == 1
-    ), f"{len(neighbors)=:}, should have just 1 above threshold"
-    nearest = neighbors[0]
-    assert (
-        nearest["idx"] == q_idx
-    ), f"Nearest neighbor is {nearest['idx']}, should be {q_idx}"
-
-    # Because we have PQ8, the estimated distance from FAISS index != similarity
-    D, _ = vekter_db.index.search(query["vector"].reshape(1, -1), 1)
-    faiss_distance = float(D[0][0])
-    assert faiss_distance != pytest.approx(neighbors[0]["metric"]), (
-        f"{faiss_distance=:.4f} should not equal true distance "
-        + f"of {neighbors[0]['metric']}"
-    )
-    # Instead, the reported neighbor distance should be equal to the true distance
-    record = next(vekter_db.fetch_records("idx", [q_idx], "idx", "vector"))
-    true_distance = query["vector"].dot(record["vector"])
-    assert true_distance == pytest.approx(neighbors[0]["metric"]), (
-        f"Reported neighbor distance, {neighbors[0]['metric']:.4f} "
-        + f"should equal the {true_distance=:.4f}"
-    )
-
-    # Now add the additional record
-    # Should add the new vector into both the database & the FAISS index
-    vekter_db.insert([query])
-
-    # Query using q_idx to ensure we inserted the new record into FAISS & the database
-    results = vekter_db.nearest_neighbors(
-        "idx", [q_idx], 5, "idx", "id", k_extra_neighbors=30, threshold=0.6
-    )[0]
-    neighbors = results["neighbors"]
-    assert len(neighbors) == 1, f"{len(neighbors)=:}, but should have been just 1"
-    nearest = neighbors[0]
-    assert (
-        nearest["idx"] == n_records
-    ), f"{nearest['idx']=:} but should have been {n_records}"
+    # Setting Faiss Runtime Search Parameters
+    vekter_db.set_faiss_runtime_parameters("nprobe=100,quantizer_efSearch=200")
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        threshold=0.65,
+        k_extra_neighbors=30,
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
 
 
 def test_serialization(seed: int = None, d: int = 16):
