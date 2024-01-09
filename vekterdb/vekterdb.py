@@ -244,6 +244,15 @@ class VekterDB:
             batch = []
             vectors = []
             for i, record in enumerate(records):
+                # Make a copy. Otherwise if you serialize the vector, then that changes
+                # reference value which is in records[i]["vector"] to bytes.  This has
+                # confused me in testing when making records: List[Dict] and calling
+                # VekterDB.insert(records) only to find records[0]["vector"] as bytes
+                # instead of the expected numpy array.
+                # I am worried that this causes lots of memory issues.  But I guess that
+                # is what batching is for.
+                record = record.copy()
+
                 # Use the first record to set dimension if not already set
                 # and do some checking
                 if i == 0:
