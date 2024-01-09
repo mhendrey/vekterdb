@@ -78,7 +78,8 @@ class VekterDB:
             Names (key) of additional columns to include in the table. The value is
             a dictionary that must have the "type" which tells what SQLAlchemy type
             will be stored. Additional values will be passed as kwargs to SQLAlchemy
-            Column. Default is an empty dictionary.
+            Column. Default is an empty dictionary. If connecting to an existing
+            database table, you don't need to specify this argument.
         url : str, optional
             URL string to connect to the database, by default "sqlite:///:memory" which
             is an in-memory database.
