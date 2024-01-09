@@ -698,9 +698,8 @@ class VekterDB:
             Keys are the elements of columns and values are corresponding values
         """
 
-        if (
-            self.columns[fetch_column].index is None
-            and not self.columns[fetch_column].primary_key
+        if not (
+            self.columns[fetch_column].index or self.columns[fetch_column].primary_key
         ):
             self.logger.warning(
                 f"{fetch_column} is not indexed in the database. This will be slow."
