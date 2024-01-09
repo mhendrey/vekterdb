@@ -42,7 +42,7 @@ class VekterDB:
         as an integer ID that is utilized by the FAISS index. This is of type
         BigInteger and called idx_name (default is 'idx'). The other stores the vector.
         Vectors are stored as LargeBinary and non-nullable. To comply with FAISS, these
-        are numpy arrays of np.float32. They are serialized to bytes using numpy's
+        must be numpy arrays of np.float32. They are serialized to bytes using numpy's
         `tobytes()`.
 
             \* idx_name : BigInteger, primary_key = True
@@ -51,8 +51,8 @@ class VekterDB:
         Additional columns may be specified in `columns_dict` argument and should
         follow the arguments needed for SQLAlchemy's `Column`. For example, let's add
         two additional columns. The first is a string id field which should also be
-        unique and I also want to index it in order to query for records by the easier
-        to use "id" field. The second is a product category which is not unique.
+        unique and indexed in order to query for records by the easier to use "id"
+        field. The second is a product category which is not unique.
 
         ```
         my_db = VekterDB(
@@ -85,7 +85,8 @@ class VekterDB:
         connect_args: Dict, optional
             Any connection arguments to pass to the sa.create_engine(). Default is {}
         faiss_index : str, optional
-            If given, then load the existing FAISS index. Default is None
+            If given, then load an existing FAISS index saved by that name. Default
+            is None
         """
         self.logger = logging.getLogger(__name__)
         self.idx_name = idx_name
@@ -133,9 +134,15 @@ class VekterDB:
                 table_name,
                 metadata_obj,
             )
+            # Reflection doesn't add in Column.index = True if indexed.
+            indexed_columns = set()
+            for table_index in table.indexes:
+                indexed_columns.update(table_index.columns.keys())
             self.columns = {}
             for col in table.columns:
                 self.columns[col.name] = col
+                if col.name in indexed_columns:
+                    self.columns[col.name].index = True
 
             assert (
                 idx_name in self.columns
@@ -694,7 +701,7 @@ class VekterDB:
             self.columns[fetch_column].index is None
             and not self.columns[fetch_column].primary_key
         ):
-            logging.warning(
+            self.logger.warning(
                 f"{fetch_column} is not indexed in the database. This will be slow."
             )
         n_records = len(fetch_values)

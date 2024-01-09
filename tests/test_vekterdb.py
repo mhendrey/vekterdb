@@ -369,7 +369,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         url=f"sqlite:///{test_db}",
     )
     # Create the FAISS index
-    faiss_factory_string = "IVF300,PQ8"
+    faiss_factory_string = "IVF300,PQ16"
     vekter_db.create_index(faiss_file, faiss_factory_string, sample_size=50_000)
 
     # Get the test query vector
@@ -382,7 +382,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         check_against_ground_truth(neighbors, self_included=True)
     except AssertionError as exc:
         logging.warning(
-            f"As expected, IVF300,PQ8 search() default params failed ground truth check"
+            f"As expected, IVF300,PQ16 search() default params failed ground truth check"
         )
 
     # Use search(threshold=None), but with nprobe=100
@@ -390,7 +390,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         query["vector"],
         5,
         "idx",
-        k_extra_neighbors=15,
+        k_extra_neighbors=50,
         search_parameters=faiss.SearchParametersIVF(nprobe=100),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
@@ -463,7 +463,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         check_against_ground_truth(neighbors, self_included=False)
     except AssertionError as exc:
         logging.warning(
-            f"As expected, IVF300,PQ8 nearest_neighbors with nprobe=1 "
+            f"As expected, IVF300,PQ16 nearest_neighbors with nprobe=1 "
             + "failed ground truth check"
         )
 
