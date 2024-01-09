@@ -417,7 +417,7 @@ def test_ivf_index(tmp_path_factory, test_db):
             + f"neighbors but {neighbor_idxs_extra} {neighbor_idxs_no_extra}"
         )
     except:
-        print(
+        logging.warning(
             f"Expected {n_overlap=:} < 5, but guess both sets were the same this time"
         )
 
