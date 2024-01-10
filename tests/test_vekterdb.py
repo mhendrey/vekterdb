@@ -572,6 +572,50 @@ def test_opaque_index(tmp_path_factory, test_db):
     check_against_ground_truth(neighbors, self_included=False)
 
 
+def test_save_load(tmp_path_factory, test_db):
+    faiss_file = str(tmp_path_factory.getbasetemp() / "test_table.index")
+    config_file = str(tmp_path_factory.getbasetemp() / "test_table.json")
+
+    # Connect to the existing SQLite Database
+    vekter_db = VekterDB(
+        "test_table",
+        url=f"sqlite:///{test_db}",
+    )
+    # Create the FAISS index
+    faiss_factory_string = "HNSW32"
+    vekter_db.create_index(faiss_file, faiss_factory_string)
+    vekter_db.set_faiss_runtime_parameters("efSearch=60")
+
+    # Get the test query vector
+    query = next(vekter_db.fetch_records("id", ["query"]))
+
+    # Quick Test
+    neighbors = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        k_extra_neighbors=20,
+        threshold=0.65,
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors, self_included=False)
+
+    vekter_db.save(config_file)
+    vekter_db = VekterDB.load(config_file, url=f"sqlite:///{test_db}")
+
+    neighbors_after_save = vekter_db.nearest_neighbors(
+        "idx",
+        [query["idx"]],
+        5,
+        "idx",
+        "id",
+        k_extra_neighbors=20,
+        threshold=0.65,
+    )[0]["neighbors"]
+    check_against_ground_truth(neighbors_after_save, self_included=False)
+
+
 def test_serialization(seed: int = None, d: int = 16):
     """Test that serializing a vector into bytes and deserializing from bytes give
     correct values. Start in each direction.

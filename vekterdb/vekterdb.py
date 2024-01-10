@@ -15,11 +15,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import faiss
+import json
 import logging
 import numpy as np
 import sqlalchemy as sa
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
 
@@ -202,6 +203,68 @@ class VekterDB:
     @staticmethod
     def deserialize_vector(vector_bytes: bytes):
         return np.frombuffer(vector_bytes, dtype=np.float32)
+
+    def save(self, config_file: str = None):
+        """Save config info to a json file so you can load directly from disk.
+        The url string is not saved for security purposes. If
+        `set_faiss_runtime_parameters()` has ever been called, then this string
+        is also saved to the config file and will be used to set these runtime
+        parameters when VekterDB.load() is called.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            JSON file name to save to disk. If None, then saves the file to
+            `table_name`.json. The default is None.
+        """
+        table_name = self.Record.__table__.name
+        if config_file is None:
+            config_file = f"{table_name}.json"
+
+        if self.faiss_index is None:
+            self.logger.warning(
+                "No FAISS index has been created. Saving to disk anyway."
+            )
+
+        config = {
+            "table_name": table_name,
+            "idx_name": self.idx_name,
+            "vector_name": self.vector_name,
+            "faiss_index": self.faiss_index,
+        }
+
+        try:
+            config["default_runtime_params"] = self.default_runtime_params
+        except AttributeError:
+            pass
+
+        with open(config_file, "w") as f:
+            json.dump(config, f)
+
+    @staticmethod
+    def load(config_file: str, url: str, connect_args: Dict = {}):
+        """Initialize a VekterDB from a configuration file (json format)
+
+        Parameters
+        ----------
+        config_file : str
+            Configuration file name of the VekterDB you want to load.
+        url : str
+            URL string to connect to the database. See sa.create_engine() for details
+        connect_args: Dict, optional
+            Any connection arguments to pass to the sa.create_engine(). Default is {}
+        """
+        with open(config_file, "r") as f:
+            config = json.load(f)
+        config["url"] = url
+        config["connect_args"] = connect_args
+        default_runtime_params = config.pop("default_runtime_params", "")
+
+        vdb = VekterDB(**config)
+        if default_runtime_params:
+            vdb.set_faiss_runtime_parameters(default_runtime_params)
+
+        return vdb
 
     def insert(
         self,
@@ -409,6 +472,7 @@ class VekterDB:
         """
         try:
             faiss.ParameterSpace().set_index_parameters(self.index, runtime_params_str)
+            self.default_runtime_params = runtime_params_str
         except Exception as exc:
             raise ValueError(f"Unrecognized parameter in {runtime_params_str}. {exc}")
 
@@ -477,7 +541,12 @@ class VekterDB:
 
         # See if you can set the runtime parameters provided. If not, then it will throw
         # an exception, but at least do this before training
+        orig_runtime_parameters = ""
         if faiss_runtime_params:
+            try:
+                orig_runtime_parameters = self.default_runtime_params
+            except:
+                pass
             self.set_faiss_runtime_parameters(faiss_runtime_params)
 
         # Needs to be trained
@@ -485,6 +554,7 @@ class VekterDB:
             X_train = self.sample_vectors(sample_size, batch_size)
             self.index.train(X_train)
             # TODO : Add option to train IVF on GPU
+            # TODO : Add ability to save a trained index and then start from there
 
         # Add records into the index
         with self.Session() as session:
@@ -499,6 +569,9 @@ class VekterDB:
                     vectors = []
             if vectors:
                 self.index.add(np.vstack(vectors))
+
+        if orig_runtime_parameters:
+            self.set_faiss_runtime_parameters(orig_runtime_parameters)
 
         # Save the index to disk
         faiss.write_index(self.index, self.faiss_index)
