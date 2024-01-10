@@ -468,7 +468,8 @@ class VekterDB:
         Parameters
         ----------
         runtime_params_str : str
-            Comma separated list of parameters to set.
+            Comma separated list of parameters to set. See https://github.com/facebookresearch/faiss/wiki/Index-IO,-cloning-and-hyper-parameter-tuning#parameterspace-as-a-way-to-set-parameters-on-an-opaque-index
+            for more details.
         """
         try:
             faiss.ParameterSpace().set_index_parameters(self.index, runtime_params_str)
@@ -622,6 +623,7 @@ class VekterDB:
                 nprobe=20,
                 quantizer_params=faiss.SearchParamsHNSW(efSearch=40),
             )
+            See https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query
 
         Returns
         -------
@@ -702,6 +704,40 @@ class VekterDB:
         search_parameters: faiss.SearchParameters = None,
         batch_size: int = 10_000,
     ) -> List[Dict]:
+        """_summary_
+
+        Parameters
+        ----------
+        fetch_column : str
+            _description_
+        fetch_values : List
+            _description_
+        k_nearest_neighbors : int
+            _description_
+        k_extra_neighbors : int, optional
+            _description_, by default 0
+        rerank : bool, optional
+            _description_, by default True
+        threshold : float, optional
+            _description_, by default None
+        search_parameters : faiss.SearchParameters, optional
+            Specify specific search parameters for this query. Each FAISS index has its
+            own class. For example, faiss.SearchParametersIVF(nprobe=20) will set the
+            nprobe value for an IVF index. This can also be nested. For example, for an
+            IVF_HNSW use
+            faiss.SearchParametersIVF(
+                nprobe=20,
+                quantizer_params=faiss.SearchParamsHNSW(efSearch=40),
+            )
+            See https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query
+        batch_size : int, optional
+            _description_, by default 10_000
+
+        Returns
+        -------
+        List[Dict]
+            _description_
+        """
         results = []
         query_vectors = []
         tmp_col_names = tuple(list(col_names) + [self.idx_name, self.vector_name])
