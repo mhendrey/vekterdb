@@ -39,21 +39,14 @@ class VekterDB:
         faiss_index: str = None,
     ) -> None:
         """
-        Initialize the VekterDB. A minimum of two columns are needed. One column serves
-        as an integer ID that is utilized by the FAISS index. This is of type
-        BigInteger and called idx_name (default is 'idx'). The other stores the vector.
-        Vectors are stored as LargeBinary and non-nullable. To comply with FAISS, these
-        must be numpy arrays of np.float32. They are serialized to bytes using numpy's
-        `tobytes()`.
+        Initialize VekterDB with a minimum of two columns: idx_name (BigInteger,
+        default 'idx') and vector (LargeBinary, default 'vector'). Vectors are numpy
+        arrays of np.float32, serialized to bytes using tobytes(), to comply with
+        FAISS requirements.
 
-            \* idx_name : BigInteger, primary_key = True
-            \* vector_name : LargeBytes, nullable = False
-
-        Additional columns may be specified in `columns_dict` argument and should
-        follow the arguments needed for SQLAlchemy's `Column`. For example, let's add
-        two additional columns. The first is a string id field which should also be
-        unique and indexed in order to query for records by the easier to use "id"
-        field. The second is a product category which is not unique.
+        Add additional columns with `columns_dict` using SQLAlchemy's `Column`
+        arguments. For example, include a unique, indexed id field (str) and a
+        non-unique product_category field (str) with:
 
         ```
         my_db = VekterDB(
@@ -68,27 +61,28 @@ class VekterDB:
         Parameters
         ----------
         table_name : str
-            Database table name
+            Database table name.
         idx_name : str, optional
-            Column name that stores the integer ID. This must be unique for each
-            record and be consecutive from [0, n_records). This is used by the FAISS
-            index. Default is "idx".
+            Column name that stores the FAISS index integer ID and is the primary key
+            for the database table. It must be unique and consecutive from
+            [0, n_records). The default name is "idx".
         vector_name : str, optional
             Column name that stores the vector information. Default is "vector".
         columns_dict : Dict[str, Dict], optional
-            Names (key) of additional columns to include in the table. The value is
-            a dictionary that must have the "type" which tells what SQLAlchemy type
-            will be stored. Additional values will be passed as kwargs to SQLAlchemy
-            Column. Default is an empty dictionary. If connecting to an existing
-            database table, you don't need to specify this argument.
+            Names (key) of additional columns to include in the table. The values are
+            arguments that will be passed to SQLAlchemy's `Column`. Default is {}.
+
+            When connecting to an existing database table, this argument is not
+            necessary.
         url : str, optional
-            URL string to connect to the database, by default "sqlite:///:memory" which
-            is an in-memory database.
+            URL string to connect to the database. Passed to SQLAlchemy's
+            `create_engine`. Default is "sqlite:///:memory"; an in-memory database.
         connect_args: Dict, optional
-            Any connection arguments to pass to the sa.create_engine(). Default is {}
+            Any connection arguments to pass to SQLAlchemy's `create_engine`.
+            Default is {}.
         faiss_index : str, optional
             If given, then load an existing FAISS index saved by that name. Default
-            is None
+            is None.
         """
         self.logger = logging.getLogger(__name__)
         self.idx_name = idx_name
@@ -197,11 +191,35 @@ class VekterDB:
             self.metric = None
 
     @staticmethod
-    def serialize_vector(vector: np.ndarray):
+    def serialize_vector(vector: np.ndarray) -> bytes:
+        """Static method to construct Python bytes containing the raw data bytes in
+        `vector`.
+
+        Parameters
+        ----------
+        vector : np.ndarray
+            1-d numpy array of type np.float32
+
+        Returns
+        -------
+        bytes
+        """
         return vector.tobytes()
 
     @staticmethod
-    def deserialize_vector(vector_bytes: bytes):
+    def deserialize_vector(vector_bytes: bytes) -> np.ndarray:
+        """Static method to interpret `vector_bytes` as a 1-dimensional array
+
+        Parameters
+        ----------
+        vector_bytes : bytes
+            Bytes representation of a vector.
+
+        Returns
+        -------
+        np.ndarray
+            1-d numpy array of type np.float32
+        """
         return np.frombuffer(vector_bytes, dtype=np.float32)
 
     def save(self, config_file: str = None):
