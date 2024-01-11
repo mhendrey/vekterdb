@@ -3,7 +3,7 @@ VekterDB
 
 Transform any [SQLAlchemy](https://www.sqlalchemy.org/) compliant database into a vector database by adding ***any*** type of a [FAISS](https://ai.meta.com/tools/faiss/) index in order to perform approximate nearest neighbor (ANN) search on the vector column.
 
-Nearly all available vector databases allow users to specify only a small subset of the ANN algorithms that are available in libraries like FAISS. The typical indices that are allowed are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF), but both of these struggle to scale past 10-100M vectors, ([1],[2] and [3]). The goal of VekterDB more flexibility on both the ANN index and the type of database to use.
+Almost all available vector databases only allow users to select a limited subset of the ANN algorithms available in libraries like FAISS. The typical indices that are permitted are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF), but both of these struggle to scale effectively beyond 10-100 million vectors ([1], [2], and [3]). The aim of VekterDB is to provide users with greater flexibility in terms of both the ANN index and the type of database to use.
 
 Installation
 ============
