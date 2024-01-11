@@ -1,12 +1,24 @@
 VekterDB
 ========
 
-Transform any SQLAlchemy compliant database into a vector database by adding **any** type of a FAISS index in order to perform approximate nearest neighbor (ANN) search on the vector column.
+Transform any [SQLAlchemy](https://www.sqlalchemy.org/) compliant database into a vector database by adding ***any*** type of a [FAISS](https://ai.meta.com/tools/faiss/) index in order to perform approximate nearest neighbor (ANN) search on the vector column.
 
-Most vector databases available resort to using the Hierarchical Navigable Small World (HNSW) algorithm for ANN. While HNSW is a highly performant ANN, it struggles to scale beyond ~10M vectors [1]. In this reference they report building an HNSW index on 2.7M 256-dimensional vectors takes 2hrs 20mins and memory resources on a single machine get exceeded as well.
+Nearly all available vector databases allow users to specify only a small subset of the ANN algorithms that are available in libraries like FAISS. The typical indices that are allowed are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF), but both of these struggle to scale past 10-100M vectors, ([1],[2] and [3]). The goal of VekterDB more flexibility on both the ANN index and the type of database to use.
 
-While many data
+Installation
+============
+VekterDB may be install using pip
 
-A cheap imitation for a vector database that has none of the guarantees, but it is highly flexibly and thus scalable. Most vector database resort to using on HNSW for the vector indexing, but in vekterdb you can utilize any FAISS index type you want.
+    pip install vekterdb
+
+
+Documentation
+=============
+Documentation can be found at https://mhendrey.github.io/vekterdb
+
 
 [1] I. Doshi, D. Da, A. Bhutani, R. Kumar, R. Bhatt, N. Balasubramanian, *LANNS: a web-scale approximate nearest neighbor lookup system*, Proceedings of the VLDB Endowment **15(4)**, 850 (2021). See also arXiv:2010.09426
+
+[2] C. Fu, C. Xiang, C. Wang, and D. Cai. *Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph*, arXiv:1707.00143 (2017).
+
+[3] B. Riggs and G. Williams, *ANN Benchmarks: A Data Scientist's Journey to Billion Scale Performance*, https://medium.com/gsi-technology/ann-benchmarks-a-data-scientists-journey-to-billion-scale-performance-db191f043a27 (Note: they actually only tested on 54M vectors)
