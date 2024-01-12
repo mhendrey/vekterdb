@@ -192,7 +192,8 @@ class VekterDB:
 
     @staticmethod
     def serialize_vector(vector: np.ndarray) -> bytes:
-        """Static method to construct Python bytes containing the raw data bytes in
+        """
+        Static method to construct Python bytes containing the raw data bytes in
         `vector`.
 
         Parameters
@@ -208,7 +209,8 @@ class VekterDB:
 
     @staticmethod
     def deserialize_vector(vector_bytes: bytes) -> np.ndarray:
-        """Static method to interpret `vector_bytes` as a 1-dimensional array
+        """
+        Static method to interpret `vector_bytes` as a 1-dimensional array
 
         Parameters
         ----------
@@ -223,16 +225,15 @@ class VekterDB:
         return np.frombuffer(vector_bytes, dtype=np.float32)
 
     def save(self, config_file: str = None):
-        """Save config info to a json file so you can load directly from disk.
-        The url string is not saved for security purposes. If
-        `set_faiss_runtime_parameters()` has ever been called, then this string
-        is also saved to the config file and will be used to set these runtime
-        parameters when VekterDB.load() is called.
+        """
+        Saves configuration info to a JSON file, excluding the URL string for security.
+        If `set_faiss_runtime_parameters()` has been called, it also saves and applies
+        that setting when loading with `VekterDB.load()`
 
         Parameters
         ----------
-        file_name : str, optional
-            JSON file name to save to disk. If None, then saves the file to
+        config_file : str, optional
+            JSON file name to save to disk. If not provided, saves the file as
             `table_name`.json. The default is None.
         """
         table_name = self.Record.__table__.name
@@ -252,7 +253,7 @@ class VekterDB:
         }
 
         try:
-            config["default_runtime_params"] = self.default_runtime_params
+            config["faiss_runtime_parameters"] = self.faiss_runtime_parameters
         except AttributeError:
             pass
 
@@ -261,26 +262,32 @@ class VekterDB:
 
     @staticmethod
     def load(config_file: str, url: str, connect_args: Dict = {}):
-        """Initialize a VekterDB from a configuration file (json format)
+        """
+        Load a VekterDB from a configuration file (JSON format) and connect to the
+        specified database engine.
 
         Parameters
         ----------
         config_file : str
-            Configuration file name of the VekterDB you want to load.
+            Name of the configuration file for the VekterDB to load.
         url : str
             URL string to connect to the database. See sa.create_engine() for details
         connect_args: Dict, optional
-            Any connection arguments to pass to the sa.create_engine(). Default is {}
+            Any connection arguments to pass to sa.create_engine(). Default is {}
+
+        Returns
+        -------
+        VekterDB
         """
         with open(config_file, "r") as f:
             config = json.load(f)
         config["url"] = url
         config["connect_args"] = connect_args
-        default_runtime_params = config.pop("default_runtime_params", "")
+        faiss_runtime_parameters = config.pop("faiss_runtime_parameters", "")
 
         vdb = VekterDB(**config)
-        if default_runtime_params:
-            vdb.set_faiss_runtime_parameters(default_runtime_params)
+        if faiss_runtime_parameters:
+            vdb.set_faiss_runtime_parameters(faiss_runtime_parameters)
 
         return vdb
 
@@ -289,38 +296,50 @@ class VekterDB:
         records: Iterable[Dict],
         batch_size: int = 10_000,
         serialize_vectors: bool = True,
+        faiss_runtime_params: str = None,
     ) -> int:
         """
-        Insert multiple records into the table. Simplest example would be
-
-        ```
-        records = [
-            {"idx": 0, "id": "a", "vector": np.array([0, 1, 2, 3], dtype=np.float32)},
-            {"idx": 1, "id": "b", "vector": np.array([3, 2, 1, 0], dtype=np.float32)},
-        ]
-        ```
+        Insert multiple records into the table. Vectors will also be added to the
+        FAISS index if it already exists. If the FAISS index is updated, it is saved to
+        disk.
 
         Parameters
         ----------
         records : Iterable[Dict]
-            Each element of the Iterable should be a dictionary with keys the column
-            names and the values are the corresponding values.
+            Each dictionary contains the column names as keys and their corresponding
+            values.
         batch_size : int, optional
-            Batch size to push to the database at one time. Default is 10,000.
+            Number of records to insert at once. Default is 10,000.
         serialize_vectors : bool, optional
-            If True, then vectors will be serialized, using numpy's tobytes(), before
-            inserting. If False, then the user has already converted numpy arrays to
-            bytes and can be put directly into the database. Default is True.
+            If True, then vectors will be serialized before insertion; if False, the
+            vectors have already been serialized to bytes. Default is True.
+        faiss_runtime_params : str, optional
+            Set FAISS index runtime parameters before adding vectors. Likely only
+            useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer
+            index (HNSW32) will be used during the `index.add()` to determine which
+            partition to add the vector to. You may want to change from the default,
+            whether that is the FAISS default (efSearch=16) or the value saved in
+            `self.faiss_runtime_parameters`. "quantizer_efSearch=40" would be an
+            example value for the example index given. If used,
+            `self.faiss_runtime_parameters` is set back to its value before function
+            invocation. Default is `None`
 
         Returns
         -------
         n_records : int
             Number of records added to the table
         """
-        # TODO: Allow passing of SearchParams when adding into faiss index.
+        orig_runtime_parameters = ""
         insert_into_faiss = False
         if self.index is not None and self.index.is_trained:
             insert_into_faiss = True
+            if faiss_runtime_params:
+                try:
+                    orig_runtime_parameters = self.faiss_runtime_parameters
+                except:
+                    pass
+                self.set_faiss_runtime_parameters(faiss_runtime_params)
+
         if not insert_into_faiss:
             self.logger.warning(
                 "FAISS index either doesn't exist or isn't trained so "
@@ -380,28 +399,32 @@ class VekterDB:
                 if insert_into_faiss:
                     self.index.add(np.vstack(vectors))
             session.commit()
-            if insert_into_faiss:
-                # Save the index to disk
-                faiss.write_index(self.index, self.faiss_index)
+
+        if orig_runtime_parameters:
+            self.set_faiss_runtime_parameters(orig_runtime_parameters)
+
+        if insert_into_faiss:
+            # Save the index to disk
+            faiss.write_index(self.index, self.faiss_index)
 
         return n_records
 
     def sample_vectors(
         self, sample_size: int = 0, batch_size: int = 10_000
     ) -> np.ndarray:
-        """Retrieve sample vectors from the database
+        """Retrieve a sample of vectors from the database
 
         Parameters
         ----------
         sample_size : int, optional
-            Number of vectors to return. Default 0 means get all of them.
+            Number of vectors to return. Default 0 returns all vectors
         batch_size : int, optional
             Number of vectors to retrieve at one time. Default 10_000.
 
         Returns
         -------
         np.ndarray
-            2-d array of sampled vectors with shape is (sample_size, d)
+            2-d array of sampled vectors with shape (sample_size, d)
         """
         # Get current total number of records in the database
         with self.Session() as session:
@@ -432,26 +455,26 @@ class VekterDB:
     def similarity(
         self, v1: np.ndarray, v2: np.ndarray, threshold: float = None
     ) -> float:
-        """Return the appropriate similarity metric between vector v1 and v2.
-        Currently 'inner_product' and 'l2' are supported. If the similarity
-        falls short of the threshold, then None is returned.
+        """
+        Calculate the similarity between two vectors using using the metric specified
+        in `create_index()`. Currently only the inner product and L2 are supported. If
+        the similarity fails to meet the threshold, `None` is returned.
 
         Parameters
         ----------
         v1 : np.ndarray
-            Shape should be (d,) and dtype is np.float32
         v2 : np.ndarray
-            Shape should be (d,) and dtype is np.float32
         threshold : float, optional
-            Only return the value if v1 & v2's similarity equals or exceeds this value.
-            Default is None which always returns
+            Only return the value if similarity equals or exceeds this value. Default
+            is None.
 
         Returns
         -------
         float
             similarity of v1 & v2
         """
-
+        v1 = v1.reshape(-1)
+        v2 = v2.reshape(-1)
         if self.metric == "inner_product":
             similarity = v1.dot(v2)
             if threshold is None:
@@ -476,22 +499,23 @@ class VekterDB:
 
     def set_faiss_runtime_parameters(self, runtime_params_str: str):
         """
-        Change the FAISS runtime parameters with human-readable string. Parameters are
-        separated with a comma. For example, with an 'OPQ64,IVF50000_HNSW32,PQ64' index
-        you can use "nprobe=50,quantizer_efSearch=100" to set both the nprobe in the IVF
-        index and the efSearch in the HNSW quantizer index.
+        Change FAISS runtime parameters with a human-readable string. Parameters are
+        separated by commas. For example, with the index 'OPQ64,IVF50000_HNSW32,PQ64',
+        you can use "nprobe=50,quantizer_efSearch=100" to set both the nprobe in the
+        IVF index and the efSearch in the HNSW quantizer index. If a parameter is not
+        recognized, an exception is thrown.
 
-        If a parameter is not recognized, an exception is thrown.
+        Saves the provided settings in `self.faiss_runtime_parameters`
 
         Parameters
         ----------
         runtime_params_str : str
-            Comma separated list of parameters to set. See https://github.com/facebookresearch/faiss/wiki/Index-IO,-cloning-and-hyper-parameter-tuning#parameterspace-as-a-way-to-set-parameters-on-an-opaque-index
-            for more details.
+            Comma-separated list of parameters to set. For more details, see
+            https://github.com/facebookresearch/faiss/wiki/Index-IO,-cloning-and-hyper-parameter-tuning#parameterspace-as-a-way-to-set-parameters-on-an-opaque-index
         """
         try:
             faiss.ParameterSpace().set_index_parameters(self.index, runtime_params_str)
-            self.default_runtime_params = runtime_params_str
+            self.faiss_runtime_parameters = runtime_params_str
         except Exception as exc:
             raise ValueError(f"Unrecognized parameter in {runtime_params_str}. {exc}")
 
@@ -505,38 +529,46 @@ class VekterDB:
         use_gpu: bool = False,
         faiss_runtime_params: str = None,
     ):
-        """_summary_
+        """
+        Create a FAISS index and save to disk when completed.
 
         Parameters
         ----------
         faiss_index : str
-            _description_
+            Name of the file to save the resulting FAISS index to.
         faiss_factory_str : str
-            _description_
+            FAISS index factory string, passed to `faiss.index_factory()`
         metric : str, optional
-            _description_, by default "inner_product"
+            Metric used by FAISS to determine similarity. Valid values are either
+            `inner_product` or `L2`. Default is `inner_product`
         sample_size : int, optional
-            _description_, by default 0
+            Number of vectors to sample from the database to train the FAISS index.
+            If 0, then all vectors are used. Default is 0.
         batch_size : int, optional
-            _description_, by default 10_000
+            Number of vectors to add into the index at one time. Also passed to
+            `sample_vectors()` to specify number of vectors to pull back from the
+            database at a time. Default is 10,000.
         use_gpu : bool, optional
-            _description_, by default False
+            Whether to use GPU(s). Default is False. NOTE: Not implemented yet
         faiss_runtime_params : str, optional
-            Set FAISS index runtime parameters before adding in the vectors. Likely
-            only useful if you have something like "IVF{nlist}_HNSW32" where you have
-            a quantizer index (HNSW in this case). The quantizer index will be used
-            during the index.add() to determine which partition to add a given vector,
-            so you may want to change it from the default. In this case, set this
-            argument to "quantizer_efSearch=40" (note: efSearch defaults to 16)
+            Set FAISS index runtime parameters before adding vectors. Likely only
+            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
+            index (HNSW32) will be used during the `index.add()` to determine which
+            partition to add the vector to. You may want to change from the default,
+            whether that is the FAISS default (efSearch=16) or the value saved in
+            `self.faiss_runtime_parameters`. "quantizer_efSearch=40" would be an
+            example value for the example index given. If used,
+            `self.faiss_runtime_parameters` is set back to its value before function
+            invocation. Default is None
 
         Raises
         ------
         FileExistsError
-            _description_
+            If a FAISS index is already assigned to this table.
         FileExistsError
-            _description_
+            If the file `faiss_index` already exists on disk.
         TypeError
-            _description_
+            If the metric is not either "inner_product" | "L2"
         """
         if self.index is not None:
             raise FileExistsError(
@@ -563,7 +595,7 @@ class VekterDB:
         orig_runtime_parameters = ""
         if faiss_runtime_params:
             try:
-                orig_runtime_parameters = self.default_runtime_params
+                orig_runtime_parameters = self.faiss_runtime_parameters
             except:
                 pass
             self.set_faiss_runtime_parameters(faiss_runtime_params)
