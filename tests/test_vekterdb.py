@@ -41,6 +41,9 @@ def make_data(
 ) -> List[Dict]:
     rng = np.random.default_rng(seed=seed)
     X = rng.normal(size=(n, d)).astype(np.float32)
+    if idx_start == 0:
+        noise = rng.normal(scale=0.6, size=d).astype(np.float32)
+        X[1] = X[0] + noise
     if normalize:
         faiss.normalize_L2(X)
 
@@ -86,7 +89,7 @@ def test_db(tmp_path_factory: Path):
 
     # Make a query record that is summing the first two vectors
     records = list(vekter_db.fetch_records("idx", [0, 1]))
-    q_vec = 1.05 * records[0]["vector"] + records[1]["vector"]
+    q_vec = 1.2 * records[0]["vector"] + records[1]["vector"]
     faiss.normalize_L2(q_vec.reshape(1, -1))
     query_record = {"idx": n_records, "id": "query", "vector": q_vec}
     vekter_db.insert([query_record])
@@ -289,13 +292,13 @@ def check_against_ground_truth(
             elif i == 1:
                 assert n_idx == 0, f"{i=:}, {n_idx=:} but should be 0"
                 assert similarity == pytest.approx(
-                    0.70678645
-                ), f"{i=:}, {similarity=:.4f} but should be 0.7068"
+                    0.9643193
+                ), f"{i=:}, {similarity=:.4f} but should be 0.9643"
             elif i == 2:
                 assert n_idx == 1, f"{i=:}, {n_idx=:} but should be 1"
                 assert similarity == pytest.approx(
-                    0.6695153
-                ), f"{i=:}, {similarity=:.4f} but should be 0.6695"
+                    0.9481945
+                ), f"{i=:}, {similarity=:.4f} but should be 0.9482"
     else:
         for i, neighbor in enumerate(neighbors):
             n_idx = neighbor["idx"]
@@ -303,14 +306,14 @@ def check_against_ground_truth(
             if i == 0:
                 assert n_idx == 0, f"Nearest neighbor should be 0, got {n_idx=:}"
                 assert similarity == pytest.approx(
-                    0.70678645
-                ), f"{i=:}, {similarity=:.4f} but should be 0.7068"
+                    0.9643193
+                ), f"{i=:}, {similarity=:.4f} but should be 0.9643"
 
             elif i == 1:
                 assert n_idx == 1, f"Second neighbor should be 1, got {n_idx=:}"
                 assert similarity == pytest.approx(
-                    0.6695153
-                ), f"{i=:}, {similarity=:.4f} but should be 0.6695"
+                    0.9481945
+                ), f"{i=:}, {similarity=:.4f} but should be 0.9482"
 
 
 def test_flat_index(tmp_path_factory, test_db):
@@ -385,13 +388,12 @@ def test_ivf_index(tmp_path_factory, test_db):
             f"As expected, IVF300,PQ16 search() default params failed ground truth check"
         )
 
-    # Use search(threshold=None), but with nprobe=100
+    # Use search(threshold=None), but with nprobe=6
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
-        k_extra_neighbors=50,
-        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+        search_parameters=faiss.SearchParametersIVF(nprobe=6),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
@@ -399,14 +401,14 @@ def test_ivf_index(tmp_path_factory, test_db):
     ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
     neighbor_idxs_no_extra = set([n["idx"] for n in neighbors])
 
-    # Use search(threshold=None, k_extra_neighbors=100) with nprobe=100
+    # Use search(threshold=None, k_extra_neighbors=100) with nprobe=30
     # This should give a different set of neighbors, but still have the top 3
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
         k_extra_neighbors=100,
-        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+        search_parameters=faiss.SearchParametersIVF(nprobe=30),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     neighbor_idxs_extra = set([n["idx"] for n in neighbors])
@@ -421,22 +423,22 @@ def test_ivf_index(tmp_path_factory, test_db):
             f"Expected {n_overlap=:} < 5, but guess both sets were the same this time"
         )
 
-    # Use search(threshold=0.65) with nprobe=100
+    # Use search(threshold=0.85) with nprobe=6
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
         k_extra_neighbors=50,
-        threshold=0.65,
-        search_parameters=faiss.SearchParametersIVF(nprobe=100),
+        threshold=0.85,
+        search_parameters=faiss.SearchParametersIVF(nprobe=6),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 3
     ), f"search(threshold=0.65) has {len(neighbors)=:} but should be 3"
 
-    # Set nprobe for this entire runtime to 100
-    vekter_db.set_faiss_runtime_parameters("nprobe=100")
+    # Set nprobe for this entire runtime to 6
+    vekter_db.set_faiss_runtime_parameters("nprobe=6")
 
     # Use nearest_neighbor(). You don't have to set search_params now
     result = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0]
@@ -449,25 +451,7 @@ def test_ivf_index(tmp_path_factory, test_db):
     neighbors = result["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
 
-    # Do the search with setting nprobe=1 should be wrong
-    neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
-        5,
-        "idx",
-        "id",
-        search_parameters=faiss.SearchParametersIVF(nprobe=1),
-    )[0]["neighbors"]
-    # It is most likely that this will fail to find everyone
-    try:
-        check_against_ground_truth(neighbors, self_included=False)
-    except AssertionError as exc:
-        logging.warning(
-            f"As expected, IVF300,PQ16 nearest_neighbors with nprobe=1 "
-            + "failed ground truth check"
-        )
-
-    # Use nearest_neighbors(threshold=0.65)
+    # Use nearest_neighbors(threshold=0.85)
     neighbors = vekter_db.nearest_neighbors(
         "idx",
         [query["idx"]],
@@ -475,12 +459,12 @@ def test_ivf_index(tmp_path_factory, test_db):
         "idx",
         "id",
         k_extra_neighbors=50,
-        threshold=0.65,
+        threshold=0.85,
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
     assert (
         len(neighbors) == 2
-    ), f"search(threshold=0.65) has {len(neighbors)=:} but should be 2"
+    ), f"nearest_neighbors(threshold=0.85) has {len(neighbors)=:} but should be 2"
 
 
 def test_hnsw_index(tmp_path_factory, test_db):
@@ -506,7 +490,7 @@ def test_hnsw_index(tmp_path_factory, test_db):
         "idx",
         "id",
         k_extra_neighbors=20,
-        threshold=0.65,
+        threshold=0.85,
         search_parameters=faiss.SearchParametersHNSW(efSearch=60),
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
@@ -533,7 +517,7 @@ def test_opaque_index(tmp_path_factory, test_db):
         5,
         "idx",
         "id",
-        threshold=0.65,
+        threshold=0.85,
     )[0]["neighbors"]
     try:
         check_against_ground_truth(neighbors, self_included=False)
@@ -551,22 +535,22 @@ def test_opaque_index(tmp_path_factory, test_db):
         k_extra_neighbors=30,
         search_parameters=faiss.SearchParametersPreTransform(
             index_params=faiss.SearchParametersIVF(
-                nprobe=100,
-                quantizer_params=faiss.SearchParametersHNSW(efSearch=200),
+                nprobe=6,
+                quantizer_params=faiss.SearchParametersHNSW(efSearch=24),
             )
         ),
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
 
     # Setting Faiss Runtime Search Parameters
-    vekter_db.set_faiss_runtime_parameters("nprobe=100,quantizer_efSearch=200")
+    vekter_db.set_faiss_runtime_parameters("nprobe=6,quantizer_efSearch=24")
     neighbors = vekter_db.nearest_neighbors(
         "idx",
         [query["idx"]],
         5,
         "idx",
         "id",
-        threshold=0.65,
+        threshold=0.85,
         k_extra_neighbors=30,
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
