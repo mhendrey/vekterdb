@@ -339,11 +339,11 @@ def test_flat_index(tmp_path_factory, test_db):
     ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
 
     # Use search() with threshold
-    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.65)[0]
+    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.85)[0]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 3
-    ), f"search(threshold=0.65) has {len(neighbors)=:} should be 3 when using threshold"
+    ), f"search(threshold=0.85) has {len(neighbors)=:} should be 3 when using threshold"
 
     # Use the nearest_neighbors() without threshold
     neighbors = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0][
@@ -356,12 +356,12 @@ def test_flat_index(tmp_path_factory, test_db):
 
     # Use nearest_neighbors() with threshold
     neighbors = vekter_db.nearest_neighbors(
-        "idx", [query["idx"]], 5, "idx", "id", threshold=0.65
+        "idx", [query["idx"]], 5, "idx", "id", threshold=0.85
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
     assert (
         len(neighbors) == 2
-    ), f"nearest_neighbors(threshold=0.65) has {len(neighbors)=:} should still be 2"
+    ), f"nearest_neighbors(threshold=0.85) has {len(neighbors)=:} should still be 2"
 
 
 def test_ivf_index(tmp_path_factory, test_db):
@@ -388,12 +388,12 @@ def test_ivf_index(tmp_path_factory, test_db):
             f"As expected, IVF300,PQ16 search() default params failed ground truth check"
         )
 
-    # Use search(threshold=None), but with nprobe=6
+    # Use search(threshold=None), but with nprobe=15
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
-        search_parameters=faiss.SearchParametersIVF(nprobe=6),
+        search_parameters=faiss.SearchParametersIVF(nprobe=15),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
@@ -401,14 +401,14 @@ def test_ivf_index(tmp_path_factory, test_db):
     ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
     neighbor_idxs_no_extra = set([n["idx"] for n in neighbors])
 
-    # Use search(threshold=None, k_extra_neighbors=100) with nprobe=30
+    # Use search(threshold=None, k_extra_neighbors=100) with nprobe=100
     # This should give a different set of neighbors, but still have the top 3
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
         k_extra_neighbors=100,
-        search_parameters=faiss.SearchParametersIVF(nprobe=30),
+        search_parameters=faiss.SearchParametersIVF(nprobe=100),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     neighbor_idxs_extra = set([n["idx"] for n in neighbors])
@@ -423,22 +423,22 @@ def test_ivf_index(tmp_path_factory, test_db):
             f"Expected {n_overlap=:} < 5, but guess both sets were the same this time"
         )
 
-    # Use search(threshold=0.85) with nprobe=6
+    # Use search(threshold=0.85) with nprobe=15
     neighbors = vekter_db.search(
         query["vector"],
         5,
         "idx",
         k_extra_neighbors=50,
         threshold=0.85,
-        search_parameters=faiss.SearchParametersIVF(nprobe=6),
+        search_parameters=faiss.SearchParametersIVF(nprobe=15),
     )[0]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 3
-    ), f"search(threshold=0.65) has {len(neighbors)=:} but should be 3"
+    ), f"search(threshold=0.85) has {len(neighbors)=:} but should be 3"
 
-    # Set nprobe for this entire runtime to 6
-    vekter_db.set_faiss_runtime_parameters("nprobe=6")
+    # Set nprobe for this entire runtime to 15
+    vekter_db.set_faiss_runtime_parameters("nprobe=15")
 
     # Use nearest_neighbor(). You don't have to set search_params now
     result = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0]
@@ -531,19 +531,19 @@ def test_opaque_index(tmp_path_factory, test_db):
         5,
         "idx",
         "id",
-        threshold=0.65,
+        threshold=0.85,
         k_extra_neighbors=30,
         search_parameters=faiss.SearchParametersPreTransform(
             index_params=faiss.SearchParametersIVF(
-                nprobe=6,
-                quantizer_params=faiss.SearchParametersHNSW(efSearch=24),
+                nprobe=15,
+                quantizer_params=faiss.SearchParametersHNSW(efSearch=45),
             )
         ),
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
 
     # Setting Faiss Runtime Search Parameters
-    vekter_db.set_faiss_runtime_parameters("nprobe=6,quantizer_efSearch=24")
+    vekter_db.set_faiss_runtime_parameters("nprobe=15,quantizer_efSearch=45")
     neighbors = vekter_db.nearest_neighbors(
         "idx",
         [query["idx"]],
@@ -581,7 +581,7 @@ def test_save_load(tmp_path_factory, test_db):
         "idx",
         "id",
         k_extra_neighbors=20,
-        threshold=0.65,
+        threshold=0.85,
     )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
 
@@ -595,7 +595,7 @@ def test_save_load(tmp_path_factory, test_db):
         "idx",
         "id",
         k_extra_neighbors=20,
-        threshold=0.65,
+        threshold=0.85,
     )[0]["neighbors"]
     check_against_ground_truth(neighbors_after_save, self_included=False)
 
@@ -630,7 +630,9 @@ def test_serialization(seed: int = None, d: int = 16):
     assert v2_bytes == v2_roundtrip
 
 
-def test_similarity():
+def test_similarity(tmp_path):
+    faiss_index_inner = str(tmp_path / "tmp_inner.index")
+    faiss_index_l2 = str(tmp_path / "tmp_l2.index")
     v1 = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], dtype=np.float32)
     v2 = np.array([-1, 2, 3, 4, 5, -6, -7, -8, 9, 10], dtype=np.float32)
 
@@ -642,7 +644,7 @@ def test_similarity():
     ## Test inner_product metric
     vekter_db = VekterDB("inner_product")
     vekter_db.insert(records)
-    vekter_db.create_index("tmp.index", "Flat", "inner_product")
+    vekter_db.create_index(faiss_index_inner, "Flat", "inner_product")
 
     # true_inner_product = 85.0
     true_inner_product = np.sum([v1i * v2i for v1i, v2i in zip(v1, v2)])
@@ -663,7 +665,7 @@ def test_similarity():
     ## Test L2 metric
     vekter_db = VekterDB("l2")
     vekter_db.insert(records)
-    vekter_db.create_index("tmp.index", "Flat", "l2")
+    vekter_db.create_index(faiss_index_l2, "Flat", "l2")
 
     # True L2 norm = 24.494898
     true_l2 = np.sqrt(np.square(v1 - v2).sum())
