@@ -638,49 +638,41 @@ class VekterDB:
         search_parameters: faiss.SearchParameters = None,
     ) -> List[List[Dict]]:
         """
-        For each query vector, find the `k_nearest_neighbors` records in the database
-        based whose vectors are the most similar to the query vector. If `threshold`
-        is provided, then drop any candidate neighbors whose similarity fails to meet
-        that value.
-
-        If you proved any `col_names`, then only those columns from the database will
-        be returned for each neighbor in the dict. Each dict will add "metric" key
-        which holds the similarity between the query vector and that neighbor's vector
+        Search for the `k_nearest_neighbors` records in the database based on the
+        similarity of their vectors to the query vectors. Optionally keep only
+        neighbors whose similarity exceeds the `threshold`.
 
         Parameters
         ----------
         query_vectors : np.ndarray
-            Vector(s) to search with. Shape should be (n, d). This is the same as FAISS
+            The query vectors to search with. Shape is (n, d) and dtype is np.float32
         k_nearest_neighbors : int
             Number of nearest neighbors to return.
         \*col_names : str
-            Specify specific columns from the database to be returned for each
-            neighbor. If none are provided, then all columns are returned.
+            List of columns to use in a neighbor record. Default of `None` uses all
+            columns.
         k_extra_neighbors : int, optional
-            Extra neighbors to return from FAISS index before reranking. Default 0
+            Extra neighbors to return from FAISS index before reranking. If using a
+            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
+            similarities which likely differs from the true similarities calculated
+            here. Default is 0.
         rerank : bool, optional
-            If True, then retrieve neighbors original vector and rerank accordingly.
-            Default is True
+            If True, rerank neighbors according to their true similarities. Otherwise
+            the order is determined by the FAISS index's `index.search()`. Default is
+            True.
         threshold : float, optional
-            Only keep neighbors if similarity exceeds threshold. Default is None which
-            keeps all neighbors returned.
+            Only keep neighbors whose similarities exceed the `threshold`. Default is
+            `None` which keeps all neighbors returned.
         search_parameters : faiss.SearchParameters, optional
-            Specify specific search parameters for this query. Each FAISS index has its
-            own class. For example, faiss.SearchParametersIVF(nprobe=20) will set the
-            nprobe value for an IVF index. This can also be nested. For example, for an
-            IVF_HNSW use
-            faiss.SearchParametersIVF(
-                nprobe=20,
-                quantizer_params=faiss.SearchParamsHNSW(efSearch=40),
-            )
-            See https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query
+            Use these search parameters instead of the current runtime FAISS
+            parameters. Passed to FAISS's `index.search()`. See
+            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
 
         Returns
         -------
         List[List[Dict]]
-            For each query, return a list of the neighbors. For each neighbor of a
-            query, return a dictionary of the neighbor's record with "metric" add to
-            it that holds the similarity between query and vector.
+            For each query, return a list of the neighbors. A neighbor record includes
+            the "metric" similarity with the query vector.
         """
 
         if len(query_vectors.shape) == 1 and query_vectors.shape[0] == self.d:
@@ -754,39 +746,48 @@ class VekterDB:
         search_parameters: faiss.SearchParameters = None,
         batch_size: int = 10_000,
     ) -> List[Dict]:
-        """_summary_
+        """
+        Find the nearest neighbors of query records in the table based on vector
+        similarity. Optionally keep only neighbors whose similarity exceeds the
+        `threshold`.
 
         Parameters
         ----------
         fetch_column : str
-            _description_
+            Column in the database for query record retrieval.
         fetch_values : List
-            _description_
+            Values to match in the `fetch_column`.
         k_nearest_neighbors : int
-            _description_
+            Number of nearest neighbors to return.
+        \*col_names : str
+            List of columns to use in the query and neighbor records. Default of `None`
+            uses all columns.
         k_extra_neighbors : int, optional
-            _description_, by default 0
+            Extra neighbors to return from FAISS index before reranking. If using a
+            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
+            similarities which likely differs from the true similarities calculated
+            here. Default is 0.
         rerank : bool, optional
-            _description_, by default True
+            If True, rerank neighbors according to their true similarities. Otherwise
+            the order is determined by the FAISS index's `index.search()`. Default is
+            True.
         threshold : float, optional
-            _description_, by default None
+            Only keep neighbors whose similarities exceed the `threshold`. Default is
+            `None` which keeps all neighbors returned.
         search_parameters : faiss.SearchParameters, optional
-            Specify specific search parameters for this query. Each FAISS index has its
-            own class. For example, faiss.SearchParametersIVF(nprobe=20) will set the
-            nprobe value for an IVF index. This can also be nested. For example, for an
-            IVF_HNSW use
-            faiss.SearchParametersIVF(
-                nprobe=20,
-                quantizer_params=faiss.SearchParamsHNSW(efSearch=40),
-            )
-            See https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query
+            Use these search parameters instead of the current runtime FAISS
+            parameters. Passed to FAISS's `index.search()`. See
+            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
         batch_size : int, optional
-            _description_, by default 10_000
+            Number of query records to retrieve from the database at one time. Passed
+            to `fetch_records()`. Default is 10,000.
 
         Returns
         -------
         List[Dict]
-            _description_
+            For each query, a dictionary containing the query's record and a list of
+            the its neighbors' records. A neighbor record includes the "metric"
+            similarity.
         """
         results = []
         query_vectors = []
@@ -837,24 +838,26 @@ class VekterDB:
         *col_names: str,
         batch_size: int = 10_000,
     ) -> Iterator[Dict]:
-        """_summary_
+        """
+        Fetch records from the database.
 
         Parameters
         ----------
         fetch_column : str
-            Column name to fetch by
+            Column in the database used for record retrieval.
         fetch_values : List
-            Values of fetch_column to fetch
+            Values to match in the `fetch_column`.
         \*col_names : str, optional
-            Specify which columns to be fetched. If not provided, then all columns will
-            be fetched.
+            List columns to return from the database. Default of `None` returns all
+            columns.
         batch_size : int, optional
-            Number of values to fetch at one time. Default 10_000
+            Number of records to fetch from the database at one time. Default is
+            10,000.
 
         Yields
         ------
         Iterator[Dict]
-            Keys are the elements of columns and values are corresponding values
+            Dictionary containing a fetched record.
         """
 
         if not (
