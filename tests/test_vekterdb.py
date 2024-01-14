@@ -600,6 +600,71 @@ def test_save_load(tmp_path_factory, test_db):
     check_against_ground_truth(neighbors_after_save, self_included=False)
 
 
+def test_nearest_neighbor_column_names(tmp_path):
+    faiss_file = str(tmp_path / "test_nearest_neighbor_columns.index")
+    n = 100
+    d = 64
+    records = make_data("idx", "id", "vector", n=n, d=d, seed=1105)
+    # Create table in a in-memory SQLite Database
+    vekter_db = VekterDB(
+        "test",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "unique": True,
+                "nullable": False,
+                "index": True,
+            }
+        },
+    )
+    vekter_db.insert(records)
+    vekter_db.create_index(faiss_file, "Flat")
+
+    # Should have all the columns since none are specified
+    result = vekter_db.nearest_neighbors("idx", [0], 3)[0]
+    assert "idx" in result, f"{result.keys()} should contain 'idx'"
+    assert "id" in result, f"{result.keys()} should contain 'id'"
+    assert "vector" in result, f"{result.keys()} should contain 'vector'"
+    assert "neighbors" in result, f"{result.keys()} should contain 'neighbors'"
+    # Check that the neighbors have everything too
+    for neighbor in result["neighbors"]:
+        neighbor_keys = list(neighbor.keys())
+        assert "idx" in neighbor_keys, f"{neighbor_keys} should contain 'idx'"
+        assert "id" in neighbor_keys, f"{neighbor_keys} should contain 'id'"
+        assert "vector" in neighbor_keys, f"{neighbor_keys} should contain 'vector'"
+        assert "metric" in neighbor_keys, f"{neighbor_keys} should contain 'metric'"
+
+    result = vekter_db.nearest_neighbors("idx", [0], 2, "idx", "id")[0]
+    assert "idx" in result, f"{result.keys()} should contain 'idx'"
+    assert "id" in result, f"{result.keys()} should contain 'id'"
+    assert "vector" not in result, f"{result.keys()} should NOT contain 'vector'"
+    assert "neighbors" in result, f"{result.keys()} should contain 'neighbors'"
+    # Check that the neighbors have everything too
+    for neighbor in result["neighbors"]:
+        neighbor_keys = list(neighbor.keys())
+        assert "idx" in neighbor_keys, f"{neighbor_keys} should contain 'idx'"
+        assert "id" in neighbor_keys, f"{neighbor_keys} should contain 'id'"
+        assert (
+            "vector" not in neighbor_keys
+        ), f"{neighbor_keys} should NOT contain 'vector'"
+        assert "metric" in neighbor_keys, f"{neighbor_keys} should contain 'metric'"
+
+    result = vekter_db.nearest_neighbors("idx", [0], 2, "id")[0]
+    assert "idx" not in result, f"{result.keys()} should NOT contain 'idx'"
+    assert "id" in result, f"{result.keys()} should contain 'id'"
+    assert "vector" not in result, f"{result.keys()} should NOT contain 'vector'"
+    assert "neighbors" in result, f"{result.keys()} should contain 'neighbors'"
+    # Check that the neighbors have everything too
+    for neighbor in result["neighbors"]:
+        neighbor_keys = list(neighbor.keys())
+        assert "idx" not in neighbor_keys, f"{neighbor_keys} should NOT contain 'idx'"
+        assert "id" in neighbor_keys, f"{neighbor_keys} should contain 'id'"
+        assert (
+            "vector" not in neighbor_keys
+        ), f"{neighbor_keys} should NOT contain 'vector'"
+        assert "metric" in neighbor_keys, f"{neighbor_keys} should contain 'metric'"
+
+
 def test_serialization(seed: int = None, d: int = 16):
     """Test that serializing a vector into bytes and deserializing from bytes give
     correct values. Start in each direction.

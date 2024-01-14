@@ -789,9 +789,18 @@ class VekterDB:
             the its neighbors' records. A neighbor record includes the "metric"
             similarity.
         """
+        if not col_names:
+            col_names = list(self.columns.keys())
+
+        # Both idx and vector columns needed when fetching records
+        tmp_col_names = list(col_names)
+        if self.idx_name not in tmp_col_names:
+            tmp_col_names.append(self.idx_name)
+        if self.vector_name not in tmp_col_names:
+            tmp_col_names.append(self.vector_name)
+
         results = []
         query_vectors = []
-        tmp_col_names = tuple(list(col_names) + [self.idx_name, self.vector_name])
         for record in self.fetch_records(
             fetch_column,
             fetch_values,
@@ -802,7 +811,11 @@ class VekterDB:
             query_vectors.append(record[self.vector_name])
 
         query_vectors = np.vstack(query_vectors)
-        tmp_col_names_neighbors = tuple(list(col_names) + [self.idx_name])
+        # Need the idx column for neighbors in order to identify yourself
+        tmp_col_names_neighbors = list(col_names)
+        if self.idx_name not in tmp_col_names_neighbors:
+            tmp_col_names_neighbors.append(self.idx_name)
+
         for record, neighbors in zip(
             results,
             self.search(
