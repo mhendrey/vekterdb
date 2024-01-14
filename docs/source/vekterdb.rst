@@ -8,19 +8,19 @@ vector database by adding **any** type of a `FAISS <https://ai.meta.com/tools/fa
 index to index the vectors in order to utilize the many different types of approximate
 nearest neighbor (ANN) algorithms available in FAISS.
 
-Almost all available vector databases only allow users to select a limited subset of the
-ANN algorithms available in libraries like FAISS. The typical indices that are permitted
-are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF), but both of
-these struggle to scale effectively beyond 10-100 million vectors ([#f1]_, [#f2]_, and
-[#f3]_). The aim of VekterDB is to provide users with greater flexibility in terms of both
-the ANN index and the type of database they can use.
+Almost all available vector databases only allow users to select a limited subset of
+the ANN algorithms available in libraries like FAISS. The typical indices that are
+permitted are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF),
+but both of these struggle to scale effectively beyond 10-100 million
+vectors[#f1]_,[#f2]_,[#f3]_. The aim of VekterDB is to provide users with greater
+flexibility in terms of both the ANN index and the type of database they can use.
 
-VekterDB requires a minimum of two columns in the database table. The first is an integer
-based identification [0, N) that is used by the FAISS index to refer to records and serves
-as the primary key for the table. The second required column stores the vector as bytes.
-Since VekterDB leverages FAISS, these vectors must be numpy arrays of type float32. Of
-course, additional columns may be specified. For example, you may have another column
-that serves as a more recognizable ID field that is a string.
+VekterDB requires a minimum of two columns in the database table. The first is an
+integer based identification [0, N) that is used by the FAISS index to refer to records
+and serves as the primary key for the table. The second required column stores the
+vector as bytes. Since VekterDB leverages FAISS, these vectors must be numpy arrays of
+type float32. Of course, additional columns may be specified. For example, you may have
+another column that serves as a more recognizable ID field that is a string.
 
 Usage
 -----
