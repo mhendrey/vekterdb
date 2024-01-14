@@ -12,8 +12,8 @@ Almost all available vector databases only allow users to select a limited subse
 the ANN algorithms available in libraries like FAISS. The typical indices that are
 permitted are Hierarchical Navigable Small-World (HNSW) or Inverted File System (IVF),
 but both of these struggle to scale effectively beyond 10-100 million
-vectors[#f1]_,[#f2]_,[#f3]_. The aim of VekterDB is to provide users with greater
-flexibility in terms of both the ANN index and the type of database they can use.
+vectors [#f1]_ [#f2]_ [#f3]_. The aim of VekterDB is to provide users with greater
+flexibility in terms of both the ANN index and the type of databases they can use.
 
 VekterDB requires a minimum of two columns in the database table. The first is an
 integer based identification [0, N) that is used by the FAISS index to refer to records
@@ -46,7 +46,7 @@ Usage
     # Insert vectors into the database
     n_records = vekter_db.insert(records)
 
-    # Create FAISS index
+    # Create a Flat FAISS index and save it in the file "my_table.index"
     vekter_db.create_index("my_table.index", faiss_factory_str="Flat")
 
     # Let's find the 3 nearest neighbors of idx=0 and idx=1
@@ -76,6 +76,13 @@ Usage
 
 .. rubric:: Footnotes
 
-.. [#f1] I. Doshi, D. Da, A. Bhutani, R. Kumar, R. Bhatt, N. Balasubramanian, *LANNS: a web-scale approximate nearest neighbor lookup system*, Proceedings of the VLDB Endowment **15(4)**, 850 (2021). See also [arXiv:2010.09426](https://arxiv.org/abs/2010.09426)
-.. [#f2] C. Fu, C. Xiang, C. Wang, and D. Cai. *Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph*, [arXiv:1707.00143](https://arxiv.org/abs/1707.00143) (2017).
-.. [#f3] B. Riggs and G. Williams, *ANN Benchmarks: A Data Scientist's Journey to Billion Scale Performance*, https://medium.com/gsi-technology/ann-benchmarks-a-data-scientists-journey-to-billion-scale-performance-db191f043a27 (Note: they actually only tested on 54M vectors)
+.. [#f1] I. Doshi, D. Da, A. Bhutani, R. Kumar, R. Bhatt, N. Balasubramanian,
+         *LANNS: a web-scale approximate nearest neighbor lookup system*,
+         Proceedings of the VLDB Endowment **15(4)**, 850 (2021).
+         See also `arXiv:2010.09426 <https://arxiv.org/abs/2010.09426>`_
+.. [#f2] C. Fu, C. Xiang, C. Wang, and D. Cai.
+         *Fast Approximate Nearest Neighbor Search With The Navigating Spreading-out Graph*,
+         `arXiv:1707.00143 <https://arxiv.org/abs/1707.00143>`_  (2017).
+.. [#f3] B. Riggs and G. Williams,
+         `ANN Benchmarks: A Data Scientist's Journey to Billion Scale Performance <https://medium.com/gsi-technology/ann-benchmarks-a-data-scientists-journey-to-billion-scale-performance-db191f043a27>`_ 
+         (Note: they actually only tested on 54M vectors)
