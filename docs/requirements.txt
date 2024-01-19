@@ -1,5 +1,7 @@
+docutils>=0.19
 myst-parser
 numpy
 pytest
+sphinx>=6.1.3
 sphinx-rtd-theme >= 1.0.0
 sqlalchemy >= 2.0.0
