@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import faiss
 import json
 import logging
 import numpy as np
@@ -27,6 +26,11 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
+
+try:
+    import faiss
+except:
+    logging.error("Failed to import FAISS. Install from conda")
 
 
 class VekterDB:
