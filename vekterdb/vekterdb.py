@@ -203,8 +203,7 @@ class VekterDB:
     @staticmethod
     def serialize_vector(vector: np.ndarray) -> bytes:
         """
-        Static method to construct Python bytes containing the raw data bytes in
-        `vector`.
+        Static method to serialize numpy vector to Python bytes.
 
         Parameters
         ----------
@@ -220,7 +219,7 @@ class VekterDB:
     @staticmethod
     def deserialize_vector(vector_bytes: bytes) -> np.ndarray:
         """
-        Static method to interpret `vector_bytes` as a 1-dimensional array
+        Static method to deserialize Python bytes to 1-d numpy vector.
 
         Parameters
         ----------
@@ -237,14 +236,14 @@ class VekterDB:
     def save(self, config_file: str = None):
         """
         Saves configuration info to a JSON file, excluding the URL string for security.
-        If `set_faiss_runtime_parameters()` has been called, it also saves and applies
-        that setting when loading with `VekterDB.load()`
+        If ``set_faiss_runtime_parameters()`` has been called, it also saves and applies
+        that setting when loading with ``VekterDB.load()``
 
         Parameters
         ----------
         config_file : str, optional
             JSON file name to save to disk. If not provided, saves the file as
-            `table_name`.json. The default is None.
+            ``table_name``.json. The default is None.
         """
         table_name = self.Record.__table__.name
         if config_file is None:
@@ -281,9 +280,10 @@ class VekterDB:
         config_file : str
             Name of the configuration file for the VekterDB to load.
         url : str
-            URL string to connect to the database. See sa.create_engine() for details
+            URL string to connect to the database. See ``sa.create_engine()`` for
+            details.
         connect_args: Dict, optional
-            Any connection arguments to pass to sa.create_engine(). Default is {}
+            Connection arguments to pass to ``sa.create_engine()``. Default is {}
 
         Returns
         -------
@@ -326,13 +326,13 @@ class VekterDB:
         faiss_runtime_params : str, optional
             Set FAISS index runtime parameters before adding vectors. Likely only
             useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer
-            index (HNSW32) will be used during the `index.add()` to determine which
+            index (HNSW32) will be used during the ``index.add()`` to determine which
             partition to add the vector to. You may want to change from the default,
             whether that is the FAISS default (efSearch=16) or the value saved in
-            `self.faiss_runtime_parameters`. "quantizer_efSearch=40" would be an
+            ``self.faiss_runtime_parameters``. "quantizer_efSearch=40" would be an
             example value for the example index given. If used,
-            `self.faiss_runtime_parameters` is set back to its value before function
-            invocation. Default is `None`
+            ``self.faiss_runtime_parameters`` is set back to its value before function
+            invocation. Default is ``None``
 
         Returns
         -------
@@ -353,7 +353,7 @@ class VekterDB:
         if not insert_into_faiss:
             self.logger.warning(
                 "FAISS index either doesn't exist or isn't trained so "
-                + "records will only be inserted into the database."
+                + "records will only be inserted into the database table."
                 + ". Call create_index() to make the FAISS index."
             )
 
@@ -422,7 +422,7 @@ class VekterDB:
     def sample_vectors(
         self, sample_size: int = 0, batch_size: int = 10_000
     ) -> np.ndarray:
-        """Retrieve a sample of vectors from the database
+        """Retrieve a sample of vectors from the database table.
 
         Parameters
         ----------
@@ -466,9 +466,9 @@ class VekterDB:
         self, v1: np.ndarray, v2: np.ndarray, threshold: float = None
     ) -> float:
         """
-        Calculate the similarity between two vectors using using the metric specified
-        in `create_index()`. Currently only the inner product and L2 are supported. If
-        the similarity fails to meet the threshold, `None` is returned.
+        Calculate the similarity between two vectors using the metric specified
+        in ``create_index()``. Currently only the inner product and L2 are supported. If
+        the similarity fails to meet the threshold, ``None`` is returned.
 
         Parameters
         ----------
@@ -476,7 +476,7 @@ class VekterDB:
         v2 : np.ndarray
         threshold : float, optional
             Only return the value if similarity equals or exceeds this value. Default
-            is None.
+            is ``None``.
 
         Returns
         -------
@@ -515,7 +515,7 @@ class VekterDB:
         IVF index and the efSearch in the HNSW quantizer index. If a parameter is not
         recognized, an exception is thrown.
 
-        Saves the provided settings in `self.faiss_runtime_parameters`
+        Saves the provided settings in ``self.faiss_runtime_parameters``
 
         Parameters
         ----------
@@ -547,28 +547,28 @@ class VekterDB:
         faiss_index : str
             Name of the file to save the resulting FAISS index to.
         faiss_factory_str : str
-            FAISS index factory string, passed to `faiss.index_factory()`
+            FAISS index factory string, passed to ``faiss.index_factory()``
         metric : str, optional
             Metric used by FAISS to determine similarity. Valid values are either
-            `inner_product` or `L2`. Default is `inner_product`
+            ``inner_product`` or ``L2``. Default is ``inner_product``
         sample_size : int, optional
-            Number of vectors to sample from the database to train the FAISS index.
-            If 0, then all vectors are used. Default is 0.
+            Number of vectors to sample from the database table to train the FAISS
+            index. If 0, then all vectors are used. Default is 0.
         batch_size : int, optional
             Number of vectors to add into the index at one time. Also passed to
-            `sample_vectors()` to specify number of vectors to pull back from the
-            database at a time. Default is 10,000.
+            ``sample_vectors()`` to specify number of vectors to pull back from the
+            database table at a time. Default is 10,000.
         use_gpu : bool, optional
             Whether to use GPU(s). Default is False. NOTE: Not implemented yet
         faiss_runtime_params : str, optional
             Set FAISS index runtime parameters before adding vectors. Likely only
             useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
-            index (HNSW32) will be used during the `index.add()` to determine which
+            index (HNSW32) will be used during the ``index.add()`` to determine which
             partition to add the vector to. You may want to change from the default,
             whether that is the FAISS default (efSearch=16) or the value saved in
-            `self.faiss_runtime_parameters`. "quantizer_efSearch=40" would be an
+            ``self.faiss_runtime_parameters``. "quantizer_efSearch=40" would be an
             example value for the example index given. If used,
-            `self.faiss_runtime_parameters` is set back to its value before function
+            ``self.faiss_runtime_parameters`` is set back to its value before function
             invocation. Default is None
 
         Raises
@@ -576,7 +576,7 @@ class VekterDB:
         FileExistsError
             If a FAISS index is already assigned to this table.
         FileExistsError
-            If the file `faiss_index` already exists on disk.
+            If the file ``faiss_index`` already exists on disk.
         TypeError
             If the metric is not either "inner_product" | "L2"
         """
@@ -648,9 +648,9 @@ class VekterDB:
         search_parameters = None,
     ) -> List[List[Dict]]:
         """
-        Search for the `k_nearest_neighbors` records in the database based on the
-        similarity of their vectors to the query vectors. Optionally keep only
-        neighbors whose similarity exceeds the `threshold`.
+        Search for the ``k_nearest_neighbors`` records in the database table based
+        on the similarity of their vectors to the query vectors. Optionally keep
+        only neighbors whose similarity exceeds the ``threshold``.
 
         Parameters
         ----------
@@ -659,8 +659,8 @@ class VekterDB:
         k_nearest_neighbors : int
             Number of nearest neighbors to return.
         \*col_names : str
-            List of columns to use in a neighbor record. Default of `None` uses all
-            columns.
+            List of columns to use in a neighbor record. Default of ``None`` uses
+            all columns.
         k_extra_neighbors : int, optional
             Extra neighbors to return from FAISS index before reranking. If using a
             vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
@@ -668,14 +668,14 @@ class VekterDB:
             here. Default is 0.
         rerank : bool, optional
             If True, rerank neighbors according to their true similarities. Otherwise
-            the order is determined by the FAISS index's `index.search()`. Default is
-            True.
+            the order is determined by the FAISS index's ``index.search()``. Default
+            is ``True``.
         threshold : float, optional
-            Only keep neighbors whose similarities exceed the `threshold`. Default is
-            `None` which keeps all neighbors returned.
+            Only keep neighbors whose similarities exceed the ``threshold``. Default is
+            ``None`` which keeps all neighbors returned.
         search_parameters : faiss.SearchParameters, optional
             Use these search parameters instead of the current runtime FAISS
-            parameters. Passed to FAISS's `index.search()`. See
+            parameters. Passed to FAISS's ``index.search()``. See
             [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
 
         Returns
@@ -757,21 +757,21 @@ class VekterDB:
         batch_size: int = 10_000,
     ) -> List[Dict]:
         """
-        Find the nearest neighbors of query records in the table based on vector
-        similarity. Optionally keep only neighbors whose similarity exceeds the
-        `threshold`.
+        Find the nearest neighbors of the query records in the table based on
+        vector similarity. Optionally keep only neighbors whose similarity
+        exceeds the ``threshold``.
 
         Parameters
         ----------
         fetch_column : str
-            Column in the database for query record retrieval.
+            Column in the database table to use for query record retrieval.
         fetch_values : List
-            Values to match in the `fetch_column`.
+            Values to match in the ``fetch_column``.
         k_nearest_neighbors : int
             Number of nearest neighbors to return.
         \*col_names : str
-            List of columns to use in the query and neighbor records. Default of `None`
-            uses all columns.
+            List of columns to use in the query and neighbor records. Default of
+            ``None`` uses all columns.
         k_extra_neighbors : int, optional
             Extra neighbors to return from FAISS index before reranking. If using a
             vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
@@ -779,18 +779,18 @@ class VekterDB:
             here. Default is 0.
         rerank : bool, optional
             If True, rerank neighbors according to their true similarities. Otherwise
-            the order is determined by the FAISS index's `index.search()`. Default is
-            True.
+            the order is determined by the FAISS index's ``index.search()``. Default
+            is ``True``.
         threshold : float, optional
-            Only keep neighbors whose similarities exceed the `threshold`. Default is
-            `None` which keeps all neighbors returned.
+            Only keep neighbors whose similarities exceed the ``threshold``. Default
+            is ``None`` which keeps all neighbors returned.
         search_parameters : faiss.SearchParameters, optional
             Use these search parameters instead of the current runtime FAISS
-            parameters. Passed to FAISS's `index.search()`. See
+            parameters. Passed to FAISS's ``index.search()``. See
             [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
         batch_size : int, optional
-            Number of query records to retrieve from the database at one time. Passed
-            to `fetch_records()`. Default is 10,000.
+            Number of query records to retrieve from the database table at one time.
+            Passed to ``fetch_records()``. Default is 10,000.
 
         Returns
         -------
@@ -862,19 +862,19 @@ class VekterDB:
         batch_size: int = 10_000,
     ) -> Iterator[Dict]:
         """
-        Fetch records from the database.
+        Fetch records from the database table.
 
         Parameters
         ----------
         fetch_column : str
-            Column in the database used for record retrieval.
+            Column in the database table used for record retrieval.
         fetch_values : List
-            Values to match in the `fetch_column`.
+            Values to match in the ``fetch_column``.
         \*col_names : str, optional
-            List columns to return from the database. Default of `None` returns all
-            columns.
+            List columns to return from the database table. Default of ``None`` returns
+            all columns.
         batch_size : int, optional
-            Number of records to fetch from the database at one time. Default is
+            Number of records to fetch from the database table at one time. Default is
             10,000.
 
         Yields
@@ -887,7 +887,7 @@ class VekterDB:
             self.columns[fetch_column].index or self.columns[fetch_column].primary_key
         ):
             self.logger.warning(
-                f"{fetch_column} is not indexed in the database. This will be slow."
+                f"{fetch_column} is not indexed in the database table. This will be slow."
             )
         n_records = len(fetch_values)
         n_batches = n_records // batch_size + 1
