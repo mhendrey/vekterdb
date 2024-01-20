@@ -172,16 +172,15 @@
 <span class="sd">        Database table name, either existing or new.</span>
 <span class="sd">    idx_name : str, optional</span>
 <span class="sd">        Column name that stores the FAISS index integer ID and is the primary key</span>
-<span class="sd">        for the database table. It must be unique and consecutive from</span>
-<span class="sd">            [0, n_records). The default name is &quot;idx&quot;.</span>
+<span class="sd">        for the database table. It must be unique and consecutive from [0, n_records).</span>
+<span class="sd">        The default name is &quot;idx&quot;.</span>
 <span class="sd">    vector_name : str, optional</span>
 <span class="sd">        Column name that stores the vector information. Default is &quot;vector&quot;.</span>
 <span class="sd">    columns_dict : Dict[str, Dict], optional</span>
 <span class="sd">        Names (key) of additional columns to include in the table. The values are</span>
 <span class="sd">        arguments that will be passed to SQLAlchemy&#39;s ``Column``. Default is {}.</span>
 
-<span class="sd">        When connecting to an existing database table, this argument is not</span>
-<span class="sd">        necessary.</span>
+<span class="sd">        When connecting to an existing database table, this argument is not necessary.</span>
 <span class="sd">    url : str, optional</span>
 <span class="sd">        URL string to connect to the database. Passed to SQLAlchemy&#39;s</span>
 <span class="sd">        ``create_engine``. Default is &quot;sqlite:///:memory&quot;; an in-memory database.</span>

@@ -152,17 +152,13 @@ field (str) and a non-unique product_category field (str) with:</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>table_name</strong> (<em>str</em>) – Database table name, either existing or new.</p></li>
-<li><p><strong>idx_name</strong> (<em>str</em><em>, </em><em>optional</em>) – <p>Column name that stores the FAISS index integer ID and is the primary key
-for the database table. It must be unique and consecutive from</p>
-<blockquote>
-<div><p>[0, n_records). The default name is “idx”.</p>
-</div></blockquote>
-</p></li>
+<li><p><strong>idx_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Column name that stores the FAISS index integer ID and is the primary key
+for the database table. It must be unique and consecutive from [0, n_records).
+The default name is “idx”.</p></li>
 <li><p><strong>vector_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Column name that stores the vector information. Default is “vector”.</p></li>
 <li><p><strong>columns_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>]</em><em>, </em><em>optional</em>) – <p>Names (key) of additional columns to include in the table. The values are
 arguments that will be passed to SQLAlchemy’s <code class="docutils literal notranslate"><span class="pre">Column</span></code>. Default is {}.</p>
-<p>When connecting to an existing database table, this argument is not
-necessary.</p>
+<p>When connecting to an existing database table, this argument is not necessary.</p>
 </p></li>
 <li><p><strong>url</strong> (<em>str</em><em>, </em><em>optional</em>) – URL string to connect to the database. Passed to SQLAlchemy’s
 <code class="docutils literal notranslate"><span class="pre">create_engine</span></code>. Default is “sqlite:///:memory”; an in-memory database.</p></li>
