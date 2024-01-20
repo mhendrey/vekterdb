@@ -28,7 +28,7 @@ jobs:
         with:
           docs-folder: "docs/"
           pre-build-command: "apt-get -y --allow-releaseinfo-change update && apt-get install -y gcc"
-          build-command: "sphinx-build source build -b html -w /tmp/sphinx-log"
+          build-command: "sphinx-build source build/html -b html -w /tmp/sphinx-log"
 
       # Publish built docs to gh-pages branch
       - name: Commit documentation changes
