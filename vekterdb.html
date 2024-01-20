@@ -52,7 +52,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">VekterDB</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#the-basics">The Basics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tutorial">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial">Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#set-up">Set up</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -187,7 +190,16 @@ another column that serves as a more recognizable ID field that is a string.</p>
 <h2>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading"></a></h2>
 <p>In this tutorial, we will work through an example using one of the datasets found in the
 <a class="reference external" href="https://github.com/erikbern/ann-benchmarks?tab=readme-ov-file#data-sets">Approximate Nearest Neighbors Benchmark</a>, SIFT-1M.
-The data is stored in an HDF5 file and can be downloaded from this <a class="reference external" href="http://ann-benchmarks.com/sift-128-euclidean.hdf5">link</a>.</p>
+The data is stored in an HDF5 file and can be downloaded from this <a class="reference external" href="http://ann-benchmarks.com/sift-128-euclidean.hdf5">link</a> (~500MB).</p>
+<section id="set-up">
+<h3>Set up<a class="headerlink" href="#set-up" title="Permalink to this heading"></a></h3>
+<p>We will begin by setting up a new conda environment and installing needed packages.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda create -n vekterdb_tutorial python=3.11 ipython
+$ conda activate vekterdb_tutorial
+$ conda install -c pytorch -c conda-forge -c defaults faiss h5py
+$ pip install vekterdb
+</pre></div>
+</div>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="f1" role="doc-footnote">
@@ -210,6 +222,7 @@ See also <a class="reference external" href="https://arxiv.org/abs/2010.09426">a
 (Note: they actually only tested on 54M vectors)</p>
 </aside>
 </aside>
+</section>
 </section>
 </section>
 
