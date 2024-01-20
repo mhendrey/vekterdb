@@ -93,8 +93,35 @@ be able to read the downloaded SIFT-1M dataset.::
     $ conda activate vekterdb_tutorial
     $ conda install -c pytorch -c conda-forge -c defaults h5py faiss-cpu=1.7.4 mkl=2021 blas=1.0=mkl
     $ pip install vekterdb
+    $ ipython
 
+The rest of the code assumes you are inside a Python interpretter (ipython, Jupyter,
+or whatever you like).
 
+Initialize VekterDB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We begin by initializing a VekterDB. For this tutorial, we will use a SQLite database,
+but you could just as easily use a Postgres, MySQL, or any other of the SQLAlchemy
+`dialects <https://docs.sqlalchemy.org/en/20/dialects/index.html>`_. The SQLite
+database will be stored in local file "sift1m.db" in a table called "tutorial".
+Though the h5py file has just the two required fields for VekterDB, namely an integer
+identifier and the vector, we will add an additional string identifier for
+demonstration purposes. This column will be indexed by SQLite in order to allow a
+user to query for nearest neighbors using this identifier as well.::
+
+    import h5py
+    import sqlalchemy as sa
+    from vekterdb import VekterDB
+
+    vekter_db = VekterDB(
+        "tutorial",
+        idx_name = "idx",
+        vector_name = "vector",
+        columns_dict = {
+            "id": {"type": sa.Text, "unique": True, "nullable": False, "index": True},
+        },
+        url = "sqlite:///sift1m.db"
+    }
 
 
 

@@ -54,6 +54,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tutorial">Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#set-up">Set up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initialize-vekterdb">Initialize VekterDB</a></li>
 </ul>
 </li>
 </ul>
@@ -201,6 +202,35 @@ be able to read the downloaded SIFT-1M dataset.:</p>
 $ conda activate vekterdb_tutorial
 $ conda install -c pytorch -c conda-forge -c defaults h5py faiss-cpu=1.7.4 mkl=2021 blas=1.0=mkl
 $ pip install vekterdb
+$ ipython
+</pre></div>
+</div>
+<p>The rest of the code assumes you are inside a Python interpretter (ipython, Jupyter,
+or whatever you like).</p>
+</section>
+<section id="initialize-vekterdb">
+<h3>Initialize VekterDB<a class="headerlink" href="#initialize-vekterdb" title="Permalink to this heading"></a></h3>
+<p>We begin by initializing a VekterDB. For this tutorial, we will use a SQLite database,
+but you could just as easily use a Postgres, MySQL, or any other of the SQLAlchemy
+<a class="reference external" href="https://docs.sqlalchemy.org/en/20/dialects/index.html">dialects</a>. The SQLite
+database will be stored in local file “sift1m.db” in a table called “tutorial”.
+Though the h5py file has just the two required fields for VekterDB, namely an integer
+identifier and the vector, we will add an additional string identifier for
+demonstration purposes. This column will be indexed by SQLite in order to allow a
+user to query for nearest neighbors using this identifier as well.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+<span class="kn">from</span> <span class="nn">vekterdb</span> <span class="kn">import</span> <span class="n">VekterDB</span>
+
+<span class="n">vekter_db</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="p">(</span>
+    <span class="s2">&quot;tutorial&quot;</span><span class="p">,</span>
+    <span class="n">idx_name</span> <span class="o">=</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
+    <span class="n">vector_name</span> <span class="o">=</span> <span class="s2">&quot;vector&quot;</span><span class="p">,</span>
+    <span class="n">columns_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="s2">&quot;unique&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;nullable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///sift1m.db&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
