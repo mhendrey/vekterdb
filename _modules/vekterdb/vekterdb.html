@@ -314,8 +314,7 @@
 <div class="viewcode-block" id="VekterDB.serialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.serialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">serialize_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Static method to construct Python bytes containing the raw data bytes in</span>
-<span class="sd">        `vector`.</span>
+<span class="sd">        Static method to serialize numpy vector to Python bytes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -331,7 +330,7 @@
 <div class="viewcode-block" id="VekterDB.deserialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Static method to interpret `vector_bytes` as a 1-dimensional array</span>
+<span class="sd">        Static method to deserialize Python bytes to 1-d numpy vector.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -348,14 +347,14 @@
 <div class="viewcode-block" id="VekterDB.save"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saves configuration info to a JSON file, excluding the URL string for security.</span>
-<span class="sd">        If `set_faiss_runtime_parameters()` has been called, it also saves and applies</span>
-<span class="sd">        that setting when loading with `VekterDB.load()`</span>
+<span class="sd">        If ``set_faiss_runtime_parameters()`` has been called, it also saves and applies</span>
+<span class="sd">        that setting when loading with ``VekterDB.load()``</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        config_file : str, optional</span>
 <span class="sd">            JSON file name to save to disk. If not provided, saves the file as</span>
-<span class="sd">            `table_name`.json. The default is None.</span>
+<span class="sd">            ``table_name``.json. The default is None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -392,9 +391,10 @@
 <span class="sd">        config_file : str</span>
 <span class="sd">            Name of the configuration file for the VekterDB to load.</span>
 <span class="sd">        url : str</span>
-<span class="sd">            URL string to connect to the database. See sa.create_engine() for details</span>
+<span class="sd">            URL string to connect to the database. See ``sa.create_engine()`` for</span>
+<span class="sd">            details.</span>
 <span class="sd">        connect_args: Dict, optional</span>
-<span class="sd">            Any connection arguments to pass to sa.create_engine(). Default is {}</span>
+<span class="sd">            Connection arguments to pass to ``sa.create_engine()``. Default is {}</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -437,13 +437,13 @@
 <span class="sd">        faiss_runtime_params : str, optional</span>
 <span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
 <span class="sd">            useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
-<span class="sd">            index (HNSW32) will be used during the `index.add()` to determine which</span>
+<span class="sd">            index (HNSW32) will be used during the ``index.add()`` to determine which</span>
 <span class="sd">            partition to add the vector to. You may want to change from the default,</span>
 <span class="sd">            whether that is the FAISS default (efSearch=16) or the value saved in</span>
-<span class="sd">            `self.faiss_runtime_parameters`. &quot;quantizer_efSearch=40&quot; would be an</span>
+<span class="sd">            ``self.faiss_runtime_parameters``. &quot;quantizer_efSearch=40&quot; would be an</span>
 <span class="sd">            example value for the example index given. If used,</span>
-<span class="sd">            `self.faiss_runtime_parameters` is set back to its value before function</span>
-<span class="sd">            invocation. Default is `None`</span>
+<span class="sd">            ``self.faiss_runtime_parameters`` is set back to its value before function</span>
+<span class="sd">            invocation. Default is ``None``</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -464,7 +464,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;FAISS index either doesn&#39;t exist or isn&#39;t trained so &quot;</span>
-                <span class="o">+</span> <span class="s2">&quot;records will only be inserted into the database.&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;records will only be inserted into the database table.&quot;</span>
                 <span class="o">+</span> <span class="s2">&quot;. Call create_index() to make the FAISS index.&quot;</span>
             <span class="p">)</span>
 
@@ -533,7 +533,7 @@
 <div class="viewcode-block" id="VekterDB.sample_vectors"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.sample_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">sample_vectors</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a sample of vectors from the database</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a sample of vectors from the database table.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -577,9 +577,9 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the similarity between two vectors using using the metric specified</span>
-<span class="sd">        in `create_index()`. Currently only the inner product and L2 are supported. If</span>
-<span class="sd">        the similarity fails to meet the threshold, `None` is returned.</span>
+<span class="sd">        Calculate the similarity between two vectors using the metric specified</span>
+<span class="sd">        in ``create_index()``. Currently only the inner product and L2 are supported. If</span>
+<span class="sd">        the similarity fails to meet the threshold, ``None`` is returned.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -587,7 +587,7 @@
 <span class="sd">        v2 : np.ndarray</span>
 <span class="sd">        threshold : float, optional</span>
 <span class="sd">            Only return the value if similarity equals or exceeds this value. Default</span>
-<span class="sd">            is None.</span>
+<span class="sd">            is ``None``.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -626,7 +626,7 @@
 <span class="sd">        IVF index and the efSearch in the HNSW quantizer index. If a parameter is not</span>
 <span class="sd">        recognized, an exception is thrown.</span>
 
-<span class="sd">        Saves the provided settings in `self.faiss_runtime_parameters`</span>
+<span class="sd">        Saves the provided settings in ``self.faiss_runtime_parameters``</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -658,28 +658,28 @@
 <span class="sd">        faiss_index : str</span>
 <span class="sd">            Name of the file to save the resulting FAISS index to.</span>
 <span class="sd">        faiss_factory_str : str</span>
-<span class="sd">            FAISS index factory string, passed to `faiss.index_factory()`</span>
+<span class="sd">            FAISS index factory string, passed to ``faiss.index_factory()``</span>
 <span class="sd">        metric : str, optional</span>
 <span class="sd">            Metric used by FAISS to determine similarity. Valid values are either</span>
-<span class="sd">            `inner_product` or `L2`. Default is `inner_product`</span>
+<span class="sd">            ``inner_product`` or ``L2``. Default is ``inner_product``</span>
 <span class="sd">        sample_size : int, optional</span>
-<span class="sd">            Number of vectors to sample from the database to train the FAISS index.</span>
-<span class="sd">            If 0, then all vectors are used. Default is 0.</span>
+<span class="sd">            Number of vectors to sample from the database table to train the FAISS</span>
+<span class="sd">            index. If 0, then all vectors are used. Default is 0.</span>
 <span class="sd">        batch_size : int, optional</span>
 <span class="sd">            Number of vectors to add into the index at one time. Also passed to</span>
-<span class="sd">            `sample_vectors()` to specify number of vectors to pull back from the</span>
-<span class="sd">            database at a time. Default is 10,000.</span>
+<span class="sd">            ``sample_vectors()`` to specify number of vectors to pull back from the</span>
+<span class="sd">            database table at a time. Default is 10,000.</span>
 <span class="sd">        use_gpu : bool, optional</span>
 <span class="sd">            Whether to use GPU(s). Default is False. NOTE: Not implemented yet</span>
 <span class="sd">        faiss_runtime_params : str, optional</span>
 <span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
 <span class="sd">            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
-<span class="sd">            index (HNSW32) will be used during the `index.add()` to determine which</span>
+<span class="sd">            index (HNSW32) will be used during the ``index.add()`` to determine which</span>
 <span class="sd">            partition to add the vector to. You may want to change from the default,</span>
 <span class="sd">            whether that is the FAISS default (efSearch=16) or the value saved in</span>
-<span class="sd">            `self.faiss_runtime_parameters`. &quot;quantizer_efSearch=40&quot; would be an</span>
+<span class="sd">            ``self.faiss_runtime_parameters``. &quot;quantizer_efSearch=40&quot; would be an</span>
 <span class="sd">            example value for the example index given. If used,</span>
-<span class="sd">            `self.faiss_runtime_parameters` is set back to its value before function</span>
+<span class="sd">            ``self.faiss_runtime_parameters`` is set back to its value before function</span>
 <span class="sd">            invocation. Default is None</span>
 
 <span class="sd">        Raises</span>
@@ -687,7 +687,7 @@
 <span class="sd">        FileExistsError</span>
 <span class="sd">            If a FAISS index is already assigned to this table.</span>
 <span class="sd">        FileExistsError</span>
-<span class="sd">            If the file `faiss_index` already exists on disk.</span>
+<span class="sd">            If the file ``faiss_index`` already exists on disk.</span>
 <span class="sd">        TypeError</span>
 <span class="sd">            If the metric is not either &quot;inner_product&quot; | &quot;L2&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -759,9 +759,9 @@
         <span class="n">search_parameters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Search for the `k_nearest_neighbors` records in the database based on the</span>
-<span class="sd">        similarity of their vectors to the query vectors. Optionally keep only</span>
-<span class="sd">        neighbors whose similarity exceeds the `threshold`.</span>
+<span class="sd">        Search for the ``k_nearest_neighbors`` records in the database table based</span>
+<span class="sd">        on the similarity of their vectors to the query vectors. Optionally keep</span>
+<span class="sd">        only neighbors whose similarity exceeds the ``threshold``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -770,8 +770,8 @@
 <span class="sd">        k_nearest_neighbors : int</span>
 <span class="sd">            Number of nearest neighbors to return.</span>
 <span class="sd">        \*col_names : str</span>
-<span class="sd">            List of columns to use in a neighbor record. Default of `None` uses all</span>
-<span class="sd">            columns.</span>
+<span class="sd">            List of columns to use in a neighbor record. Default of ``None`` uses</span>
+<span class="sd">            all columns.</span>
 <span class="sd">        k_extra_neighbors : int, optional</span>
 <span class="sd">            Extra neighbors to return from FAISS index before reranking. If using a</span>
 <span class="sd">            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated</span>
@@ -779,14 +779,14 @@
 <span class="sd">            here. Default is 0.</span>
 <span class="sd">        rerank : bool, optional</span>
 <span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
-<span class="sd">            the order is determined by the FAISS index&#39;s `index.search()`. Default is</span>
-<span class="sd">            True.</span>
+<span class="sd">            the order is determined by the FAISS index&#39;s ``index.search()``. Default</span>
+<span class="sd">            is ``True``.</span>
 <span class="sd">        threshold : float, optional</span>
-<span class="sd">            Only keep neighbors whose similarities exceed the `threshold`. Default is</span>
-<span class="sd">            `None` which keeps all neighbors returned.</span>
+<span class="sd">            Only keep neighbors whose similarities exceed the ``threshold``. Default is</span>
+<span class="sd">            ``None`` which keeps all neighbors returned.</span>
 <span class="sd">        search_parameters : faiss.SearchParameters, optional</span>
 <span class="sd">            Use these search parameters instead of the current runtime FAISS</span>
-<span class="sd">            parameters. Passed to FAISS&#39;s `index.search()`. See</span>
+<span class="sd">            parameters. Passed to FAISS&#39;s ``index.search()``. See</span>
 <span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
 
 <span class="sd">        Returns</span>
@@ -868,21 +868,21 @@
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the nearest neighbors of query records in the table based on vector</span>
-<span class="sd">        similarity. Optionally keep only neighbors whose similarity exceeds the</span>
-<span class="sd">        `threshold`.</span>
+<span class="sd">        Find the nearest neighbors of the query records in the table based on</span>
+<span class="sd">        vector similarity. Optionally keep only neighbors whose similarity</span>
+<span class="sd">        exceeds the ``threshold``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fetch_column : str</span>
-<span class="sd">            Column in the database for query record retrieval.</span>
+<span class="sd">            Column in the database table to use for query record retrieval.</span>
 <span class="sd">        fetch_values : List</span>
-<span class="sd">            Values to match in the `fetch_column`.</span>
+<span class="sd">            Values to match in the ``fetch_column``.</span>
 <span class="sd">        k_nearest_neighbors : int</span>
 <span class="sd">            Number of nearest neighbors to return.</span>
 <span class="sd">        \*col_names : str</span>
-<span class="sd">            List of columns to use in the query and neighbor records. Default of `None`</span>
-<span class="sd">            uses all columns.</span>
+<span class="sd">            List of columns to use in the query and neighbor records. Default of</span>
+<span class="sd">            ``None`` uses all columns.</span>
 <span class="sd">        k_extra_neighbors : int, optional</span>
 <span class="sd">            Extra neighbors to return from FAISS index before reranking. If using a</span>
 <span class="sd">            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated</span>
@@ -890,18 +890,18 @@
 <span class="sd">            here. Default is 0.</span>
 <span class="sd">        rerank : bool, optional</span>
 <span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
-<span class="sd">            the order is determined by the FAISS index&#39;s `index.search()`. Default is</span>
-<span class="sd">            True.</span>
+<span class="sd">            the order is determined by the FAISS index&#39;s ``index.search()``. Default</span>
+<span class="sd">            is ``True``.</span>
 <span class="sd">        threshold : float, optional</span>
-<span class="sd">            Only keep neighbors whose similarities exceed the `threshold`. Default is</span>
-<span class="sd">            `None` which keeps all neighbors returned.</span>
+<span class="sd">            Only keep neighbors whose similarities exceed the ``threshold``. Default</span>
+<span class="sd">            is ``None`` which keeps all neighbors returned.</span>
 <span class="sd">        search_parameters : faiss.SearchParameters, optional</span>
 <span class="sd">            Use these search parameters instead of the current runtime FAISS</span>
-<span class="sd">            parameters. Passed to FAISS&#39;s `index.search()`. See</span>
+<span class="sd">            parameters. Passed to FAISS&#39;s ``index.search()``. See</span>
 <span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
 <span class="sd">        batch_size : int, optional</span>
-<span class="sd">            Number of query records to retrieve from the database at one time. Passed</span>
-<span class="sd">            to `fetch_records()`. Default is 10,000.</span>
+<span class="sd">            Number of query records to retrieve from the database table at one time.</span>
+<span class="sd">            Passed to ``fetch_records()``. Default is 10,000.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -973,19 +973,19 @@
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Fetch records from the database.</span>
+<span class="sd">        Fetch records from the database table.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fetch_column : str</span>
-<span class="sd">            Column in the database used for record retrieval.</span>
+<span class="sd">            Column in the database table used for record retrieval.</span>
 <span class="sd">        fetch_values : List</span>
-<span class="sd">            Values to match in the `fetch_column`.</span>
+<span class="sd">            Values to match in the ``fetch_column``.</span>
 <span class="sd">        \*col_names : str, optional</span>
-<span class="sd">            List columns to return from the database. Default of `None` returns all</span>
-<span class="sd">            columns.</span>
+<span class="sd">            List columns to return from the database table. Default of ``None`` returns</span>
+<span class="sd">            all columns.</span>
 <span class="sd">        batch_size : int, optional</span>
-<span class="sd">            Number of records to fetch from the database at one time. Default is</span>
+<span class="sd">            Number of records to fetch from the database table at one time. Default is</span>
 <span class="sd">            10,000.</span>
 
 <span class="sd">        Yields</span>
@@ -998,7 +998,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">fetch_column</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">fetch_column</span><span class="p">]</span><span class="o">.</span><span class="n">primary_key</span>
         <span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fetch_column</span><span class="si">}</span><span class="s2"> is not indexed in the database. This will be slow.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fetch_column</span><span class="si">}</span><span class="s2"> is not indexed in the database table. This will be slow.&quot;</span>
             <span class="p">)</span>
         <span class="n">n_records</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fetch_values</span><span class="p">)</span>
         <span class="n">n_batches</span> <span class="o">=</span> <span class="n">n_records</span> <span class="o">//</span> <span class="n">batch_size</span> <span class="o">+</span> <span class="mi">1</span>
