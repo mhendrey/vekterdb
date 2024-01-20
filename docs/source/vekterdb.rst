@@ -112,6 +112,7 @@ user to query for nearest neighbors using this identifier as well.
 ::
 
     import h5py
+    import numpy as np
     import sqlalchemy as sa
     from vekterdb import VekterDB
 
@@ -177,6 +178,40 @@ the vector.
         faiss_runtime_params="quantizer_efSearch=25",
     )
 
+Querying for Similar Vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+VekterDB offers two ways in which to query for nearest neighbors. The first handles the
+cases when you have a vector that is **not** part of the database table, but want to
+find the records in the database table that are the most similar to the query. This is
+done with the ``search()`` method.  The second is when you want to find the nearest
+neighbors in the database table to an existing record in the table. This is done with
+the ``nearest_neighbors()`` method.
+
+Before we begin searching, it's likely that you want to change from the default FAISS
+runtime search parameters. For our "IVF_HNSW,PQ" index, the default values are
+``nprobe=1`` and ``quantizer_efSearch=16``. This means that only the nearest partition,
+out of a candidate pool of 16, will be searched for the nearest to a given query. This
+is likely too little of the search space. Typically, setting ``nprobe`` to ~ 2-5% of
+the number of partitions (5,000 for this index) yields acceptable results. So let's use
+``nprobe=175`` (3.5%). If ``nprobe=175``, then we want to increase ``quantizer_efSearch``
+too, so that the candidate pool is bigger than ``nprobe``. Let's use
+``quantizer_efSearch=350``.
+
+Let's begin with the ``search()`` approach. This returns a list where each element is
+a list of the nearest records for the corresponding query vector. For the sake of
+demonstration, we will pull some query vectors from the database, but this could more
+easily be done with the ``nearest_neighbors()``, as we will show in a minute. Let's
+pull idx = 100 & idx = 200, but since we only need the vector we only request that
+column be returned from the ``fetch_records()``.
+
+We will search for the nearest 5 vectors.
+
+::
+
+    fetched_records = vekter_db.fetch_records("idx", [100, 200], "vector")
+    query_vectors = np.vstack([r["vector"] for r in fetched_records])
+
+    results = vekter_db.search(query_vectors, 5, "idx", "id", k_extra_neighbors=30)
 
 .. rubric:: Footnotes
 
