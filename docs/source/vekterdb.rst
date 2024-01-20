@@ -161,9 +161,10 @@ The FAISS index will be saved to local disk in the "ivf_hnsw.index" file. The me
 is set to "L2" to match the Euclidean distance used for the SIFT-1M dataset. We use
 half of the data, 500k, to train the index. We pull 50,000 records from the database
 at any one time and also insert into FAISS at this amount. When adding vectors into
-the FAISS index, we will select the closest centroid from among the nearest 50
-centroids. If we had used just an "IVF5000,PQ32" index, we would compare each vector
-to all 5,000 centroids to determine which partition to insert the vector.
+the FAISS index, we will select the closest centroid from amongst a candidate pool
+of the nearest 25 centroids. If we had used just an "IVF5000,PQ32" index, we would
+compare each vector to all 5,000 centroids to determine which partition to insert
+the vector.
 
 ::
 
@@ -173,7 +174,7 @@ to all 5,000 centroids to determine which partition to insert the vector.
         metric="L2",
         sample_size=500_000,
         batch_size=50_000,
-        faiss_runtime_params="quantizer_efSearch=50",
+        faiss_runtime_params="quantizer_efSearch=25",
     )
 
 
