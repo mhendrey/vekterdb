@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#tutorial">Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#set-up">Set up</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#initialize-vekterdb">Initialize VekterDB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#insert-records-into-the-db-table">Insert Records into the DB Table</a></li>
 </ul>
 </li>
 </ul>
@@ -230,7 +231,19 @@ user to query for nearest neighbors using this identifier as well.:</p>
         <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="s2">&quot;unique&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;nullable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///sift1m.db&quot;</span>
-<span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="insert-records-into-the-db-table">
+<h3>Insert Records into the DB Table<a class="headerlink" href="#insert-records-into-the-db-table" title="Permalink to this heading"></a></h3>
+<p>With the database table, tutorial, now created in the database, sift1m.db, it is time
+to add the records from the HDF5 file.  We will specify a function that will yield the
+records that will be inserted into the database table.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">records_gen</span><span class="p">(</span><span class="n">h5_file</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="s2">&quot;idx&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot;vector&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]}</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
