@@ -107,7 +107,9 @@ database will be stored in local file "sift1m.db" in a table called "tutorial".
 Though the h5py file has just the two required fields for VekterDB, namely an integer
 identifier and the vector, we will add an additional string identifier for
 demonstration purposes. This column will be indexed by SQLite in order to allow a
-user to query for nearest neighbors using this identifier as well.::
+user to query for nearest neighbors using this identifier as well.
+
+::
 
     import h5py
     import sqlalchemy as sa
@@ -127,13 +129,52 @@ Insert Records into the DB Table
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 With the database table, tutorial, now created in the database, sift1m.db, it is time
 to add the records from the HDF5 file.  We will specify a function that will yield the
-records that will be inserted into the database table.::
+records that will be inserted into the database table. Since we haven't specified a
+FAISS index yet, these records will only be added to the database table.
+
+The ``records_gen`` is a good candidate for parallelization.
+
+::
 
     def records_gen(h5_file:str):
         with h5py.File(h5_file, 'r') as f:
             for i in range(n):
                 yield {"id": str(i), "idx": i, "vector": f["data"][i]}
 
+    records = records_gen("sift-128-euclidean.hdf5")
+    n_records = vekter_db.insert(records)
+
+Create FAISS Index
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+With the database table now populated, we can construct the desired FAISS index which
+handles the vector similarity queries. In this tutorial we will utilize a more
+complicated index than is probably necessary, but we want to demonstrate using an index
+appropriate for way more than 1M vectors.
+
+For scalability, we will use an "IVF_HNSW,PQ" index.  Specifically, let's use a
+"IVF5000_HNSW32,PQ32" index. This splits the 128-dimensional space into
+5 * sqrt(1_000_000) = 5,000 partitions. The centroids of the 5,000 partitions will
+themselves be indexed using an HNSW32. To help save space, we will also use a Product
+Quantization to shrink the size of each vector into ~ 32 bytes, down from 512 bytes.
+
+The FAISS index will be saved to local disk in the "ivf_hnsw.index" file. The metric
+is set to "L2" to match the Euclidean distance used for the SIFT-1M dataset. We use
+half of the data, 500k, to train the index. We pull 50,000 records from the database
+at any one time and also insert into FAISS at this amount. When adding vectors into
+the FAISS index, we will select the closest centroid from among the nearest 50
+centroids. If we had used just an "IVF5000,PQ32" index, we would compare each vector
+to all 5,000 centroids to determine which partition to insert the vector.
+
+::
+
+    vekter_db.create_index(
+        "ivf_hnsw.index",
+        "IVF5000_HNSW32,PQ32",
+        metric="L2",
+        sample_size=500_000,
+        batch_size=50_000,
+        faiss_runtime_params="quantizer_efSearch=50",
+    )
 
 
 .. rubric:: Footnotes
