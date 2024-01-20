@@ -643,7 +643,7 @@ class VekterDB:
         k_extra_neighbors: int = 0,
         rerank: bool = True,
         threshold: float = None,
-        search_parameters: faiss.SearchParameters = None,
+        search_parameters = None,
     ) -> List[List[Dict]]:
         """
         Search for the `k_nearest_neighbors` records in the database based on the
@@ -751,7 +751,7 @@ class VekterDB:
         k_extra_neighbors: int = 0,
         rerank: bool = True,
         threshold: float = None,
-        search_parameters: faiss.SearchParameters = None,
+        search_parameters = None,
         batch_size: int = 10_000,
     ) -> List[Dict]:
         """
