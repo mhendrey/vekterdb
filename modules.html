@@ -132,7 +132,78 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vekterdb.vekterdb.</span></span><span class="sig-name descname"><span class="pre">VekterDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'idx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vector'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sqlite:///:memory:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Instantiate a VekterDB</p>
+<p>Initialize VekterDB with a minimum of two columns: idx_name (BigInteger,
+default ‘idx’) and vector (LargeBinary, default ‘vector’). Vectors are numpy
+arrays of np.float32, serialized to bytes using tobytes(), to comply with
+FAISS requirements.</p>
+<p>Add additional columns with <cite>columns_dict</cite> using SQLAlchemy’s <cite>Column</cite>
+arguments. For example, include a unique, indexed id field (str) and a
+non-unique product_category field (str) with:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+my_db = VekterDB(</p>
+<blockquote>
+<div><p>“my_table”,
+columns_dict={</p>
+<blockquote>
+<div><p>“id”: {“type”: Text, “unique”: True, “nullable”: False, “index”: True},
+“product_category”: {“type”: Text},</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<section id="id3">
+<h2>)<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<dl class="field-list">
+<dt class="field-odd">param table_name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Database table name, either existing or new.</p>
+</dd>
+<dt class="field-even">type table_name<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">param idx_name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Column name that stores the FAISS index integer ID and is the primary key
+for the database table. It must be unique and consecutive from
+[0, n_records). The default name is “idx”.</p>
+</dd>
+<dt class="field-even">type idx_name<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+<dt class="field-odd">param vector_name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Column name that stores the vector information. Default is “vector”.</p>
+</dd>
+<dt class="field-even">type vector_name<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+<dt class="field-odd">param columns_dict<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Names (key) of additional columns to include in the table. The values are
+arguments that will be passed to SQLAlchemy’s <cite>Column</cite>. Default is {}.</p>
+<p>When connecting to an existing database table, this argument is not
+necessary.</p>
+</dd>
+<dt class="field-even">type columns_dict<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Dict], optional</p>
+</dd>
+<dt class="field-odd">param url<span class="colon">:</span></dt>
+<dd class="field-odd"><p>URL string to connect to the database. Passed to SQLAlchemy’s
+<cite>create_engine</cite>. Default is “sqlite:///:memory”; an in-memory database.</p>
+</dd>
+<dt class="field-even">type url<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+<dt class="field-odd">param connect_args<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any connection arguments to pass to SQLAlchemy’s <cite>create_engine</cite>.
+Default is {}.</p>
+</dd>
+<dt class="field-even">type connect_args<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, optional</p>
+</dd>
+<dt class="field-odd">param faiss_index<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If given, then load an existing FAISS index saved by that name. Default
+is None.</p>
+</dd>
+<dt class="field-even">type faiss_index<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, optional</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.create_index">
 <span class="sig-name descname"><span class="pre">create_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faiss_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_factory_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'inner_product'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.create_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.create_index" title="Permalink to this definition"></a></dt>
@@ -430,6 +501,7 @@ is None.</p></li>
 </dl>
 </dd></dl>
 
+</section>
 </dd></dl>
 
 </section>
