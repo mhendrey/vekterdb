@@ -79,7 +79,18 @@ In this tutorial, we will work through an example using one of the datasets foun
 `Approximate Nearest Neighbors Benchmark
 <https://github.com/erikbern/ann-benchmarks?tab=readme-ov-file#data-sets>`_, SIFT-1M.
 The data is stored in an HDF5 file and can be downloaded from this `link
-<http://ann-benchmarks.com/sift-128-euclidean.hdf5>`_. 
+<http://ann-benchmarks.com/sift-128-euclidean.hdf5>`_ (~500MB).
+
+Set up
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We will begin by setting up a new conda environment and installing needed packages.::
+
+    $ conda create -n vekterdb_tutorial python=3.11 ipython
+    $ conda activate vekterdb_tutorial
+    $ conda install -c pytorch -c conda-forge -c defaults faiss h5py
+    $ pip install vekterdb
+
+
 
 
 
