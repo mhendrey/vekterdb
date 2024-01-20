@@ -83,11 +83,15 @@ The data is stored in an HDF5 file and can be downloaded from this `link
 
 Set up
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-We will begin by setting up a new conda environment and installing needed packages.::
+We will begin by setting up a new conda environment and installing needed packages.
+We need to install `FAISS
+<https://github.com/facebookresearch/faiss/blob/main/INSTALL.md#installing-faiss-via-conda>`_
+from conda and FAISS currently supports up to python 3.10.  We will also install h5py to
+be able to read the downloaded SIFT-1M dataset.::
 
-    $ conda create -n vekterdb_tutorial python=3.11 ipython
+    $ conda create -n vekterdb_tutorial python=3.10 ipython
     $ conda activate vekterdb_tutorial
-    $ conda install -c pytorch -c conda-forge -c defaults faiss h5py
+    $ conda install -c pytorch -c conda-forge -c defaults h5py faiss-cpu=1.7.4 mkl=2021 blas=1.0=mkl
     $ pip install vekterdb
 
 

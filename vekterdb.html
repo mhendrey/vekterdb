@@ -193,10 +193,13 @@ another column that serves as a more recognizable ID field that is a string.</p>
 The data is stored in an HDF5 file and can be downloaded from this <a class="reference external" href="http://ann-benchmarks.com/sift-128-euclidean.hdf5">link</a> (~500MB).</p>
 <section id="set-up">
 <h3>Set up<a class="headerlink" href="#set-up" title="Permalink to this heading"></a></h3>
-<p>We will begin by setting up a new conda environment and installing needed packages.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda create -n vekterdb_tutorial python=3.11 ipython
+<p>We will begin by setting up a new conda environment and installing needed packages.
+We need to install <a class="reference external" href="https://github.com/facebookresearch/faiss/blob/main/INSTALL.md#installing-faiss-via-conda">FAISS</a>
+from conda and FAISS currently supports up to python 3.10.  We will also install h5py to
+be able to read the downloaded SIFT-1M dataset.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda create -n vekterdb_tutorial python=3.10 ipython
 $ conda activate vekterdb_tutorial
-$ conda install -c pytorch -c conda-forge -c defaults faiss h5py
+$ conda install -c pytorch -c conda-forge -c defaults h5py faiss-cpu=1.7.4 mkl=2021 blas=1.0=mkl
 $ pip install vekterdb
 </pre></div>
 </div>
