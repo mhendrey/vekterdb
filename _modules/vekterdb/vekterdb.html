@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vekterdb.vekterdb &mdash; VekterDB 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=f6245a2f"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            VekterDB
+          </a>
+              <div class="version">
+                0.0.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../vekterdb.html">VekterDB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../vekterdb.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../vekterdb.html#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">vekterdb.vekterdb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB"><code class="docutils literal notranslate"><span class="pre">VekterDB</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.fetch_records"><code class="docutils literal notranslate"><span class="pre">VekterDB.fetch_records()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.load"><code class="docutils literal notranslate"><span class="pre">VekterDB.load()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.nearest_neighbors"><code class="docutils literal notranslate"><span class="pre">VekterDB.nearest_neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.sample_vectors"><code class="docutils literal notranslate"><span class="pre">VekterDB.sample_vectors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.save"><code class="docutils literal notranslate"><span class="pre">VekterDB.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.search"><code class="docutils literal notranslate"><span class="pre">VekterDB.search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.serialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.serialize_vector()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters"><code class="docutils literal notranslate"><span class="pre">VekterDB.set_faiss_runtime_parameters()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.similarity"><code class="docutils literal notranslate"><span class="pre">VekterDB.similarity()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">VekterDB</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vekterdb.vekterdb</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vekterdb.vekterdb</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">VekterDB turns any SQLAlchemy compliant database into a vector database using the FAISS</span>
+<span class="sd">library to index the vectors.</span>
+
+<span class="sd">Copyright (C) 2023 Matthew Hendrey</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.automap</span> <span class="kn">import</span> <span class="n">automap_base</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="k">as</span> <span class="nn">sa_funcs</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">faiss</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to import FAISS. Install from conda&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="VekterDB"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB">[docs]</a><span class="k">class</span> <span class="nc">VekterDB</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instantiate a VekterDB&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">idx_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
+        <span class="n">vector_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vector&quot;</span><span class="p">,</span>
+        <span class="n">columns_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///:memory:&quot;</span><span class="p">,</span>
+        <span class="n">connect_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
+        <span class="n">faiss_index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize VekterDB with a minimum of two columns: idx_name (BigInteger,</span>
+<span class="sd">        default &#39;idx&#39;) and vector (LargeBinary, default &#39;vector&#39;). Vectors are numpy</span>
+<span class="sd">        arrays of np.float32, serialized to bytes using tobytes(), to comply with</span>
+<span class="sd">        FAISS requirements.</span>
+
+<span class="sd">        Add additional columns with `columns_dict` using SQLAlchemy&#39;s `Column`</span>
+<span class="sd">        arguments. For example, include a unique, indexed id field (str) and a</span>
+<span class="sd">        non-unique product_category field (str) with:</span>
+
+<span class="sd">        ```</span>
+<span class="sd">        my_db = VekterDB(</span>
+<span class="sd">            &quot;my_table&quot;,</span>
+<span class="sd">            columns_dict={</span>
+<span class="sd">                &quot;id&quot;: {&quot;type&quot;: Text, &quot;unique&quot;: True, &quot;nullable&quot;: False, &quot;index&quot;: True},</span>
+<span class="sd">                &quot;product_category&quot;: {&quot;type&quot;: Text},</span>
+<span class="sd">            }</span>
+<span class="sd">        )</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        table_name : str</span>
+<span class="sd">            Database table name.</span>
+<span class="sd">        idx_name : str, optional</span>
+<span class="sd">            Column name that stores the FAISS index integer ID and is the primary key</span>
+<span class="sd">            for the database table. It must be unique and consecutive from</span>
+<span class="sd">            [0, n_records). The default name is &quot;idx&quot;.</span>
+<span class="sd">        vector_name : str, optional</span>
+<span class="sd">            Column name that stores the vector information. Default is &quot;vector&quot;.</span>
+<span class="sd">        columns_dict : Dict[str, Dict], optional</span>
+<span class="sd">            Names (key) of additional columns to include in the table. The values are</span>
+<span class="sd">            arguments that will be passed to SQLAlchemy&#39;s `Column`. Default is {}.</span>
+
+<span class="sd">            When connecting to an existing database table, this argument is not</span>
+<span class="sd">            necessary.</span>
+<span class="sd">        url : str, optional</span>
+<span class="sd">            URL string to connect to the database. Passed to SQLAlchemy&#39;s</span>
+<span class="sd">            `create_engine`. Default is &quot;sqlite:///:memory&quot;; an in-memory database.</span>
+<span class="sd">        connect_args: Dict, optional</span>
+<span class="sd">            Any connection arguments to pass to SQLAlchemy&#39;s `create_engine`.</span>
+<span class="sd">            Default is {}.</span>
+<span class="sd">        faiss_index : str, optional</span>
+<span class="sd">            If given, then load an existing FAISS index saved by that name. Default</span>
+<span class="sd">            is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="o">=</span> <span class="n">idx_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="o">=</span> <span class="n">vector_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">connect_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+        <span class="n">metadata_obj</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">metadata_obj</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">only</span><span class="o">=</span><span class="p">[</span><span class="n">table_name</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">table_exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table_exists</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Create the table if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table_exists</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> table in the database&quot;</span><span class="p">)</span>
+            <span class="c1"># Build up the columns</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">idx_name</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">idx_name</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">BigInteger</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">column_args</span> <span class="ow">in</span> <span class="n">columns_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">column_type</span> <span class="o">=</span> <span class="n">column_args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+                    <span class="n">column_name</span><span class="p">,</span> <span class="n">column_type</span><span class="p">,</span> <span class="o">**</span><span class="n">column_args</span>
+                <span class="p">)</span>
+            <span class="c1"># Vectors will be serialized to bytes for storage</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">vector_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+                <span class="n">vector_name</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">LargeBinary</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
+                <span class="n">table_name</span><span class="p">,</span>
+                <span class="n">metadata_obj</span><span class="p">,</span>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> already exists in the database. Skipping table creation&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># Load existing table to get column information</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
+                <span class="n">table_name</span><span class="p">,</span>
+                <span class="n">metadata_obj</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Reflection doesn&#39;t add in Column.index = True if indexed.</span>
+            <span class="n">indexed_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">table_index</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">indexes</span><span class="p">:</span>
+                <span class="n">indexed_columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">table_index</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">indexed_columns</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">idx_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">idx_name</span><span class="si">}</span><span class="s2"> column not found in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">vector_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">vector_name</span><span class="si">}</span><span class="s2"> column not found in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Following the example of how to generate mappings from an existing MetaData</span>
+        <span class="c1"># which also shows how you can add new mappings too.</span>
+        <span class="c1"># https://docs.sqlalchemy.org/en/20/orm/extensions/automap.html#generating-mappings-from-an-existing-metadata</span>
+        <span class="n">Base</span> <span class="o">=</span> <span class="n">automap_base</span><span class="p">(</span><span class="n">metadata</span><span class="o">=</span><span class="n">metadata_obj</span><span class="p">)</span>
+        <span class="n">Base</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Record</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">classes</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
+        <span class="n">metadata_obj</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="n">table</span><span class="p">])</span>
+
+        <span class="c1"># Set self.d if there is already some data in existing table</span>
+        <span class="k">if</span> <span class="n">table_exists</span><span class="p">:</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Pull a record from the database</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">])</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">vector_bytes</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+                    <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> table exists in the database but appears empty.&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">faiss_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">read_index</span><span class="p">(</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="n">faiss_index</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="si">}</span><span class="s2"> dimensional vectors, &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;but FAISS index has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">d</span><span class="si">}</span><span class="s2">. They must be equal.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">metric_type</span> <span class="o">==</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_INNER_PRODUCT</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;inner_product&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">metric_type</span> <span class="o">==</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;FAISS index&#39;s metric type does not match inner_product or L2&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="VekterDB.serialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.serialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">serialize_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Static method to construct Python bytes containing the raw data bytes in</span>
+<span class="sd">        `vector`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vector : np.ndarray</span>
+<span class="sd">            1-d numpy array of type np.float32</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">vector</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VekterDB.deserialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Static method to interpret `vector_bytes` as a 1-dimensional array</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        vector_bytes : bytes</span>
+<span class="sd">            Bytes representation of a vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            1-d numpy array of type np.float32</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.save"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves configuration info to a JSON file, excluding the URL string for security.</span>
+<span class="sd">        If `set_faiss_runtime_parameters()` has been called, it also saves and applies</span>
+<span class="sd">        that setting when loading with `VekterDB.load()`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_file : str, optional</span>
+<span class="sd">            JSON file name to save to disk. If not provided, saves the file as</span>
+<span class="sd">            `table_name`.json. The default is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="o">.</span><span class="n">__table__</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">config_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.json&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No FAISS index has been created. Saving to disk anyway.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;table_name&quot;</span><span class="p">:</span> <span class="n">table_name</span><span class="p">,</span>
+            <span class="s2">&quot;idx_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">,</span>
+            <span class="s2">&quot;vector_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">,</span>
+            <span class="s2">&quot;faiss_index&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;faiss_runtime_parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.load"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">connect_args</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a VekterDB from a configuration file (JSON format) and connect to the</span>
+<span class="sd">        specified database engine.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_file : str</span>
+<span class="sd">            Name of the configuration file for the VekterDB to load.</span>
+<span class="sd">        url : str</span>
+<span class="sd">            URL string to connect to the database. See sa.create_engine() for details</span>
+<span class="sd">        connect_args: Dict, optional</span>
+<span class="sd">            Any connection arguments to pass to sa.create_engine(). Default is {}</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        VekterDB</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connect_args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">connect_args</span>
+        <span class="n">faiss_runtime_parameters</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;faiss_runtime_parameters&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">vdb</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">faiss_runtime_parameters</span><span class="p">:</span>
+            <span class="n">vdb</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">faiss_runtime_parameters</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">vdb</span></div>
+
+<div class="viewcode-block" id="VekterDB.insert"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">records</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">serialize_vectors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">faiss_runtime_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert multiple records into the table. Vectors will also be added to the</span>
+<span class="sd">        FAISS index if it already exists. If the FAISS index is updated, it is saved to</span>
+<span class="sd">        disk.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        records : Iterable[Dict]</span>
+<span class="sd">            Each dictionary contains the column names as keys and their corresponding</span>
+<span class="sd">            values.</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Number of records to insert at once. Default is 10,000.</span>
+<span class="sd">        serialize_vectors : bool, optional</span>
+<span class="sd">            If True, then vectors will be serialized before insertion; if False, the</span>
+<span class="sd">            vectors have already been serialized to bytes. Default is True.</span>
+<span class="sd">        faiss_runtime_params : str, optional</span>
+<span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
+<span class="sd">            useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
+<span class="sd">            index (HNSW32) will be used during the `index.add()` to determine which</span>
+<span class="sd">            partition to add the vector to. You may want to change from the default,</span>
+<span class="sd">            whether that is the FAISS default (efSearch=16) or the value saved in</span>
+<span class="sd">            `self.faiss_runtime_parameters`. &quot;quantizer_efSearch=40&quot; would be an</span>
+<span class="sd">            example value for the example index given. If used,</span>
+<span class="sd">            `self.faiss_runtime_parameters` is set back to its value before function</span>
+<span class="sd">            invocation. Default is `None`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        n_records : int</span>
+<span class="sd">            Number of records added to the table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">insert_into_faiss</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
+            <span class="n">insert_into_faiss</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">faiss_runtime_params</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">faiss_runtime_params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;FAISS index either doesn&#39;t exist or isn&#39;t trained so &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;records will only be inserted into the database.&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;. Call create_index() to make the FAISS index.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">n_records</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">records</span><span class="p">):</span>
+                <span class="c1"># Make a copy. Otherwise if you serialize the vector, then that changes</span>
+                <span class="c1"># reference value which is in records[i][&quot;vector&quot;] to bytes.  This has</span>
+                <span class="c1"># confused me in testing when making records: List[Dict] and calling</span>
+                <span class="c1"># VekterDB.insert(records) only to find records[0][&quot;vector&quot;] as bytes</span>
+                <span class="c1"># instead of the expected numpy array.</span>
+                <span class="c1"># I am worried that this causes lots of memory issues.  But I guess that</span>
+                <span class="c1"># is what batching is for.</span>
+                <span class="n">record</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="c1"># Use the first record to set dimension if not already set</span>
+                <span class="c1"># and do some checking</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">serialize_vectors</span><span class="p">:</span>
+                        <span class="n">vector_d</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">vector_d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span>
+                            <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">vector_d</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">!=</span> <span class="n">vector_d</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;New vector dimension </span><span class="si">{</span><span class="n">vector_d</span><span class="si">}</span><span class="s2"> != existing dimension </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">serialize_vectors</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+                        <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                    <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize_vector</span><span class="p">(</span>
+                        <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+                    <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]))</span>
+                <span class="n">batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                <span class="n">n_records</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="o">==</span> <span class="n">batch_size</span><span class="p">:</span>
+                    <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="p">),</span> <span class="n">batch</span><span class="p">)</span>
+                    <span class="n">batch</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+                        <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="p">),</span> <span class="n">batch</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">orig_runtime_parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">orig_runtime_parameters</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
+            <span class="c1"># Save the index to disk</span>
+            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">n_records</span></div>
+
+<div class="viewcode-block" id="VekterDB.sample_vectors"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.sample_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">sample_vectors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a sample of vectors from the database</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_size : int, optional</span>
+<span class="sd">            Number of vectors to return. Default 0 returns all vectors</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Number of vectors to retrieve at one time. Default 10_000.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            2-d array of sampled vectors with shape (sample_size, d)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get current total number of records in the database</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sa_funcs</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]))</span>
+            <span class="n">n_total</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">sample_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="n">n_total</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">n_total</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sample_size</span> <span class="o">==</span> <span class="n">n_total</span><span class="p">:</span>
+            <span class="n">sample_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_total</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+            <span class="n">sample_idxs</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n_total</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">sample_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fetch_records</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">,</span> <span class="n">sample_idxs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="VekterDB.similarity"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.similarity">[docs]</a>    <span class="k">def</span> <span class="nf">similarity</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the similarity between two vectors using using the metric specified</span>
+<span class="sd">        in `create_index()`. Currently only the inner product and L2 are supported. If</span>
+<span class="sd">        the similarity fails to meet the threshold, `None` is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v1 : np.ndarray</span>
+<span class="sd">        v2 : np.ndarray</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Only return the value if similarity equals or exceeds this value. Default</span>
+<span class="sd">            is None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            similarity of v1 &amp; v2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;inner_product&quot;</span><span class="p">:</span>
+            <span class="n">similarity</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">similarity</span>
+            <span class="k">elif</span> <span class="n">similarity</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">similarity</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+            <span class="n">similarity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">similarity</span>
+            <span class="k">elif</span> <span class="n">similarity</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">similarity</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Not properly handling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2"> metric. &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Only inner_product and l2 are currently supported&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.set_faiss_runtime_parameters"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">set_faiss_runtime_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime_params_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change FAISS runtime parameters with a human-readable string. Parameters are</span>
+<span class="sd">        separated by commas. For example, with the index &#39;OPQ64,IVF50000_HNSW32,PQ64&#39;,</span>
+<span class="sd">        you can use &quot;nprobe=50,quantizer_efSearch=100&quot; to set both the nprobe in the</span>
+<span class="sd">        IVF index and the efSearch in the HNSW quantizer index. If a parameter is not</span>
+<span class="sd">        recognized, an exception is thrown.</span>
+
+<span class="sd">        Saves the provided settings in `self.faiss_runtime_parameters`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        runtime_params_str : str</span>
+<span class="sd">            Comma-separated list of parameters to set. For more details, see</span>
+<span class="sd">            https://github.com/facebookresearch/faiss/wiki/Index-IO,-cloning-and-hyper-parameter-tuning#parameterspace-as-a-way-to-set-parameters-on-an-opaque-index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">faiss</span><span class="o">.</span><span class="n">ParameterSpace</span><span class="p">()</span><span class="o">.</span><span class="n">set_index_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">runtime_params_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span> <span class="o">=</span> <span class="n">runtime_params_str</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized parameter in </span><span class="si">{</span><span class="n">runtime_params_str</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.create_index"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.create_index">[docs]</a>    <span class="k">def</span> <span class="nf">create_index</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">faiss_index</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">faiss_factory_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;inner_product&quot;</span><span class="p">,</span>
+        <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">faiss_runtime_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a FAISS index and save to disk when completed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        faiss_index : str</span>
+<span class="sd">            Name of the file to save the resulting FAISS index to.</span>
+<span class="sd">        faiss_factory_str : str</span>
+<span class="sd">            FAISS index factory string, passed to `faiss.index_factory()`</span>
+<span class="sd">        metric : str, optional</span>
+<span class="sd">            Metric used by FAISS to determine similarity. Valid values are either</span>
+<span class="sd">            `inner_product` or `L2`. Default is `inner_product`</span>
+<span class="sd">        sample_size : int, optional</span>
+<span class="sd">            Number of vectors to sample from the database to train the FAISS index.</span>
+<span class="sd">            If 0, then all vectors are used. Default is 0.</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Number of vectors to add into the index at one time. Also passed to</span>
+<span class="sd">            `sample_vectors()` to specify number of vectors to pull back from the</span>
+<span class="sd">            database at a time. Default is 10,000.</span>
+<span class="sd">        use_gpu : bool, optional</span>
+<span class="sd">            Whether to use GPU(s). Default is False. NOTE: Not implemented yet</span>
+<span class="sd">        faiss_runtime_params : str, optional</span>
+<span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
+<span class="sd">            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
+<span class="sd">            index (HNSW32) will be used during the `index.add()` to determine which</span>
+<span class="sd">            partition to add the vector to. You may want to change from the default,</span>
+<span class="sd">            whether that is the FAISS default (efSearch=16) or the value saved in</span>
+<span class="sd">            `self.faiss_runtime_parameters`. &quot;quantizer_efSearch=40&quot; would be an</span>
+<span class="sd">            example value for the example index given. If used,</span>
+<span class="sd">            `self.faiss_runtime_parameters` is set back to its value before function</span>
+<span class="sd">            invocation. Default is None</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        FileExistsError</span>
+<span class="sd">            If a FAISS index is already assigned to this table.</span>
+<span class="sd">        FileExistsError</span>
+<span class="sd">            If the file `faiss_index` already exists on disk.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the metric is not either &quot;inner_product&quot; | &quot;L2&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Index at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> has already been assigned to this table&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">faiss_index</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> file already exists&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="n">faiss_index</span>
+
+        <span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;inner_product&quot;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_INNER_PRODUCT</span>
+        <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You gave </span><span class="si">{</span><span class="n">metric</span><span class="si">=}</span><span class="s2">, but it must be inner_product | l2&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="n">faiss_factory_str</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+
+        <span class="c1"># See if you can set the runtime parameters provided. If not, then it will throw</span>
+        <span class="c1"># an exception, but at least do this before training</span>
+        <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">faiss_runtime_params</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">faiss_runtime_params</span><span class="p">)</span>
+
+        <span class="c1"># Needs to be trained</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
+            <span class="n">X_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_vectors</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+            <span class="c1"># TODO : Add option to train IVF on GPU</span>
+            <span class="c1"># TODO : Add ability to save a trained index and then start from there</span>
+
+        <span class="c1"># Add records into the index</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">])</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">vector_bytes</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
+                <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span> <span class="o">==</span> <span class="n">batch_size</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+                    <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">vectors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">orig_runtime_parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">orig_runtime_parameters</span><span class="p">)</span>
+
+        <span class="c1"># Save the index to disk</span>
+        <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.search"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">query_vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">k_nearest_neighbors</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">col_names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">k_extra_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">rerank</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_parameters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for the `k_nearest_neighbors` records in the database based on the</span>
+<span class="sd">        similarity of their vectors to the query vectors. Optionally keep only</span>
+<span class="sd">        neighbors whose similarity exceeds the `threshold`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query_vectors : np.ndarray</span>
+<span class="sd">            The query vectors to search with. Shape is (n, d) and dtype is np.float32</span>
+<span class="sd">        k_nearest_neighbors : int</span>
+<span class="sd">            Number of nearest neighbors to return.</span>
+<span class="sd">        \*col_names : str</span>
+<span class="sd">            List of columns to use in a neighbor record. Default of `None` uses all</span>
+<span class="sd">            columns.</span>
+<span class="sd">        k_extra_neighbors : int, optional</span>
+<span class="sd">            Extra neighbors to return from FAISS index before reranking. If using a</span>
+<span class="sd">            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated</span>
+<span class="sd">            similarities which likely differs from the true similarities calculated</span>
+<span class="sd">            here. Default is 0.</span>
+<span class="sd">        rerank : bool, optional</span>
+<span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
+<span class="sd">            the order is determined by the FAISS index&#39;s `index.search()`. Default is</span>
+<span class="sd">            True.</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Only keep neighbors whose similarities exceed the `threshold`. Default is</span>
+<span class="sd">            `None` which keeps all neighbors returned.</span>
+<span class="sd">        search_parameters : faiss.SearchParameters, optional</span>
+<span class="sd">            Use these search parameters instead of the current runtime FAISS</span>
+<span class="sd">            parameters. Passed to FAISS&#39;s `index.search()`. See</span>
+<span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[List[Dict]]</span>
+<span class="sd">            For each query, return a list of the neighbors. A neighbor record includes</span>
+<span class="sd">            the &quot;metric&quot; similarity with the query vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">:</span>
+            <span class="n">query_vectors</span> <span class="o">=</span> <span class="n">query_vectors</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;query_vectors dimension is not </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;query_vectors is not (d,) or (n, d). You gave </span><span class="si">{</span><span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">k_nearest_neighbors</span> <span class="o">+</span> <span class="n">k_extra_neighbors</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">I</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query_vectors</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">search_parameters</span><span class="p">)</span>
+        <span class="n">idx_neighbors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># Get records for all the neighbors</span>
+        <span class="n">neighbor_records</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">col_names</span><span class="p">:</span>
+            <span class="n">col_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="c1"># I need both the idx and vector columns so add those in if not requested.</span>
+        <span class="n">tmp_col_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">col_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names</span><span class="p">:</span>
+            <span class="n">tmp_col_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names</span><span class="p">:</span>
+            <span class="n">tmp_col_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">)</span>
+        <span class="n">tmp_col_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tmp_col_names</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">,</span> <span class="n">idx_neighbors</span><span class="p">,</span> <span class="o">*</span><span class="n">tmp_col_names</span><span class="p">):</span>
+            <span class="n">neighbor_records</span><span class="p">[</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]]</span> <span class="o">=</span> <span class="n">record</span>
+
+        <span class="c1"># For each query, check that neighbors are close enough and reorder accordingly</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query_vec</span><span class="p">,</span> <span class="n">I_row</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">query_vectors</span><span class="p">,</span> <span class="n">I</span><span class="p">):</span>
+            <span class="n">query_result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">I_row</span><span class="p">:</span>
+                <span class="n">similarity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span>
+                    <span class="n">query_vec</span><span class="p">,</span> <span class="n">neighbor_records</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">],</span> <span class="n">threshold</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">similarity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">neighbor</span> <span class="o">=</span> <span class="n">neighbor_records</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span><span class="p">:</span>
+                        <span class="n">neighbor</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span><span class="p">:</span>
+                        <span class="n">neighbor</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">)</span>
+                    <span class="n">neighbor</span><span class="p">[</span><span class="s2">&quot;metric&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">similarity</span>
+                    <span class="n">query_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rerank</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;inner_product&quot;</span><span class="p">:</span>
+                    <span class="c1"># Use descending order</span>
+                    <span class="n">query_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                        <span class="n">query_result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metric&quot;</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+                    <span class="c1"># Use ascending order</span>
+                    <span class="n">query_result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                        <span class="n">query_result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;metric&quot;</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not properly handling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2"> metric&quot;</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_result</span><span class="p">[:</span><span class="n">k_nearest_neighbors</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="VekterDB.nearest_neighbors"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.nearest_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">nearest_neighbors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fetch_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fetch_values</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="n">k_nearest_neighbors</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">col_names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">k_extra_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">rerank</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_parameters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the nearest neighbors of query records in the table based on vector</span>
+<span class="sd">        similarity. Optionally keep only neighbors whose similarity exceeds the</span>
+<span class="sd">        `threshold`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fetch_column : str</span>
+<span class="sd">            Column in the database for query record retrieval.</span>
+<span class="sd">        fetch_values : List</span>
+<span class="sd">            Values to match in the `fetch_column`.</span>
+<span class="sd">        k_nearest_neighbors : int</span>
+<span class="sd">            Number of nearest neighbors to return.</span>
+<span class="sd">        \*col_names : str</span>
+<span class="sd">            List of columns to use in the query and neighbor records. Default of `None`</span>
+<span class="sd">            uses all columns.</span>
+<span class="sd">        k_extra_neighbors : int, optional</span>
+<span class="sd">            Extra neighbors to return from FAISS index before reranking. If using a</span>
+<span class="sd">            vector quantizer (e.g., PQ), FAISS orders results based upon the estimated</span>
+<span class="sd">            similarities which likely differs from the true similarities calculated</span>
+<span class="sd">            here. Default is 0.</span>
+<span class="sd">        rerank : bool, optional</span>
+<span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
+<span class="sd">            the order is determined by the FAISS index&#39;s `index.search()`. Default is</span>
+<span class="sd">            True.</span>
+<span class="sd">        threshold : float, optional</span>
+<span class="sd">            Only keep neighbors whose similarities exceed the `threshold`. Default is</span>
+<span class="sd">            `None` which keeps all neighbors returned.</span>
+<span class="sd">        search_parameters : faiss.SearchParameters, optional</span>
+<span class="sd">            Use these search parameters instead of the current runtime FAISS</span>
+<span class="sd">            parameters. Passed to FAISS&#39;s `index.search()`. See</span>
+<span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Number of query records to retrieve from the database at one time. Passed</span>
+<span class="sd">            to `fetch_records()`. Default is 10,000.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            For each query, a dictionary containing the query&#39;s record and a list of</span>
+<span class="sd">            the its neighbors&#39; records. A neighbor record includes the &quot;metric&quot;</span>
+<span class="sd">            similarity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">col_names</span><span class="p">:</span>
+            <span class="n">col_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Both idx and vector columns needed when fetching records</span>
+        <span class="n">tmp_col_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">col_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names</span><span class="p">:</span>
+            <span class="n">tmp_col_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names</span><span class="p">:</span>
+            <span class="n">tmp_col_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">query_vectors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_records</span><span class="p">(</span>
+            <span class="n">fetch_column</span><span class="p">,</span>
+            <span class="n">fetch_values</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">tmp_col_names</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+            <span class="n">query_vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">])</span>
+
+        <span class="n">query_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">query_vectors</span><span class="p">)</span>
+        <span class="c1"># Need the idx column for neighbors in order to identify yourself</span>
+        <span class="n">tmp_col_names_neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">col_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names_neighbors</span><span class="p">:</span>
+            <span class="n">tmp_col_names_neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">record</span><span class="p">,</span> <span class="n">neighbors</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+            <span class="n">results</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                <span class="n">query_vectors</span><span class="p">,</span>
+                <span class="n">k_nearest_neighbors</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">tmp_col_names_neighbors</span><span class="p">,</span>
+                <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="n">k_extra_neighbors</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">rerank</span><span class="o">=</span><span class="n">rerank</span><span class="p">,</span>
+                <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
+                <span class="n">search_parameters</span><span class="o">=</span><span class="n">search_parameters</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">pop_idx_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span>
+            <span class="n">pop_vector_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span>
+            <span class="n">neighbors_without_yourself</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span> <span class="o">!=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">pop_idx_name</span><span class="p">:</span>
+                        <span class="n">neighbor</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+                    <span class="n">neighbors_without_yourself</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;neighbors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbors_without_yourself</span><span class="p">[:</span><span class="n">k_nearest_neighbors</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">pop_idx_name</span><span class="p">:</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pop_vector_name</span><span class="p">:</span>
+                <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="VekterDB.fetch_records"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.fetch_records">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_records</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fetch_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fetch_values</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">col_names</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch records from the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fetch_column : str</span>
+<span class="sd">            Column in the database used for record retrieval.</span>
+<span class="sd">        fetch_values : List</span>
+<span class="sd">            Values to match in the `fetch_column`.</span>
+<span class="sd">        \*col_names : str, optional</span>
+<span class="sd">            List columns to return from the database. Default of `None` returns all</span>
+<span class="sd">            columns.</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Number of records to fetch from the database at one time. Default is</span>
+<span class="sd">            10,000.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        Iterator[Dict]</span>
+<span class="sd">            Dictionary containing a fetched record.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">fetch_column</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">fetch_column</span><span class="p">]</span><span class="o">.</span><span class="n">primary_key</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fetch_column</span><span class="si">}</span><span class="s2"> is not indexed in the database. This will be slow.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">n_records</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fetch_values</span><span class="p">)</span>
+        <span class="n">n_batches</span> <span class="o">=</span> <span class="n">n_records</span> <span class="o">//</span> <span class="n">batch_size</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">col_names</span><span class="p">:</span>
+            <span class="n">col_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">):</span>
+                <span class="n">begin</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">batch_size</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">begin</span> <span class="o">+</span> <span class="n">batch_size</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">fetch_column</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">fetch_values</span><span class="p">[</span><span class="n">begin</span><span class="p">:</span><span class="n">end</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">col_names</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">col_name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">:</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="n">record</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="k">yield</span> <span class="n">record</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
