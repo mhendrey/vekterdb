@@ -57,6 +57,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#initialize-vekterdb">Initialize VekterDB</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#insert-records-into-the-db-table">Insert Records into the DB Table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#create-faiss-index">Create FAISS Index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#querying-for-similar-vectors">Querying for Similar Vectors</a></li>
 </ul>
 </li>
 </ul>
@@ -221,6 +222,7 @@ identifier and the vector, we will add an additional string identifier for
 demonstration purposes. This column will be indexed by SQLite in order to allow a
 user to query for nearest neighbors using this identifier as well.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
 <span class="kn">from</span> <span class="nn">vekterdb</span> <span class="kn">import</span> <span class="n">VekterDB</span>
 
@@ -280,6 +282,37 @@ the vector.</p>
     <span class="n">batch_size</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span>
     <span class="n">faiss_runtime_params</span><span class="o">=</span><span class="s2">&quot;quantizer_efSearch=25&quot;</span><span class="p">,</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="querying-for-similar-vectors">
+<h3>Querying for Similar Vectors<a class="headerlink" href="#querying-for-similar-vectors" title="Permalink to this heading"></a></h3>
+<p>VekterDB offers two ways in which to query for nearest neighbors. The first handles the
+cases when you have a vector that is <strong>not</strong> part of the database table, but want to
+find the records in the database table that are the most similar to the query. This is
+done with the <code class="docutils literal notranslate"><span class="pre">search()</span></code> method.  The second is when you want to find the nearest
+neighbors in the database table to an existing record in the table. This is done with
+the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> method.</p>
+<p>Before we begin searching, it’s likely that you want to change from the default FAISS
+runtime search parameters. For our “IVF_HNSW,PQ” index, the default values are
+<code class="docutils literal notranslate"><span class="pre">nprobe=1</span></code> and <code class="docutils literal notranslate"><span class="pre">quantizer_efSearch=16</span></code>. This means that only the nearest partition,
+out of a candidate pool of 16, will be searched for the nearest to a given query. This
+is likely too little of the search space. Typically, setting <code class="docutils literal notranslate"><span class="pre">nprobe</span></code> to ~ 2-5% of
+the number of partitions (5,000 for this index) yields acceptable results. So let’s use
+<code class="docutils literal notranslate"><span class="pre">nprobe=175</span></code> (3.5%). If <code class="docutils literal notranslate"><span class="pre">nprobe=175</span></code>, then we want to increase <code class="docutils literal notranslate"><span class="pre">quantizer_efSearch</span></code>
+too, so that the candidate pool is bigger than <code class="docutils literal notranslate"><span class="pre">nprobe</span></code>. Let’s use
+<code class="docutils literal notranslate"><span class="pre">quantizer_efSearch=350</span></code>.</p>
+<p>Let’s begin with the <code class="docutils literal notranslate"><span class="pre">search()</span></code> approach. This returns a list where each element is
+a list of the nearest records for the corresponding query vector. For the sake of
+demonstration, we will pull some query vectors from the database, but this could more
+easily be done with the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code>, as we will show in a minute. Let’s
+pull idx = 100 &amp; idx = 200, but since we only need the vector we only request that
+column be returned from the <code class="docutils literal notranslate"><span class="pre">fetch_records()</span></code>.</p>
+<p>We will search for the nearest 5 vectors.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fetched_records</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">fetch_records</span><span class="p">(</span><span class="s2">&quot;idx&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="s2">&quot;vector&quot;</span><span class="p">)</span>
+<span class="n">query_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;vector&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">fetched_records</span><span class="p">])</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query_vectors</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
