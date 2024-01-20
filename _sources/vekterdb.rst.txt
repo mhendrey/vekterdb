@@ -73,6 +73,15 @@ Usage
     ]
     """
 
+Tutorial
+----------------------------------------------------------------------------------------
+In this tutorial, we will work through an example using one of the datasets found in the
+`Approximate Nearest Neighbors Benchmark
+<https://github.com/erikbern/ann-benchmarks?tab=readme-ov-file#data-sets>`_, SIFT-1M.
+The data is stored in an HDF5 file and can be downloaded from this `link
+<http://ann-benchmarks.com/sift-128-euclidean.hdf5>`_. 
+
+
 
 .. rubric:: Footnotes
 
