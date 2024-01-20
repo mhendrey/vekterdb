@@ -121,7 +121,18 @@ user to query for nearest neighbors using this identifier as well.::
             "id": {"type": sa.Text, "unique": True, "nullable": False, "index": True},
         },
         url = "sqlite:///sift1m.db"
-    }
+    )
+
+Insert Records into the DB Table
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+With the database table, tutorial, now created in the database, sift1m.db, it is time
+to add the records from the HDF5 file.  We will specify a function that will yield the
+records that will be inserted into the database table.::
+
+    def records_gen(h5_file:str):
+        with h5py.File(h5_file, 'r') as f:
+            for i in range(n):
+                yield {"id": str(i), "idx": i, "vector": f["data"][i]}
 
 
 
