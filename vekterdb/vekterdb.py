@@ -61,16 +61,15 @@ class VekterDB:
         Database table name, either existing or new.
     idx_name : str, optional
         Column name that stores the FAISS index integer ID and is the primary key
-        for the database table. It must be unique and consecutive from
-            [0, n_records). The default name is "idx".
+        for the database table. It must be unique and consecutive from [0, n_records).
+        The default name is "idx".
     vector_name : str, optional
         Column name that stores the vector information. Default is "vector".
     columns_dict : Dict[str, Dict], optional
         Names (key) of additional columns to include in the table. The values are
         arguments that will be passed to SQLAlchemy's ``Column``. Default is {}.
 
-        When connecting to an existing database table, this argument is not
-        necessary.
+        When connecting to an existing database table, this argument is not necessary.
     url : str, optional
         URL string to connect to the database. Passed to SQLAlchemy's
         ``create_engine``. Default is "sqlite:///:memory"; an in-memory database.
