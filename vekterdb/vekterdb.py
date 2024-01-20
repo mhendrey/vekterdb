@@ -34,7 +34,52 @@ except:
 
 
 class VekterDB:
-    """Instantiate a VekterDB"""
+    """
+        Initialize VekterDB with a minimum of two columns: idx_name (BigInteger,
+        default 'idx') and vector (LargeBinary, default 'vector'). Vectors are numpy
+        arrays of np.float32, serialized to bytes using tobytes(), to comply with
+        FAISS requirements.
+
+        Add additional columns with `columns_dict` using SQLAlchemy's `Column`
+        arguments. For example, include a unique, indexed id field (str) and a
+        non-unique product_category field (str) with:
+
+        ```
+        my_db = VekterDB(
+            "my_table",
+            columns_dict={
+                "id": {"type": Text, "unique": True, "nullable": False, "index": True},
+                "product_category": {"type": Text},
+            }
+        )
+        ```
+
+        Parameters
+        ----------
+        table_name : str
+            Database table name, either existing or new.
+        idx_name : str, optional
+            Column name that stores the FAISS index integer ID and is the primary key
+            for the database table. It must be unique and consecutive from
+            [0, n_records). The default name is "idx".
+        vector_name : str, optional
+            Column name that stores the vector information. Default is "vector".
+        columns_dict : Dict[str, Dict], optional
+            Names (key) of additional columns to include in the table. The values are
+            arguments that will be passed to SQLAlchemy's `Column`. Default is {}.
+
+            When connecting to an existing database table, this argument is not
+            necessary.
+        url : str, optional
+            URL string to connect to the database. Passed to SQLAlchemy's
+            `create_engine`. Default is "sqlite:///:memory"; an in-memory database.
+        connect_args: Dict, optional
+            Any connection arguments to pass to SQLAlchemy's `create_engine`.
+            Default is {}.
+        faiss_index : str, optional
+            If given, then load an existing FAISS index saved by that name. Default
+            is None.
+    """
 
     def __init__(
         self,
@@ -69,7 +114,7 @@ class VekterDB:
         Parameters
         ----------
         table_name : str
-            Database table name.
+            Database table name, either existing or new.
         idx_name : str, optional
             Column name that stores the FAISS index integer ID and is the primary key
             for the database table. It must be unique and consecutive from
