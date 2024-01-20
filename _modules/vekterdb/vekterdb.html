@@ -146,51 +146,51 @@
 
 <div class="viewcode-block" id="VekterDB"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB">[docs]</a><span class="k">class</span> <span class="nc">VekterDB</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize VekterDB with a minimum of two columns: idx_name (BigInteger,</span>
-<span class="sd">        default &#39;idx&#39;) and vector (LargeBinary, default &#39;vector&#39;). Vectors are numpy</span>
-<span class="sd">        arrays of np.float32, serialized to bytes using tobytes(), to comply with</span>
-<span class="sd">        FAISS requirements.</span>
+<span class="sd">    VekterDB uses a minimum of two columns in the database table: idx_name</span>
+<span class="sd">    (BigInteger, default &#39;idx&#39;) and vector_name (LargeBinary, default &#39;vector&#39;).</span>
+<span class="sd">    Vectors are numpy arrays of np.float32, serialized to bytes using tobytes(),</span>
+<span class="sd">    to comply with FAISS requirements.</span>
 
-<span class="sd">        Add additional columns with ``columns_dict`` using SQLAlchemy&#39;s ``Column``</span>
-<span class="sd">        arguments. For example, include a unique, indexed id field (str) and a</span>
-<span class="sd">        non-unique product_category field (str) with:</span>
+<span class="sd">    Additional database table columns can be specified with ``columns_dict`` using</span>
+<span class="sd">    SQLAlchemy&#39;s ``Column`` arguments. For example, include a unique, indexed id</span>
+<span class="sd">    field (str) and a non-unique product_category field (str) with:</span>
 
-<span class="sd">        ::</span>
+<span class="sd">    ::</span>
 <span class="sd">        </span>
-<span class="sd">            my_db = VekterDB(</span>
-<span class="sd">                &quot;my_table&quot;,</span>
-<span class="sd">                columns_dict={</span>
-<span class="sd">                    &quot;id&quot;: {&quot;type&quot;: Text, &quot;unique&quot;: True, &quot;nullable&quot;: False, &quot;index&quot;: True},</span>
-<span class="sd">                    &quot;product_category&quot;: {&quot;type&quot;: Text},</span>
-<span class="sd">                }</span>
-<span class="sd">            )</span>
+<span class="sd">        my_db = VekterDB(</span>
+<span class="sd">            &quot;my_table&quot;,</span>
+<span class="sd">            columns_dict={</span>
+<span class="sd">                &quot;id&quot;: {&quot;type&quot;: Text, &quot;unique&quot;: True, &quot;nullable&quot;: False, &quot;index&quot;: True},</span>
+<span class="sd">                &quot;product_category&quot;: {&quot;type&quot;: Text},</span>
+<span class="sd">            }</span>
+<span class="sd">        )</span>
 <span class="sd">        </span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        table_name : str</span>
-<span class="sd">            Database table name, either existing or new.</span>
-<span class="sd">        idx_name : str, optional</span>
-<span class="sd">            Column name that stores the FAISS index integer ID and is the primary key</span>
-<span class="sd">            for the database table. It must be unique and consecutive from</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table_name : str</span>
+<span class="sd">        Database table name, either existing or new.</span>
+<span class="sd">    idx_name : str, optional</span>
+<span class="sd">        Column name that stores the FAISS index integer ID and is the primary key</span>
+<span class="sd">        for the database table. It must be unique and consecutive from</span>
 <span class="sd">            [0, n_records). The default name is &quot;idx&quot;.</span>
-<span class="sd">        vector_name : str, optional</span>
-<span class="sd">            Column name that stores the vector information. Default is &quot;vector&quot;.</span>
-<span class="sd">        columns_dict : Dict[str, Dict], optional</span>
-<span class="sd">            Names (key) of additional columns to include in the table. The values are</span>
-<span class="sd">            arguments that will be passed to SQLAlchemy&#39;s ``Column``. Default is {}.</span>
+<span class="sd">    vector_name : str, optional</span>
+<span class="sd">        Column name that stores the vector information. Default is &quot;vector&quot;.</span>
+<span class="sd">    columns_dict : Dict[str, Dict], optional</span>
+<span class="sd">        Names (key) of additional columns to include in the table. The values are</span>
+<span class="sd">        arguments that will be passed to SQLAlchemy&#39;s ``Column``. Default is {}.</span>
 
-<span class="sd">            When connecting to an existing database table, this argument is not</span>
-<span class="sd">            necessary.</span>
-<span class="sd">        url : str, optional</span>
-<span class="sd">            URL string to connect to the database. Passed to SQLAlchemy&#39;s</span>
-<span class="sd">            ``create_engine``. Default is &quot;sqlite:///:memory&quot;; an in-memory database.</span>
-<span class="sd">        connect_args: Dict, optional</span>
-<span class="sd">            Any connection arguments to pass to SQLAlchemy&#39;s ``create_engine``.</span>
-<span class="sd">            Default is {}.</span>
-<span class="sd">        faiss_index : str, optional</span>
-<span class="sd">            If given, then load an existing FAISS index saved by that name. Default</span>
-<span class="sd">            is None.</span>
+<span class="sd">        When connecting to an existing database table, this argument is not</span>
+<span class="sd">        necessary.</span>
+<span class="sd">    url : str, optional</span>
+<span class="sd">        URL string to connect to the database. Passed to SQLAlchemy&#39;s</span>
+<span class="sd">        ``create_engine``. Default is &quot;sqlite:///:memory&quot;; an in-memory database.</span>
+<span class="sd">    connect_args: Dict, optional</span>
+<span class="sd">        Any connection arguments to pass to SQLAlchemy&#39;s ``create_engine``.</span>
+<span class="sd">        Default is {}.</span>
+<span class="sd">    faiss_index : str, optional</span>
+<span class="sd">        If given, then load an existing FAISS index saved by that name. Default</span>
+<span class="sd">        is None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
