@@ -121,7 +121,7 @@ user to query for nearest neighbors using this identifier as well.
         idx_name = "idx",
         vector_name = "vector",
         columns_dict = {
-            "id": {"type": sa.Text, "unique": True, "nullable": False, "index": True},
+            "id": {"type": sa.types.Text, "unique": True, "nullable": False, "index": True},
         },
         url = "sqlite:///sift1m.db"
     )
@@ -204,12 +204,16 @@ easily be done with the ``nearest_neighbors()``, as we will show in a minute. Le
 pull idx = 100 & idx = 200, but since we only need the vector we only request that
 column be returned from the ``fetch_records()``.
 
-We will search for the nearest 5 vectors.
+We will search for the nearest 5 vectors. Of course, since we are searching with
+vectors that are already in the database table, we expect the nearest neighbor
+for each query to be the query record itself.
 
 ::
 
     fetched_records = vekter_db.fetch_records("idx", [100, 200], "vector")
     query_vectors = np.vstack([r["vector"] for r in fetched_records])
+
+    vekter_db.set_faiss_runtime_parameters("nprobe=175,quantizer_efSearch=350")
 
     results = vekter_db.search(query_vectors, 5, "idx", "id", k_extra_neighbors=30)
 
