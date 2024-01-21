@@ -231,7 +231,7 @@ user to query for nearest neighbors using this identifier as well.</p>
     <span class="n">idx_name</span> <span class="o">=</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
     <span class="n">vector_name</span> <span class="o">=</span> <span class="s2">&quot;vector&quot;</span><span class="p">,</span>
     <span class="n">columns_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="s2">&quot;unique&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;nullable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span> <span class="s2">&quot;unique&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;nullable&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
     <span class="p">},</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;sqlite:///sift1m.db&quot;</span>
 <span class="p">)</span>
@@ -308,9 +308,13 @@ demonstration, we will pull some query vectors from the database, but this could
 easily be done with the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code>, as we will show in a minute. Let’s
 pull idx = 100 &amp; idx = 200, but since we only need the vector we only request that
 column be returned from the <code class="docutils literal notranslate"><span class="pre">fetch_records()</span></code>.</p>
-<p>We will search for the nearest 5 vectors.</p>
+<p>We will search for the nearest 5 vectors. Of course, since we are searching with
+vectors that are already in the database table, we expect the nearest neighbor
+for each query to be the query record itself.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fetched_records</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">fetch_records</span><span class="p">(</span><span class="s2">&quot;idx&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="s2">&quot;vector&quot;</span><span class="p">)</span>
 <span class="n">query_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;vector&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">fetched_records</span><span class="p">])</span>
+
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="s2">&quot;nprobe=175,quantizer_efSearch=350&quot;</span><span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query_vectors</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
