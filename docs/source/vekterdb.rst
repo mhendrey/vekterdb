@@ -209,14 +209,14 @@ vectors to train the FAISS index. We begin by getting reading the testing data f
 file and then using those to query our vector database for similar records.  We will
 compare those to the "neighbors" stored in the HDF5 file. Let's start slow and just
 use the first test vector and get the five nearest neighbors. Since the FAISS
-``index.search()`` requires that the vector shape be at least (1, 128), we reshape the
+``index.search()`` requires that the vector shape be at least (n, d), we reshape the
 first vector to match. To easily compare, we only need to see the "idx" column.
 
 The ``search()`` returns a list with one element for each of the query vectors. Each
 element of the list is a list of dicts that are the neighbors for that query vectory.
 The dict's keys are the columns in the database table (or only those you specified with
-an ``*col_names``) and an additional ``"metric"`` which holds the similarity between that
-neighbor and the query vector.
+any ``*col_names``) and an additional ``"metric"`` which holds the similarity between
+that neighbor and the query vector.
 
 ::
 
@@ -286,7 +286,7 @@ neighbor returned from the search?
     print(f"{found_nearest / len(neighbors):.04f}")
 
 In my running, I get a value of recall@1 = 0.6646. This is ok, but maybe a little
-disheartening. But in this one, we only allowed FAISS to return the nearest approximate
+disheartening. However, we only allowed FAISS to return the nearest approximate
 neighbor and we have quite a few parameters to tweak if needed as we mentioned above.
 We will start with raising the ``k_extra_neighbors`` value from 0 (default) to 4.
 
@@ -304,26 +304,69 @@ then our result goes up to 0.9902. Again, our query time is increasing so it is 
 a trade off. On my machine the query time for ``q_vecs`` went from 0.996s
 (``k_extra_neighbors=0``) to 1.25s (4) to 3.47s (49).
 
+Querying for Similar Records
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In this section, we will show how to query for the nearest records of a given record
+that is already in the database table. We begin by adding in the test vectors to our
+database table and will repeat our simple test, but this time using the
+``nearest_neighbors()`` method.
 
-Let's begin with the ``search()`` approach. This returns a list where each element is
-a list of the nearest records for the corresponding query vector. For the sake of
-demonstration, we will pull some query vectors from the database, but this could more
-easily be done with the ``nearest_neighbors()``, as we will show in a minute. Let's
-pull idx = 100 & idx = 200, but since we only need the vector we only request that
-column be returned from the ``fetch_records()``.
+This method allows you to select records whose nearest neighbors you are querying for
+by specifying which column of the database to use ``fetch_column`` and then a list of
+values whose records you want to use for querying, ``fetch_values``. The rest follows
+the same as ``search()`` since ``nearest_neighbors`` is just combining a
+``fetch_records()`` to retrieve the vectors of the request records and then using
+``search()``. Caution is taken to remove the query record from the neighbors list.
 
-We will search for the nearest 5 vectors. Of course, since we are searching with
-vectors that are already in the database table, we expect the nearest neighbor
-for each query to be the query record itself.
+The ``nearest_neighbors()`` returns a list of dictionaries with each dictionary list
+the query record's values; either all the column values or just the values of the
+columns names specified with ``*col_names``. In addition, the "neighbors" key contains
+the list of neighbors and the metric between the neighbor and the query record. This
+list is sorted in appropriate order with nearest neighbor listed first.
 
 ::
 
-    fetched_records = vekter_db.fetch_records("idx", [100, 200], "vector")
-    query_vectors = np.vstack([r["vector"] for r in fetched_records])
+    n_records = vekter_db.insert(test_data)
 
-    vekter_db.set_faiss_runtime_parameters("nprobe=175,quantizer_efSearch=350")
+    neighbors = vekter_db.nearest_neighbors("idx", [1_000_000], 5, "idx")
 
-    results = vekter_db.search(query_vectors, 5, "idx", "id", k_extra_neighbors=30)
+    if true_neighbors[0][0] == neighbors[0]["neighbors"][0]["idx"]:
+        print("We found the true nearest neighbor!")
+    else:
+        print(
+            "Yikes! something still went wrong. Some things to try\n"
+            + "Increase the k_extra_neighbors from 0 to say 20."
+            + " This pulls back some additional records and then reranks by true L2."
+            + "\nOr increase nprobe some more"
+        )
+
+Having passed the simple test, let's do the full test data.  To mix things up, let's
+show that we can also use the ``id`` column to specify the records to fetch. Because
+we had this column indexed in the specification of the database table, this should
+equivalant as using the primary key, ``idx``, of the database table.
+
+::
+
+    neighbors = vekter_db.nearest_neighbors(
+        "id",
+        [str(i) for i in range(1_000_000, 1_010_000)],
+        1,
+        "idx",
+        k_extra_neighbors=4,
+    )
+
+    found_nearest = 0
+    for i in range(len(neighbors)):
+        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+            found_nearest += 1
+    print(f"{found_nearest / len(neighbors):.04f}")
+
+We get a recall@1 = 0.9303 with these runtime search parameters and
+``k_extra_neighbors`` of 4. Notice that this value is a little lower than we had
+before, 0.9450. This is caused by the additional 10,000 test vectors added into
+the database table with a small percentage of them being the nearest neighbor for
+other records in the test data.
+
 
 .. rubric:: Footnotes
 

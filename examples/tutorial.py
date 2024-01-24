@@ -115,6 +115,37 @@ def main():
             found_nearest += 1
     print(f"{found_nearest / len(neighbors):.04f}")
 
+    # Add test data into database table & FAISS index
+    n_records = vekter_db.insert(test_data, batch_size=50_000)
+
+    neighbors = vekter_db.nearest_neighbors(
+        "idx", [1_000_000], 5, "idx", k_extra_neighbors=19
+    )
+    if true_neighbors[0][0] == neighbors[0]["neighbors"][0]["idx"]:
+        print("We found the true nearest neighbor!")
+    else:
+        print(
+            "Yikes! something still went wrong. Some things to try\n"
+            + "Increase the k_extra_neighbors from 0 to say 20."
+            + " This pulls back some additional records and then reranks by true L2."
+            + "\nOr increase nprobe some more"
+        )
+
+    # recall@1 test
+    neighbors = vekter_db.nearest_neighbors(
+        "id",
+        [str(i) for i in range(1_000_000, 1_010_000)],
+        1,
+        "idx",
+        k_extra_neighbors=19,
+    )
+
+    found_nearest = 0
+    for i in range(len(neighbors)):
+        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+            found_nearest += 1
+    print(f"{found_nearest / len(neighbors):.04f}")
+
 
 if __name__ == "__main__":
     main()
