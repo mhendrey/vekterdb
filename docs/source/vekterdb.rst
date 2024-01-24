@@ -222,7 +222,7 @@ that neighbor and the query vector.
 
     test_data = list(records_gen("sift-128-euclidean.hdf5", test_data=True))
     
-    f = h5py.File("sift-128-euclidean", "r")
+    f = h5py.File("sift-128-euclidean.hdf5", "r")
     true_neighbors = f["neighbors"]
     true_distances = f["distances"]
 
@@ -308,8 +308,8 @@ Querying for Similar Records
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In this section, we will show how to query for the nearest records of a given record
 that is already in the database table. We begin by adding in the test vectors to our
-database table and will repeat our simple test, but this time using the
-``nearest_neighbors()`` method.
+database table and FAISS index. We will then repeat our simple test, but this time
+using the ``nearest_neighbors()`` method.
 
 This method allows you to select records whose nearest neighbors you are querying for
 by specifying which column of the database to use ``fetch_column`` and then a list of
@@ -367,6 +367,58 @@ before, 0.9450. This is caused by the additional 10,000 test vectors added into
 the database table with a small percentage of them being the nearest neighbor for
 other records in the test data.
 
+Saving & Loading a VekterDB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Having created a database table, populated it with records, created a FAISS index
+(including both training it and adding in vectors from the database table), we are now
+ready to save the VekterDB so that it can be loaded back up.
+
+Since the records are already stored in the database, there is nothing to do there.
+In fact, the FAISS index has also been saved off already as well. First right at the
+end of ``create_index()`` and then again after we called ``insert()`` to add in the
+test data. This leaves just saving off some of the metadata needed to reinitialize
+``VekterDB`` which is done using the ``save()``.  This writes a JSON file to disk of
+the needed information. If you don't provide a ``config_file`` name, ``save`` will
+write the file {table_name}.json to the local directory. In particular, this saves
+off any default FAISS runtime search parameters that you may have set with
+``set_faiss_runtime_parameters()``.
+
+::
+
+    vekter_db.save()
+    f.close()
+
+
+To test this, let's exit out of the Python interpretter/IPython/Jupyter notebook and
+import the needed libraries, load our ``VekterDB`` from disk, and then run a test
+query.  Notice, that you do need to provide the connection URL to the database when
+calling ``load()``. This is done for security reasons since any username/password may
+be needed to pass in that URL string that we don't want to save to disk in plaintext.
+
+::
+
+    import h5py
+    from vekterdb import VekterDB
+
+    vekter_db = VekterDB.load("tutorial.json", url="sqlite:///sift1m.db")
+    f = h5py.File("sift-128-euclidean.hdf5", "r")
+    true_neighbors = f["neighbors"]
+
+    neighbors = vekter_db.nearest_neighbors(
+        "id",
+        [str(i) for i in range(1_000_000, 1_010_000)],
+        1,
+        "idx",
+        k_extra_neighbors=4,
+    )
+
+    found_nearest = 0
+    for i in range(len(neighbors)):
+        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+            found_nearest += 1
+    print(f"{found_nearest / len(neighbors):.04f}")
+
+And we get back the same 0.9303 for the recall@1.
 
 .. rubric:: Footnotes
 
