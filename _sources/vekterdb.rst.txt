@@ -386,7 +386,6 @@ off any default FAISS runtime search parameters that you may have set with
 ::
 
     vekter_db.save()
-    f.close()
 
 
 To test this, let's exit out of the Python interpretter/IPython/Jupyter notebook and
