@@ -59,6 +59,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#create-faiss-index">Create FAISS Index</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#querying-for-similar-vectors">Querying for Similar Vectors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#querying-for-similar-records">Querying for Similar Records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#saving-loading-a-vekterdb">Saving &amp; Loading a VekterDB</a></li>
 </ul>
 </li>
 </ul>
@@ -333,7 +334,7 @@ any <code class="docutils literal notranslate"><span class="pre">*col_names</spa
 that neighbor and the query vector.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test_data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">records_gen</span><span class="p">(</span><span class="s2">&quot;sift-128-euclidean.hdf5&quot;</span><span class="p">,</span> <span class="n">test_data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
-<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;sift-128-euclidean&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;sift-128-euclidean.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="n">true_neighbors</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;neighbors&quot;</span><span class="p">]</span>
 <span class="n">true_distances</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;distances&quot;</span><span class="p">]</span>
 
@@ -412,8 +413,8 @@ a trade off. On my machine the query time for <code class="docutils literal notr
 <h3>Querying for Similar Records<a class="headerlink" href="#querying-for-similar-records" title="Permalink to this heading"></a></h3>
 <p>In this section, we will show how to query for the nearest records of a given record
 that is already in the database table. We begin by adding in the test vectors to our
-database table and will repeat our simple test, but this time using the
-<code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> method.</p>
+database table and FAISS index. We will then repeat our simple test, but this time
+using the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> method.</p>
 <p>This method allows you to select records whose nearest neighbors you are querying for
 by specifying which column of the database to use <code class="docutils literal notranslate"><span class="pre">fetch_column</span></code> and then a list of
 values whose records you want to use for querying, <code class="docutils literal notranslate"><span class="pre">fetch_values</span></code>. The rest follows
@@ -464,6 +465,53 @@ equivalant as using the primary key, <code class="docutils literal notranslate">
 before, 0.9450. This is caused by the additional 10,000 test vectors added into
 the database table with a small percentage of them being the nearest neighbor for
 other records in the test data.</p>
+</section>
+<section id="saving-loading-a-vekterdb">
+<h3>Saving &amp; Loading a VekterDB<a class="headerlink" href="#saving-loading-a-vekterdb" title="Permalink to this heading"></a></h3>
+<p>Having created a database table, populated it with records, created a FAISS index
+(including both training it and adding in vectors from the database table), we are now
+ready to save the VekterDB so that it can be loaded back up.</p>
+<p>Since the records are already stored in the database, there is nothing to do there.
+In fact, the FAISS index has also been saved off already as well. First right at the
+end of <code class="docutils literal notranslate"><span class="pre">create_index()</span></code> and then again after we called <code class="docutils literal notranslate"><span class="pre">insert()</span></code> to add in the
+test data. This leaves just saving off some of the metadata needed to reinitialize
+<code class="docutils literal notranslate"><span class="pre">VekterDB</span></code> which is done using the <code class="docutils literal notranslate"><span class="pre">save()</span></code>.  This writes a JSON file to disk of
+the needed information. If you don’t provide a <code class="docutils literal notranslate"><span class="pre">config_file</span></code> name, <code class="docutils literal notranslate"><span class="pre">save</span></code> will
+write the file {table_name}.json to the local directory. In particular, this saves
+off any default FAISS runtime search parameters that you may have set with
+<code class="docutils literal notranslate"><span class="pre">set_faiss_runtime_parameters()</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vekter_db</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To test this, let’s exit out of the Python interpretter/IPython/Jupyter notebook and
+import the needed libraries, load our <code class="docutils literal notranslate"><span class="pre">VekterDB</span></code> from disk, and then run a test
+query.  Notice, that you do need to provide the connection URL to the database when
+calling <code class="docutils literal notranslate"><span class="pre">load()</span></code>. This is done for security reasons since any username/password may
+be needed to pass in that URL string that we don’t want to save to disk in plaintext.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">from</span> <span class="nn">vekterdb</span> <span class="kn">import</span> <span class="n">VekterDB</span>
+
+<span class="n">vekter_db</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;tutorial.json&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;sqlite:///sift1m.db&quot;</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;sift-128-euclidean.hdf5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">true_neighbors</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;neighbors&quot;</span><span class="p">]</span>
+
+<span class="n">neighbors</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">nearest_neighbors</span><span class="p">(</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">1_010_000</span><span class="p">)],</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
+    <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">found_nearest</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;neighbors&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;idx&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">true_neighbors</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">found_nearest</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">found_nearest</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span><span class="si">:</span><span class="s2">.04f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And we get back the same 0.9303 for the recall&#64;1.</p>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="f1" role="doc-footnote">
