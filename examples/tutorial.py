@@ -61,9 +61,9 @@ def main():
         faiss_runtime_params="quantizer_efSearch=25",
     )
 
-    test_data = list(records_gen("sift-128-euclidean.hdf5", test_data=True))
+    test_data = list(records_gen(args.sift_1M_file, test_data=True))
 
-    f = h5py.File("sift-128-euclidean", "r")
+    f = h5py.File(args.sift_1M_File, "r")
     true_neighbors = f["neighbors"]
     true_distances = f["distances"]
 
@@ -137,7 +137,26 @@ def main():
         [str(i) for i in range(1_000_000, 1_010_000)],
         1,
         "idx",
-        k_extra_neighbors=19,
+        k_extra_neighbors=4,
+    )
+
+    found_nearest = 0
+    for i in range(len(neighbors)):
+        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+            found_nearest += 1
+    print(f"{found_nearest / len(neighbors):.04f}")
+
+    # Save / Load
+    vekter_db.save()
+    vekter_db = VekterDB.load("tutorial.json", url="sqlite:///sift1m.db")
+
+    # recall@1 test
+    neighbors = vekter_db.nearest_neighbors(
+        "id",
+        [str(i) for i in range(1_000_000, 1_010_000)],
+        1,
+        "idx",
+        k_extra_neighbors=4,
     )
 
     found_nearest = 0
