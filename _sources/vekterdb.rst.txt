@@ -213,10 +213,11 @@ use the first test vector and get the five nearest neighbors. Since the FAISS
 first vector to match. To easily compare, we only need to see the "idx" column.
 
 The ``search()`` returns a list with one element for each of the query vectors. Each
-element of the list is a list of dicts that are the neighbors for that query vectory.
-The dict's keys are the columns in the database table (or only those you specified with
-any ``*col_names``) and an additional ``"metric"`` which holds the similarity between
-that neighbor and the query vector.
+element of the list is a dictionary with a single key, "neighbors", whose value is a
+list of dicts that are the neighbors for that query vectory. The dict's keys are the
+columns in the database table (or only those you specified with any ``*col_names``)
+and an additional ``"metric"`` which holds the similarity between that neighbor and
+the query vector.
 
 ::
 
@@ -226,13 +227,13 @@ that neighbor and the query vector.
     true_neighbors = f["neighbors"]
     true_distances = f["distances"]
 
-    neighbors = vekter_db.search(test_data[0]["vector"].reshape(1,-1), 5, "idx")
+    neighbors = vekter_db.search(test_data[0]["vector"], 5, "idx")[0]["neighbors"]
     # Let's see just the first neighbor
-    print(neighbors[0][0])
+    print(neighbors[0])          # {'idx': 695756, 'metric': 258.86288}
 
     # True nearest neighbor is
-    print(true_neighbors[0][0])
-    print(true_distances[0][0])
+    print(true_neighbors[0][0])  # 932085
+    print(true_distances[0][0])  # 232.87122
 
 You will likely notice that the true nearest neighbor, idx=932085 with distance=232.87,
 does NOT match the nearest record returned by our ``search()`` method.  For me, I get
@@ -252,13 +253,13 @@ then retry our test query.
 
     vekter_db.set_faiss_runtime_parameters("nprobe=175,quantizer_efSearch=350")
 
-    neighbors = vekter_db.search(test_data[0]["vector"].reshape(1,-1), 5, "idx")
+    neighbors = vekter_db.search(test_data[0]["vector"], 5, "idx")[0]["neighbors"]
     # Let's see just the first neighbor
-    print(neighbors[0][0])
+    print(neighbors[0])          # {'idx': 932085, 'metric': 232.87122}
 
     # True nearest neighbor is
-    print(true_neighbors[0][0])
-    print(true_distances[0][0])
+    print(true_neighbors[0][0])  # 932085
+    print(true_distances[0][0])  # 232.87122
 
 Now that is more like it! If you still don't get the right answer, there are a few
 additional things you can try. If we had been more aggressive with the PQ, say as low
@@ -278,12 +279,13 @@ neighbor returned from the search?
 ::
 
     q_vecs = np.vstack([t["vector"] for t in test_data])
-    neighbors = vekter_db.search(q_vecs, 1, "idx")
+
+    search_results = vekter_db.search(q_vecs, 1, "idx")
     found_nearest = 0
-    for i in range(len(neighbors)):
-        if neighbors[i][0]["idx"] == true_neighbors[i][0]:
+    for i, search_result in enumerate(search_results):
+        if true_neighbors[i][0] == search_result["neighbors"][0]["idx"]:
             found_nearest += 1
-    print(f"{found_nearest / len(neighbors):.04f}")
+    print(f"Recall@1 = {found_nearest / len(search_results):.04f}")
 
 In my running, I get a value of recall@1 = 0.6646. This is ok, but maybe a little
 disheartening. However, we only allowed FAISS to return the nearest approximate
@@ -292,12 +294,12 @@ We will start with raising the ``k_extra_neighbors`` value from 0 (default) to 4
 
 ::
 
-    neighbors = vekter_db.search(q_vecs, 1, "idx", k_extra_neighbors=4)
+    search_results = vekter_db.search(q_vecs, 1, "idx", k_extra_neighbors=4)
     found_nearest = 0
-    for i in range(len(neighbors)):
-        if neighbors[i][0]["idx"] == true_neighbors[i][0]:
+    for i, search_result in enumerate(search_results):
+        if true_neighbors[i][0] == search_result["neighbors"][0]["idx"]:
             found_nearest += 1
-    print(f"{found_nearest / len(neighbors):.04f}")
+    print(f"Recall@1 = {found_nearest / len(search_results):.04f}")
 
 Much better. I got 0.9450. In fact, if we increase even further ``k_extra_neighbors=49``,
 then our result goes up to 0.9902. Again, our query time is increasing so it is always
@@ -326,12 +328,19 @@ list is sorted in appropriate order with nearest neighbor listed first.
 
 ::
 
-    n_records = vekter_db.insert(test_data)
+    n_records = vekter_db.insert(
+        test_data, batch_size=50_000, faiss_runtime_params="quantizer_efSearch=25"
+    )
 
-    neighbors = vekter_db.nearest_neighbors("idx", [1_000_000], 5, "idx")
+    neighbors = vekter_db.nearest_neighbors("idx", [1_000_000], 5, "idx")[0][
+        "neighbors"
+    ]
 
-    if true_neighbors[0][0] == neighbors[0]["neighbors"][0]["idx"]:
+    if true_neighbors[0][0] == neighbors[0]["idx"]:
         print("We found the true nearest neighbor!")
+        print(f"       Found {neighbors[0]}")
+        ground_truth = {"idx": true_neighbors[0][0], "metric": true_distances[0][0]}
+        print(f"Ground truth {ground_truth}")
     else:
         print(
             "Yikes! something still went wrong. Some things to try\n"
@@ -347,19 +356,18 @@ equivalant as using the primary key, ``idx``, of the database table.
 
 ::
 
-    neighbors = vekter_db.nearest_neighbors(
+    nn_results = vekter_db.nearest_neighbors(
         "id",
         [str(i) for i in range(1_000_000, 1_010_000)],
         1,
         "idx",
         k_extra_neighbors=4,
     )
-
     found_nearest = 0
-    for i in range(len(neighbors)):
-        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+    for i, nn_result in enumerate(nn_results):
+        if true_neighbors[i][0] == nn_result["neighbors"][0]["idx"]:
             found_nearest += 1
-    print(f"{found_nearest / len(neighbors):.04f}")
+    print(f"{found_nearest / len(nn_results):.04f}")
 
 We get a recall@1 = 0.9303 with these runtime search parameters and
 ``k_extra_neighbors`` of 4. Notice that this value is a little lower than we had
@@ -386,6 +394,8 @@ off any default FAISS runtime search parameters that you may have set with
 ::
 
     vekter_db.save()
+    del vekter_db
+
 
 
 To test this, let's exit out of the Python interpretter/IPython/Jupyter notebook and
@@ -396,26 +406,20 @@ be needed to pass in that URL string that we don't want to save to disk in plain
 
 ::
 
-    import h5py
-    from vekterdb import VekterDB
-
     vekter_db = VekterDB.load("tutorial.json", url="sqlite:///sift1m.db")
-    f = h5py.File("sift-128-euclidean.hdf5", "r")
-    true_neighbors = f["neighbors"]
 
-    neighbors = vekter_db.nearest_neighbors(
+    nn_results = vekter_db.nearest_neighbors(
         "id",
         [str(i) for i in range(1_000_000, 1_010_000)],
         1,
         "idx",
         k_extra_neighbors=4,
     )
-
     found_nearest = 0
-    for i in range(len(neighbors)):
-        if neighbors[i]["neighbors"][0]["idx"] == true_neighbors[i][0]:
+    for i, nn_result in enumerate(nn_results):
+        if true_neighbors[i][0] == nn_result["neighbors"][0]["idx"]:
             found_nearest += 1
-    print(f"{found_nearest / len(neighbors):.04f}")
+    print(f"{found_nearest / len(nn_results):.04f}")
 
 And we get back the same 0.9303 for the recall@1.
 

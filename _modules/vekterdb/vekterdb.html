@@ -166,7 +166,7 @@
 <span class="sd">    field (str) and a non-unique product_category field (str) with:</span>
 
 <span class="sd">    ::</span>
-<span class="sd">        </span>
+
 <span class="sd">        my_db = VekterDB(</span>
 <span class="sd">            &quot;my_table&quot;,</span>
 <span class="sd">            columns_dict={</span>
@@ -174,7 +174,7 @@
 <span class="sd">                &quot;product_category&quot;: {&quot;type&quot;: Text},</span>
 <span class="sd">            }</span>
 <span class="sd">        )</span>
-<span class="sd">        </span>
+
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -766,7 +766,7 @@
         <span class="n">k_extra_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">rerank</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">search_parameters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for the ``k_nearest_neighbors`` records in the database table based</span>
@@ -801,9 +801,10 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        List[List[Dict]]</span>
-<span class="sd">            For each query, return a list of the neighbors. A neighbor record includes</span>
-<span class="sd">            the &quot;metric&quot; similarity with the query vector.</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            For each query, a dictionary containing &quot;neighbors&quot; key whose value is a list</span>
+<span class="sd">            of the neighbors&#39; requested information including the &quot;metric&quot; similarity to</span>
+<span class="sd">            the query vector.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">query_vectors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">:</span>
@@ -861,7 +862,7 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not properly handling </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2"> metric&quot;</span><span class="p">)</span>
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_result</span><span class="p">[:</span><span class="n">k_nearest_neighbors</span><span class="p">])</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;neighbors&quot;</span><span class="p">:</span> <span class="n">query_result</span><span class="p">[:</span><span class="n">k_nearest_neighbors</span><span class="p">]})</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
 
@@ -874,7 +875,7 @@
         <span class="n">k_extra_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">rerank</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">search_parameters</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -947,7 +948,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tmp_col_names_neighbors</span><span class="p">:</span>
             <span class="n">tmp_col_names_neighbors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">record</span><span class="p">,</span> <span class="n">neighbors</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="k">for</span> <span class="n">record</span><span class="p">,</span> <span class="n">search_result</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
             <span class="n">results</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
                 <span class="n">query_vectors</span><span class="p">,</span>
@@ -962,7 +963,7 @@
             <span class="n">pop_idx_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span>
             <span class="n">pop_vector_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span>
             <span class="n">neighbors_without_yourself</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">search_result</span><span class="p">[</span><span class="s2">&quot;neighbors&quot;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span> <span class="o">!=</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="n">pop_idx_name</span><span class="p">:</span>
                         <span class="n">neighbor</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">)</span>
