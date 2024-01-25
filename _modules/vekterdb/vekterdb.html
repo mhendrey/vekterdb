@@ -444,8 +444,9 @@
 <span class="sd">        batch_size : int, optional</span>
 <span class="sd">            Number of records to insert at once. Default is 10,000.</span>
 <span class="sd">        serialize_vectors : bool, optional</span>
-<span class="sd">            If True, then vectors will be serialized before insertion; if False, the</span>
-<span class="sd">            vectors have already been serialized to bytes. Default is True.</span>
+<span class="sd">            If ``True``, vectors will be serialized and compressed before insertion;</span>
+<span class="sd">            if ``False``, user has already serialized &amp; compressed the vectors. See</span>
+<span class="sd">            ``serialized()`` for details. Default is True.</span>
 <span class="sd">        faiss_runtime_params : str, optional</span>
 <span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
 <span class="sd">            useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
@@ -682,7 +683,7 @@
 <span class="sd">            ``sample_vectors()`` to specify number of vectors to pull back from the</span>
 <span class="sd">            database table at a time. Default is 10,000.</span>
 <span class="sd">        use_gpu : bool, optional</span>
-<span class="sd">            Whether to use GPU(s). Default is False. NOTE: Not implemented yet</span>
+<span class="sd">            Whether to use GPU(s). Default is ``False``. NOTE: Not implemented yet</span>
 <span class="sd">        faiss_runtime_params : str, optional</span>
 <span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
 <span class="sd">            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
@@ -790,9 +791,9 @@
 <span class="sd">            similarities which likely differs from the true similarities calculated</span>
 <span class="sd">            here. Default is 0.</span>
 <span class="sd">        rerank : bool, optional</span>
-<span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
-<span class="sd">            the order is determined by the FAISS index&#39;s ``index.search()``. Default</span>
-<span class="sd">            is ``True``.</span>
+<span class="sd">            If ``True``, rerank neighbors according to their true similarities.</span>
+<span class="sd">            Otherwise the order is determined by the FAISS index&#39;s ``index.search()``.</span>
+<span class="sd">            Default is ``True``.</span>
 <span class="sd">        threshold : float, optional</span>
 <span class="sd">            Only keep neighbors whose similarities exceed the ``threshold``. Default is</span>
 <span class="sd">            ``None`` which keeps all neighbors returned.</span>
@@ -902,9 +903,9 @@
 <span class="sd">            similarities which likely differs from the true similarities calculated</span>
 <span class="sd">            here. Default is 0.</span>
 <span class="sd">        rerank : bool, optional</span>
-<span class="sd">            If True, rerank neighbors according to their true similarities. Otherwise</span>
-<span class="sd">            the order is determined by the FAISS index&#39;s ``index.search()``. Default</span>
-<span class="sd">            is ``True``.</span>
+<span class="sd">            If ``True``, rerank neighbors according to their true similarities.</span>
+<span class="sd">            Otherwise the order is determined by the FAISS index&#39;s ``index.search()``.</span>
+<span class="sd">            Default is ``True``.</span>
 <span class="sd">        threshold : float, optional</span>
 <span class="sd">            Only keep neighbors whose similarities exceed the ``threshold``. Default</span>
 <span class="sd">            is ``None`` which keeps all neighbors returned.</span>

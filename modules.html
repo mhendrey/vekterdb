@@ -195,7 +195,7 @@ index. If 0, then all vectors are used. Default is 0.</p></li>
 <li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of vectors to add into the index at one time. Also passed to
 <code class="docutils literal notranslate"><span class="pre">sample_vectors()</span></code> to specify number of vectors to pull back from the
 database table at a time. Default is 10,000.</p></li>
-<li><p><strong>use_gpu</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use GPU(s). Default is False. NOTE: Not implemented yet</p></li>
+<li><p><strong>use_gpu</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use GPU(s). Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>. NOTE: Not implemented yet</p></li>
 <li><p><strong>faiss_runtime_params</strong> (<em>str</em><em>, </em><em>optional</em>) – Set FAISS index runtime parameters before adding vectors. Likely only
 useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
 index (HNSW32) will be used during the <code class="docutils literal notranslate"><span class="pre">index.add()</span></code> to determine which
@@ -267,8 +267,9 @@ disk.</p>
 <li><p><strong>records</strong> (<em>Iterable</em><em>[</em><em>Dict</em><em>]</em>) – Each dictionary contains the column names as keys and their corresponding
 values.</p></li>
 <li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of records to insert at once. Default is 10,000.</p></li>
-<li><p><strong>serialize_vectors</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, then vectors will be serialized before insertion; if False, the
-vectors have already been serialized to bytes. Default is True.</p></li>
+<li><p><strong>serialize_vectors</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, vectors will be serialized and compressed before insertion;
+if <code class="docutils literal notranslate"><span class="pre">False</span></code>, user has already serialized &amp; compressed the vectors. See
+<code class="docutils literal notranslate"><span class="pre">serialized()</span></code> for details. Default is True.</p></li>
 <li><p><strong>faiss_runtime_params</strong> (<em>str</em><em>, </em><em>optional</em>) – Set FAISS index runtime parameters before adding vectors. Likely only
 useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer
 index (HNSW32) will be used during the <code class="docutils literal notranslate"><span class="pre">index.add()</span></code> to determine which
@@ -327,9 +328,9 @@ exceeds the <code class="docutils literal notranslate"><span class="pre">thresho
 vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
 similarities which likely differs from the true similarities calculated
 here. Default is 0.</p></li>
-<li><p><strong>rerank</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, rerank neighbors according to their true similarities. Otherwise
-the order is determined by the FAISS index’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>. Default
-is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>rerank</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, rerank neighbors according to their true similarities.
+Otherwise the order is determined by the FAISS index’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Only keep neighbors whose similarities exceed the <code class="docutils literal notranslate"><span class="pre">threshold</span></code>. Default
 is <code class="docutils literal notranslate"><span class="pre">None</span></code> which keeps all neighbors returned.</p></li>
 <li><p><strong>search_parameters</strong> (<em>faiss.SearchParameters</em><em>, </em><em>optional</em>) – Use these search parameters instead of the current runtime FAISS
@@ -401,9 +402,9 @@ all columns.</p></li>
 vector quantizer (e.g., PQ), FAISS orders results based upon the estimated
 similarities which likely differs from the true similarities calculated
 here. Default is 0.</p></li>
-<li><p><strong>rerank</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, rerank neighbors according to their true similarities. Otherwise
-the order is determined by the FAISS index’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>. Default
-is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>rerank</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, rerank neighbors according to their true similarities.
+Otherwise the order is determined by the FAISS index’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Only keep neighbors whose similarities exceed the <code class="docutils literal notranslate"><span class="pre">threshold</span></code>. Default is
 <code class="docutils literal notranslate"><span class="pre">None</span></code> which keeps all neighbors returned.</p></li>
 <li><p><strong>search_parameters</strong> (<em>faiss.SearchParameters</em><em>, </em><em>optional</em>) – Use these search parameters instead of the current runtime FAISS
