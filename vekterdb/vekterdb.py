@@ -26,6 +26,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
+import zlib
 
 try:
     import faiss
@@ -203,7 +204,8 @@ class VekterDB:
     @staticmethod
     def serialize_vector(vector: np.ndarray) -> bytes:
         """
-        Static method to serialize numpy vector to Python bytes.
+        Static method to serialize numpy vector to Python bytes. Uses zlib to
+        compress the bytes.
 
         Parameters
         ----------
@@ -214,7 +216,7 @@ class VekterDB:
         -------
         bytes
         """
-        return vector.tobytes()
+        return zlib.compress(vector.tobytes(), level=4)
 
     @staticmethod
     def deserialize_vector(vector_bytes: bytes) -> np.ndarray:
@@ -231,7 +233,7 @@ class VekterDB:
         np.ndarray
             1-d numpy array of type np.float32
         """
-        return np.frombuffer(vector_bytes, dtype=np.float32)
+        return np.frombuffer(zlib.decompress(vector_bytes), dtype=np.float32)
 
     def save(self, config_file: str = None):
         """
