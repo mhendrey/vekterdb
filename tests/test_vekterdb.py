@@ -24,6 +24,7 @@ from pathlib import Path
 import pytest
 import sqlalchemy as sa
 from typing import Dict, List
+import zlib
 
 # Bit of a hack, but this way I can run pytests in main directory, but still have IDE
 # aware of VekterDB
@@ -249,7 +250,7 @@ def test_insert_bytes():
     for record in make_data(
         "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
     ):
-        record["vector"] = record["vector"].tobytes()
+        record["vector"] = zlib.compress(record["vector"].tobytes())
         records.append(record)
 
     # Create table using in-memory SQLite
@@ -692,7 +693,7 @@ def test_serialization(seed: int = None, d: int = 16):
     assert np.all(v1 == v1_roundtrip)
 
     # Starting with bytes
-    v2_bytes = rng.normal(size=d).astype(np.float32).tobytes()
+    v2_bytes = zlib.compress(rng.normal(size=d).astype(np.float32).tobytes(), level=4)
     v2 = VekterDB.deserialize_vector(v2_bytes)
     assert isinstance(v2, np.ndarray)
     assert v2.shape == (d,)

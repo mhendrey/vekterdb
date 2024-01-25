@@ -323,8 +323,9 @@ class VekterDB:
         batch_size : int, optional
             Number of records to insert at once. Default is 10,000.
         serialize_vectors : bool, optional
-            If True, then vectors will be serialized before insertion; if False, the
-            vectors have already been serialized to bytes. Default is True.
+            If ``True``, vectors will be serialized and compressed before insertion;
+            if ``False``, user has already serialized & compressed the vectors. See
+            ``serialized()`` for details. Default is True.
         faiss_runtime_params : str, optional
             Set FAISS index runtime parameters before adding vectors. Likely only
             useful if you have a quantizer index (e.g., IVF12345_HNSW32). The quantizer
@@ -561,7 +562,7 @@ class VekterDB:
             ``sample_vectors()`` to specify number of vectors to pull back from the
             database table at a time. Default is 10,000.
         use_gpu : bool, optional
-            Whether to use GPU(s). Default is False. NOTE: Not implemented yet
+            Whether to use GPU(s). Default is ``False``. NOTE: Not implemented yet
         faiss_runtime_params : str, optional
             Set FAISS index runtime parameters before adding vectors. Likely only
             useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
@@ -669,9 +670,9 @@ class VekterDB:
             similarities which likely differs from the true similarities calculated
             here. Default is 0.
         rerank : bool, optional
-            If True, rerank neighbors according to their true similarities. Otherwise
-            the order is determined by the FAISS index's ``index.search()``. Default
-            is ``True``.
+            If ``True``, rerank neighbors according to their true similarities.
+            Otherwise the order is determined by the FAISS index's ``index.search()``.
+            Default is ``True``.
         threshold : float, optional
             Only keep neighbors whose similarities exceed the ``threshold``. Default is
             ``None`` which keeps all neighbors returned.
@@ -781,9 +782,9 @@ class VekterDB:
             similarities which likely differs from the true similarities calculated
             here. Default is 0.
         rerank : bool, optional
-            If True, rerank neighbors according to their true similarities. Otherwise
-            the order is determined by the FAISS index's ``index.search()``. Default
-            is ``True``.
+            If ``True``, rerank neighbors according to their true similarities.
+            Otherwise the order is determined by the FAISS index's ``index.search()``.
+            Default is ``True``.
         threshold : float, optional
             Only keep neighbors whose similarities exceed the ``threshold``. Default
             is ``None`` which keeps all neighbors returned.
