@@ -336,14 +336,16 @@ def test_flat_index(tmp_path_factory, test_db):
     query = next(vekter_db.fetch_records("id", ["query"]))
 
     # Use search() without threshold. This includes yourself
-    neighbors = vekter_db.search(query["vector"], 5, "idx", "id")[0]
+    neighbors = vekter_db.search(query["vector"], 5, "idx", "id")[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 5
     ), f"search(threshold=None) has {len(neighbors)=:} should be 5"
 
     # Use search() with threshold
-    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.85)[0]
+    neighbors = vekter_db.search(query["vector"], 5, "idx", "id", threshold=0.85)[0][
+        "neighbors"
+    ]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 3
@@ -383,7 +385,7 @@ def test_ivf_index(tmp_path_factory, test_db):
     query = next(vekter_db.fetch_records("id", ["query"]))
 
     # Use search(threshold=None) and default nprobe=1
-    neighbors = vekter_db.search(query["vector"], 5, "idx")[0]
+    neighbors = vekter_db.search(query["vector"], 5, "idx")[0]["neighbors"]
     # It is most likely that this will fail to find everyone
     try:
         check_against_ground_truth(neighbors, self_included=True)
@@ -398,7 +400,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         5,
         "idx",
         search_parameters=faiss.SearchParametersIVF(nprobe=15),
-    )[0]
+    )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 5
@@ -413,7 +415,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         "idx",
         k_extra_neighbors=100,
         search_parameters=faiss.SearchParametersIVF(nprobe=100),
-    )[0]
+    )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=True)
     neighbor_idxs_extra = set([n["idx"] for n in neighbors])
     n_overlap = len(neighbor_idxs_no_extra.intersection(neighbor_idxs_extra))
@@ -435,7 +437,7 @@ def test_ivf_index(tmp_path_factory, test_db):
         k_extra_neighbors=50,
         threshold=0.85,
         search_parameters=faiss.SearchParametersIVF(nprobe=15),
-    )[0]
+    )[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=True)
     assert (
         len(neighbors) == 3

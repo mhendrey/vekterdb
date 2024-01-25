@@ -45,7 +45,7 @@ class VekterDB:
     field (str) and a non-unique product_category field (str) with:
 
     ::
-        
+
         my_db = VekterDB(
             "my_table",
             columns_dict={
@@ -53,7 +53,7 @@ class VekterDB:
                 "product_category": {"type": Text},
             }
         )
-        
+
 
     Parameters
     ----------
@@ -645,7 +645,7 @@ class VekterDB:
         k_extra_neighbors: int = 0,
         rerank: bool = True,
         threshold: float = None,
-        search_parameters = None,
+        search_parameters=None,
     ) -> List[List[Dict]]:
         """
         Search for the ``k_nearest_neighbors`` records in the database table based
@@ -680,9 +680,10 @@ class VekterDB:
 
         Returns
         -------
-        List[List[Dict]]
-            For each query, return a list of the neighbors. A neighbor record includes
-            the "metric" similarity with the query vector.
+        List[Dict]
+            For each query, a dictionary containing "neighbors" key whose value is a list
+            of the neighbors' requested information including the "metric" similarity to
+            the query vector.
         """
 
         if len(query_vectors.shape) == 1 and query_vectors.shape[0] == self.d:
@@ -740,7 +741,7 @@ class VekterDB:
                     )
                 else:
                     raise ValueError(f"Not properly handling {self.metric} metric")
-            results.append(query_result[:k_nearest_neighbors])
+            results.append({"neighbors": query_result[:k_nearest_neighbors]})
 
         return results
 
@@ -753,7 +754,7 @@ class VekterDB:
         k_extra_neighbors: int = 0,
         rerank: bool = True,
         threshold: float = None,
-        search_parameters = None,
+        search_parameters=None,
         batch_size: int = 10_000,
     ) -> List[Dict]:
         """
@@ -826,7 +827,7 @@ class VekterDB:
         if self.idx_name not in tmp_col_names_neighbors:
             tmp_col_names_neighbors.append(self.idx_name)
 
-        for record, neighbors in zip(
+        for record, search_result in zip(
             results,
             self.search(
                 query_vectors,
@@ -841,7 +842,7 @@ class VekterDB:
             pop_idx_name = self.idx_name not in col_names
             pop_vector_name = self.vector_name not in col_names
             neighbors_without_yourself = []
-            for neighbor in neighbors:
+            for neighbor in search_result["neighbors"]:
                 if neighbor[self.idx_name] != record[self.idx_name]:
                     if pop_idx_name:
                         neighbor.pop(self.idx_name)
