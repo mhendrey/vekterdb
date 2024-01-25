@@ -147,6 +147,7 @@
 <span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy.sql.functions</span> <span class="k">as</span> <span class="nn">sa_funcs</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">faiss</span>
@@ -324,7 +325,8 @@
 <div class="viewcode-block" id="VekterDB.serialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.serialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">serialize_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Static method to serialize numpy vector to Python bytes.</span>
+<span class="sd">        Static method to serialize numpy vector to Python bytes. Uses zlib to</span>
+<span class="sd">        compress the bytes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -335,7 +337,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">vector</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">zlib</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">tobytes</span><span class="p">(),</span> <span class="n">level</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VekterDB.deserialize_vector"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -352,7 +354,7 @@
 <span class="sd">        np.ndarray</span>
 <span class="sd">            1-d numpy array of type np.float32</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VekterDB.save"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

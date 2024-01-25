@@ -425,7 +425,8 @@ the query vector.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.serialize_vector">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">serialize_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.serialize_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.serialize_vector" title="Permalink to this definition"></a></dt>
-<dd><p>Static method to serialize numpy vector to Python bytes.</p>
+<dd><p>Static method to serialize numpy vector to Python bytes. Uses zlib to
+compress the bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>vector</strong> (<em>np.ndarray</em>) – 1-d numpy array of type np.float32</p>

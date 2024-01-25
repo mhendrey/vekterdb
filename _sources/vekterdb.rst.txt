@@ -18,9 +18,10 @@ flexibility in terms of both the ANN index and the type of databases they can us
 VekterDB requires a minimum of two columns in the database table. The first is an
 integer based identification [0, N) that is used by the FAISS index to refer to records
 and serves as the primary key for the table. The second required column stores the
-vector as bytes. Since VekterDB leverages FAISS, these vectors must be numpy arrays of
-type float32. Of course, additional columns may be specified. For example, you may have
-another column that serves as a more recognizable ID field that is a string.
+vector as compressed bytes. Since VekterDB leverages FAISS, these vectors must be numpy
+arrays of type float32. Of course, additional columns may be specified. For example,
+you may have another column that serves as a more recognizable ID field that is a
+string.
 
 Usage
 -----
@@ -99,11 +100,10 @@ from conda and FAISS currently supports up to python 3.10 (see link if you want 
 your gpu).  We will also install h5py to be able to read the downloaded SIFT-1M
 dataset.::
 
-    $ conda create -n vekterdb_tutorial python=3.10 ipython
+    $ conda create -n vekterdb_tutorial python=3.10
     $ conda activate vekterdb_tutorial
     $ conda install -c pytorch -c conda-forge -c defaults h5py faiss-cpu=1.7.4 mkl=2021 blas=1.0=mkl
     $ pip install vekterdb
-    $ ipython
 
 The rest of the code assumes you are inside a Python interpretter (ipython, Jupyter,
 or whatever you like).
