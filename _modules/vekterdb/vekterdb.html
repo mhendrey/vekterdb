@@ -1003,13 +1003,12 @@
 <span class="sd">        member ``Record`` is the ORM-mapped class for the database table and should be</span>
 <span class="sd">        used to construct the clause. Some examples</span>
 
-<span class="sd">        ::</span>
-<span class="sd">            where = vekter_db.Record.idx == 0</span>
-<span class="sd">            where = vekter_db.Record.idx.in_([100, 200, 300])</span>
-<span class="sd">            where = sa.sql.and_(vekter_db.Record.idx&gt;=0, vekter_db.Record.idx&lt;5)</span>
+<span class="sd">        ```where = vekter_db.Record.idx == 0</span>
+<span class="sd">        where = vekter_db.Record.idx.in_([100, 200, 300])</span>
+<span class="sd">        where = sa.sql.and_(vekter_db.Record.idx&gt;=0, vekter_db.Record.idx&lt;5)</span>
 
-<span class="sd">            vekter_db.select(where)                   # Return all columns</span>
-<span class="sd">            vekter_db.select(where, &quot;idx&quot;, &quot;vector&quot;)  # Return idx &amp; vector only</span>
+<span class="sd">        vekter_db.select(where)                   # Return all columns</span>
+<span class="sd">        vekter_db.select(where, &quot;idx&quot;, &quot;vector&quot;)  # Return idx &amp; vector only```</span>
 
 
 <span class="sd">        Parameters</span>
