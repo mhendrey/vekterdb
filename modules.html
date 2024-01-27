@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>vekterdb.vekterdb &mdash; VekterDB 0.1.0 documentation</title>
+  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=2389946f"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b1f64a84"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -71,13 +71,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB"><code class="docutils literal notranslate"><span class="pre">VekterDB</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.fetch_records"><code class="docutils literal notranslate"><span class="pre">VekterDB.fetch_records()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.load"><code class="docutils literal notranslate"><span class="pre">VekterDB.load()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.nearest_neighbors"><code class="docutils literal notranslate"><span class="pre">VekterDB.nearest_neighbors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.sample_vectors"><code class="docutils literal notranslate"><span class="pre">VekterDB.sample_vectors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.save"><code class="docutils literal notranslate"><span class="pre">VekterDB.save()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.search"><code class="docutils literal notranslate"><span class="pre">VekterDB.search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.select"><code class="docutils literal notranslate"><span class="pre">VekterDB.select()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.serialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.serialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters"><code class="docutils literal notranslate"><span class="pre">VekterDB.set_faiss_runtime_parameters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.similarity"><code class="docutils literal notranslate"><span class="pre">VekterDB.similarity()</span></code></a></li>
@@ -235,29 +235,8 @@ invocation. Default is None</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.fetch_records">
-<span class="sig-name descname"><span class="pre">fetch_records</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fetch_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.fetch_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.fetch_records" title="Permalink to this definition"></a></dt>
-<dd><p>Fetch records from the database table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>fetch_column</strong> (<em>str</em>) – Column in the database table used for record retrieval.</p></li>
-<li><p><strong>fetch_values</strong> (<em>List</em>) – Values to match in the <code class="docutils literal notranslate"><span class="pre">fetch_column</span></code>.</p></li>
-<li><p><strong>*col_names</strong> (<em>str</em><em>, </em><em>optional</em>) – List columns to return from the database table. Default of <code class="docutils literal notranslate"><span class="pre">None</span></code> returns
-all columns.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of records to fetch from the database table at one time. Default is
-10,000.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Iterator[Dict]</em> – Dictionary containing a fetched record.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.insert">
-<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serialize_vectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.insert" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serialize_vectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.insert" title="Permalink to this definition"></a></dt>
 <dd><p>Insert multiple records into the table. Vectors will also be added to the
 FAISS index if it already exists. If the FAISS index is updated, it is saved to
 disk.</p>
@@ -279,6 +258,8 @@ whether that is the FAISS default (efSearch=16) or the value saved in
 example value for the example index given. If used,
 <code class="docutils literal notranslate"><span class="pre">self.faiss_runtime_parameters</span></code> is set back to its value before function
 invocation. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><strong>compression_level</strong> (<em>int</em><em>, </em><em>optional</em>) – Zstandard compression level to apply to vectors before inserting into the
+database. Default is 1 (fastest)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -312,15 +293,14 @@ details.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.nearest_neighbors">
-<span class="sig-name descname"><span class="pre">nearest_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fetch_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fetch_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_nearest_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_extra_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rerank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.nearest_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.nearest_neighbors" title="Permalink to this definition"></a></dt>
-<dd><p>Find the nearest neighbors of the query records in the table based on
-vector similarity. Optionally keep only neighbors whose similarity
-exceeds the <code class="docutils literal notranslate"><span class="pre">threshold</span></code>.</p>
+<span class="sig-name descname"><span class="pre">nearest_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">where_clause</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClauseElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_nearest_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_extra_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rerank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.nearest_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.nearest_neighbors" title="Permalink to this definition"></a></dt>
+<dd><p>Return nearest neighbors of the records in the database table that match the
+<code class="docutils literal notranslate"><span class="pre">where_clause</span></code>. Optionally keep only neighbors whose similarity exceeds the
+<code class="docutils literal notranslate"><span class="pre">threshold</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>fetch_column</strong> (<em>str</em>) – Column in the database table to use for query record retrieval.</p></li>
-<li><p><strong>fetch_values</strong> (<em>List</em>) – Values to match in the <code class="docutils literal notranslate"><span class="pre">fetch_column</span></code>.</p></li>
+<li><p><strong>where_clause</strong> (<em>sa.sql.ClauseElement</em>) – Where clause specifying records of interest. Passed to <code class="docutils literal notranslate"><span class="pre">select()</span></code></p></li>
 <li><p><strong>k_nearest_neighbors</strong> (<em>int</em>) – Number of nearest neighbors to return.</p></li>
 <li><p><strong>*col_names</strong> (<em>str</em>) – List of columns to use in the query and neighbor records. Default of
 <code class="docutils literal notranslate"><span class="pre">None</span></code> uses all columns.</p></li>
@@ -424,13 +404,44 @@ the query vector.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.select">
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">where_clause</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClauseElement</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">ret_cols</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.select"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.select" title="Permalink to this definition"></a></dt>
+<dd><p>Select records from the database table matching the <code class="docutils literal notranslate"><span class="pre">where_clause</span></code>. The class
+member <code class="docutils literal notranslate"><span class="pre">Record</span></code> is the ORM-mapped class for the database table and should be
+used to construct the clause. Some examples</p>
+<dl>
+<dt>::</dt><dd><p>where = vekter_db.Record.idx == 0
+where = vekter_db.Record.idx.in_([100, 200, 300])
+where = sa.sql.and_(vekter_db.Record.idx&gt;=0, vekter_db.Record.idx&lt;5)</p>
+<p>vekter_db.select(where)                   # Return all columns
+vekter_db.select(where, “idx”, “vector”)  # Return idx &amp; vector only</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>where_clause</strong> (<em>sa.sql.ClauseElement</em>) – SQLAlchemy Where Clause.</p></li>
+<li><p><strong>*ret_cols</strong> (<em>str</em><em>, </em><em>optional</em>) – List columns to return from the database table. Default of <code class="docutils literal notranslate"><span class="pre">None</span></code> returns
+all columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Iterator[Dict]</em> – Dictionary of requested fields that match the where clause</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.serialize_vector">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">serialize_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.serialize_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.serialize_vector" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">serialize_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.serialize_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.serialize_vector" title="Permalink to this definition"></a></dt>
 <dd><p>Static method to serialize numpy vector to Python bytes. Uses zlib to
 compress the bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vector</strong> (<em>np.ndarray</em>) – 1-d numpy array of type np.float32</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector</strong> (<em>np.ndarray</em>) – 1-d numpy array of type np.float32</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – Zstandard compression level [1, 22]. Default is 1 (fastest)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bytes</p>

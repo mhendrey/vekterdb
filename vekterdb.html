@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VekterDB &mdash; VekterDB 0.1.0 documentation</title>
+  <title>VekterDB &mdash; VekterDB 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=2389946f"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b1f64a84"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.1.0
+                0.2.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -71,13 +71,13 @@
 <li class="toctree-l2"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB"><code class="docutils literal notranslate"><span class="pre">VekterDB</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.fetch_records"><code class="docutils literal notranslate"><span class="pre">VekterDB.fetch_records()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.load"><code class="docutils literal notranslate"><span class="pre">VekterDB.load()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.nearest_neighbors"><code class="docutils literal notranslate"><span class="pre">VekterDB.nearest_neighbors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.sample_vectors"><code class="docutils literal notranslate"><span class="pre">VekterDB.sample_vectors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.save"><code class="docutils literal notranslate"><span class="pre">VekterDB.save()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.search"><code class="docutils literal notranslate"><span class="pre">VekterDB.search()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.select"><code class="docutils literal notranslate"><span class="pre">VekterDB.select()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.serialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.serialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters"><code class="docutils literal notranslate"><span class="pre">VekterDB.set_faiss_runtime_parameters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.similarity"><code class="docutils literal notranslate"><span class="pre">VekterDB.similarity()</span></code></a></li>
@@ -321,12 +321,11 @@ done with the <code class="docutils literal notranslate"><span class="pre">searc
 neighbors in the database table to an existing record in the table. This is done with
 the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> method.</p>
 <p>So far, we have only added the training data to the database and then used all those
-vectors to train the FAISS index. We begin by getting reading the testing data from the
-file and then using those to query our vector database for similar records.  We will
-compare those to the “neighbors” stored in the HDF5 file. Let’s start slow and just
-use the first test vector and get the five nearest neighbors. Since the FAISS
-<code class="docutils literal notranslate"><span class="pre">index.search()</span></code> requires that the vector shape be at least (n, d), we reshape the
-first vector to match. To easily compare, we only need to see the “idx” column.</p>
+vectors to train the FAISS index. We begin by reading the testing data from the file
+and then using those to query our vector database for similar records.  We will compare
+those to the “neighbors” stored in the HDF5 file. Let’s start slow and just use the
+first test vector and get the five nearest neighbors. To easily compare, we only need
+to see the “idx” column.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">search()</span></code> returns a list with one element for each of the query vectors. Each
 element of the list is a dictionary with a single key, “neighbors”, whose value is a
 list of dicts that are the neighbors for that query vectory. The dict’s keys are the
@@ -394,7 +393,7 @@ neighbor returned from the search?</p>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recall@1 = </span><span class="si">{</span><span class="n">found_nearest</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">search_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.04f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In my running, I get a value of recall&#64;1 = 0.6646. This is ok, but maybe a little
+<p>In my running, I get a value of recall&#64;1 = 0.6566. This is ok, but maybe a little
 disheartening. However, we only allowed FAISS to return the nearest approximate
 neighbor and we have quite a few parameters to tweak if needed as we mentioned above.
 We will start with raising the <code class="docutils literal notranslate"><span class="pre">k_extra_neighbors</span></code> value from 0 (default) to 4.</p>
@@ -406,23 +405,22 @@ We will start with raising the <code class="docutils literal notranslate"><span 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recall@1 = </span><span class="si">{</span><span class="n">found_nearest</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">search_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.04f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Much better. I got 0.9450. In fact, if we increase even further <code class="docutils literal notranslate"><span class="pre">k_extra_neighbors=49</span></code>,
-then our result goes up to 0.9902. Again, our query time is increasing so it is always
-a trade off. On my machine the query time for <code class="docutils literal notranslate"><span class="pre">q_vecs</span></code> went from 0.996s
-(<code class="docutils literal notranslate"><span class="pre">k_extra_neighbors=0</span></code>) to 1.25s (4) to 3.47s (49).</p>
+<p>Much better. I got 0.9469. In fact, if we increase even further <code class="docutils literal notranslate"><span class="pre">k_extra_neighbors=49</span></code>,
+then our result goes up to 0.9904. Again, our query time is increasing so it is always
+a trade off. On my machine the query time for <code class="docutils literal notranslate"><span class="pre">q_vecs</span></code> went from 1.03s
+(<code class="docutils literal notranslate"><span class="pre">k_extra_neighbors=0</span></code>) to 1.37s (4) to 4.41s (49).</p>
 </section>
 <section id="querying-for-similar-records">
 <h3>Querying for Similar Records<a class="headerlink" href="#querying-for-similar-records" title="Permalink to this heading"></a></h3>
-<p>In this section, we will show how to query for the nearest records of a given record
+<p>In this section, we will show how to query for the nearest neighbors of a given record
 that is already in the database table. We begin by adding in the test vectors to our
 database table and FAISS index. We will then repeat our simple test, but this time
 using the <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> method.</p>
-<p>This method allows you to select records whose nearest neighbors you are querying for
-by specifying which column of the database to use <code class="docutils literal notranslate"><span class="pre">fetch_column</span></code> and then a list of
-values whose records you want to use for querying, <code class="docutils literal notranslate"><span class="pre">fetch_values</span></code>. The rest follows
-the same as <code class="docutils literal notranslate"><span class="pre">search()</span></code> since <code class="docutils literal notranslate"><span class="pre">nearest_neighbors</span></code> is just combining a
-<code class="docutils literal notranslate"><span class="pre">fetch_records()</span></code> to retrieve the vectors of the request records and then using
-<code class="docutils literal notranslate"><span class="pre">search()</span></code>. Caution is taken to remove the query record from the neighbors list.</p>
+<p>This method allows you to select your query records by specifying a SQLAlchemy Where
+clause, <code class="docutils literal notranslate"><span class="pre">where_clause</span></code>. The rest follows the same as <code class="docutils literal notranslate"><span class="pre">search()</span></code> since
+<code class="docutils literal notranslate"><span class="pre">nearest_neighbors</span></code> is just combining a <code class="docutils literal notranslate"><span class="pre">select()</span></code> to retrieve the vectors of the
+requested records and then using <code class="docutils literal notranslate"><span class="pre">search()</span></code>. Care is taken to remove the query record
+from the neighbors list.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">nearest_neighbors()</span></code> returns a list of dictionaries with each dictionary list
 the query record’s values; either all the column values or just the values of the
 columns names specified with <code class="docutils literal notranslate"><span class="pre">*col_names</span></code>. In addition, the “neighbors” key contains
@@ -432,9 +430,9 @@ list is sorted in appropriate order with nearest neighbor listed first.</p>
     <span class="n">test_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span> <span class="n">faiss_runtime_params</span><span class="o">=</span><span class="s2">&quot;quantizer_efSearch=25&quot;</span>
 <span class="p">)</span>
 
-<span class="n">neighbors</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">nearest_neighbors</span><span class="p">(</span><span class="s2">&quot;idx&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1_000_000</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;idx&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span>
-    <span class="s2">&quot;neighbors&quot;</span>
-<span class="p">]</span>
+<span class="n">neighbors</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">nearest_neighbors</span><span class="p">(</span>
+    <span class="n">vekter_db</span><span class="o">.</span><span class="n">Record</span><span class="o">.</span><span class="n">idx</span> <span class="o">==</span> <span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;idx&quot;</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;neighbors&quot;</span><span class="p">]</span>
 
 <span class="k">if</span> <span class="n">true_neighbors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">neighbors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;idx&quot;</span><span class="p">]:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;We found the true nearest neighbor!&quot;</span><span class="p">)</span>
@@ -455,8 +453,7 @@ show that we can also use the <code class="docutils literal notranslate"><span c
 we had this column indexed in the specification of the database table, this should
 equivalant as using the primary key, <code class="docutils literal notranslate"><span class="pre">idx</span></code>, of the database table.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">nn_results</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">nearest_neighbors</span><span class="p">(</span>
-    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">1_010_000</span><span class="p">)],</span>
+    <span class="n">vekter_db</span><span class="o">.</span><span class="n">Record</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">1_010_000</span><span class="p">)]),</span>
     <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
     <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -468,10 +465,10 @@ equivalant as using the primary key, <code class="docutils literal notranslate">
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">found_nearest</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">nn_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.04f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>We get a recall&#64;1 = 0.9303 with these runtime search parameters and
+<p>We get a recall&#64;1 = 0.9323 with these runtime search parameters and
 <code class="docutils literal notranslate"><span class="pre">k_extra_neighbors</span></code> of 4. Notice that this value is a little lower than we had
-before, 0.9450. This is caused by the additional 10,000 test vectors added into
-the database table with a small percentage of them being the nearest neighbor for
+before, 0.9469. This is caused by the additional 10,000 test vectors added into
+the database table where a small percentage of them being the nearest neighbor for
 other records in the test data.</p>
 </section>
 <section id="saving-loading-a-vekterdb">
@@ -500,8 +497,7 @@ be needed to pass in that URL string that we don’t want to save to disk in pla
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vekter_db</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;tutorial.json&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;sqlite:///sift1m.db&quot;</span><span class="p">)</span>
 
 <span class="n">nn_results</span> <span class="o">=</span> <span class="n">vekter_db</span><span class="o">.</span><span class="n">nearest_neighbors</span><span class="p">(</span>
-    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">1_010_000</span><span class="p">)],</span>
+    <span class="n">vekter_db</span><span class="o">.</span><span class="n">Record</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="mi">1_010_000</span><span class="p">)]),</span>
     <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
     <span class="n">k_extra_neighbors</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -513,7 +509,7 @@ be needed to pass in that URL string that we don’t want to save to disk in pla
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">found_nearest</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">nn_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.04f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>And we get back the same 0.9303 for the recall&#64;1.</p>
+<p>And we get back the same 0.9323 for the recall&#64;1.</p>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="f1" role="doc-footnote">
