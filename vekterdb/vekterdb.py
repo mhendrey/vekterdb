@@ -882,13 +882,12 @@ class VekterDB:
         member ``Record`` is the ORM-mapped class for the database table and should be
         used to construct the clause. Some examples
 
-        ::
-            where = vekter_db.Record.idx == 0
-            where = vekter_db.Record.idx.in_([100, 200, 300])
-            where = sa.sql.and_(vekter_db.Record.idx>=0, vekter_db.Record.idx<5)
+        ```where = vekter_db.Record.idx == 0
+        where = vekter_db.Record.idx.in_([100, 200, 300])
+        where = sa.sql.and_(vekter_db.Record.idx>=0, vekter_db.Record.idx<5)
 
-            vekter_db.select(where)                   # Return all columns
-            vekter_db.select(where, "idx", "vector")  # Return idx & vector only
+        vekter_db.select(where)                   # Return all columns
+        vekter_db.select(where, "idx", "vector")  # Return idx & vector only```
 
 
         Parameters
