@@ -878,16 +878,18 @@ class VekterDB:
         *ret_cols: str,
     ) -> Iterator[Dict]:
         """
-        Select records from the database table matching the ``where_clause``. The class
-        member ``Record`` is the ORM-mapped class for the database table and should be
-        used to construct the clause. Some examples
+        Select records from the database table. Class member ``Record`` is the
+        ORM-mapped class for the database table and should be used to construct the
+        clause.
 
-        ```where = vekter_db.Record.idx == 0
-        where = vekter_db.Record.idx.in_([100, 200, 300])
-        where = sa.sql.and_(vekter_db.Record.idx>=0, vekter_db.Record.idx<5)
+        .. code-block:: python
 
-        vekter_db.select(where)                   # Return all columns
-        vekter_db.select(where, "idx", "vector")  # Return idx & vector only```
+            where = vekter_db.Record.idx == 0
+            where = vekter_db.Record.idx.in_([100, 200, 300])
+            where = sa.sql.and_(vekter_db.Record.idx>=0, vekter_db.Record.idx<5)
+
+            vekter_db.select(where)                   # Return all columns
+            vekter_db.select(where, "idx", "vector")  # Return idx & vector only
 
 
         Parameters
