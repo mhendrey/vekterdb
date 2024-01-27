@@ -18,13 +18,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import faiss
+import numcodecs
 import numpy as np
 import logging
 from pathlib import Path
 import pytest
 import sqlalchemy as sa
 from typing import Dict, List
-import zlib
 
 # Bit of a hack, but this way I can run pytests in main directory, but still have IDE
 # aware of VekterDB
@@ -93,7 +93,7 @@ def test_db(tmp_path_factory: Path):
     n_records = vekter_db.insert(records)
 
     # Make a query record that is summing the first two vectors
-    records = list(vekter_db.fetch_records("idx", [0, 1]))
+    records = list(vekter_db.select(vekter_db.Record.idx <= 1))
     q_vec = 1.2 * records[0]["vector"] + records[1]["vector"]
     faiss.normalize_L2(q_vec.reshape(1, -1))
     query_record = {"idx": n_records, "id": "query", "vector": q_vec}
@@ -250,7 +250,7 @@ def test_insert_bytes():
     for record in make_data(
         "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
     ):
-        record["vector"] = zlib.compress(record["vector"].tobytes())
+        record["vector"] = numcodecs.zstd.compress(record["vector"])
         records.append(record)
 
     # Create table using in-memory SQLite
@@ -334,7 +334,7 @@ def test_flat_index(tmp_path_factory, test_db):
     vekter_db.create_index(faiss_file, faiss_factory_string, metric="inner_product")
 
     # Get the test query vector
-    query = next(vekter_db.fetch_records("id", ["query"]))
+    query = next(vekter_db.select(vekter_db.Record.id == "query"))
 
     # Use search() without threshold. This includes yourself
     neighbors = vekter_db.search(query["vector"], 5, "idx", "id")[0]["neighbors"]
@@ -353,18 +353,18 @@ def test_flat_index(tmp_path_factory, test_db):
     ), f"search(threshold=0.85) has {len(neighbors)=:} should be 3 when using threshold"
 
     # Use the nearest_neighbors() without threshold
-    neighbors = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0][
-        "neighbors"
-    ]
+    where = vekter_db.Record.idx == query["idx"]
+    neighbors = vekter_db.nearest_neighbors(where, 5, "idx", "id")[0]["neighbors"]
     check_against_ground_truth(neighbors, self_included=False)
     assert (
         len(neighbors) == 5
     ), f"nearest_neighbors(threshold=None) has {len(neighbors)=:} should still be 5"
 
     # Use nearest_neighbors() with threshold
-    neighbors = vekter_db.nearest_neighbors(
-        "idx", [query["idx"]], 5, "idx", "id", threshold=0.85
-    )[0]["neighbors"]
+    where = vekter_db.Record.idx == query["idx"]
+    neighbors = vekter_db.nearest_neighbors(where, 5, "idx", "id", threshold=0.85)[0][
+        "neighbors"
+    ]
     check_against_ground_truth(neighbors, self_included=False)
     assert (
         len(neighbors) == 2
@@ -383,7 +383,7 @@ def test_ivf_index(tmp_path_factory, test_db):
     vekter_db.create_index(faiss_file, faiss_factory_string, sample_size=50_000)
 
     # Get the test query vector
-    query = next(vekter_db.fetch_records("id", ["query"]))
+    query = next(vekter_db.select(vekter_db.Record.id == "query"))
 
     # Use search(threshold=None) and default nprobe=1
     neighbors = vekter_db.search(query["vector"], 5, "idx")[0]["neighbors"]
@@ -448,7 +448,8 @@ def test_ivf_index(tmp_path_factory, test_db):
     vekter_db.set_faiss_runtime_parameters("nprobe=15")
 
     # Use nearest_neighbor(). You don't have to set search_params now
-    result = vekter_db.nearest_neighbors("idx", [query["idx"]], 5, "idx", "id")[0]
+    where = vekter_db.Record.idx == query["idx"]
+    result = vekter_db.nearest_neighbors(where, 5, "idx", "id")[0]
     assert (
         result["idx"] == query["idx"]
     ), f"nearest_neighbors() {result['idx']} should equal {query['idx']}"
@@ -459,9 +460,9 @@ def test_ivf_index(tmp_path_factory, test_db):
     check_against_ground_truth(neighbors, self_included=False)
 
     # Use nearest_neighbors(threshold=0.85)
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -487,12 +488,12 @@ def test_hnsw_index(tmp_path_factory, test_db):
     vekter_db.create_index(faiss_file, faiss_factory_string)
 
     # Get the test query vector
-    query = next(vekter_db.fetch_records("id", ["query"]))
+    query = next(vekter_db.select(vekter_db.Record.id == "query"))
 
     # Quick Test
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -515,26 +516,28 @@ def test_opaque_index(tmp_path_factory, test_db):
     faiss_factory_string = "OPQ8,IVF300_HNSW32,PQ8"
     vekter_db.create_index(faiss_file, faiss_factory_string, sample_size=20_000)
 
-    query = next(vekter_db.fetch_records("id", ["query"]))
+    query = next(vekter_db.select(vekter_db.Record.id == "query"))
 
     # Default search parameters, nprobe=1 & efSearch=16
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
         threshold=0.85,
-    )[0]["neighbors"]
+    )[
+        0
+    ]["neighbors"]
     try:
         check_against_ground_truth(neighbors, self_included=False)
     except Exception as exc:
         logging.warning(f"As expected, ivf_hnsw with default failed: {exc}")
 
     # Setting search_parameters per query
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -551,9 +554,9 @@ def test_opaque_index(tmp_path_factory, test_db):
 
     # Setting Faiss Runtime Search Parameters
     vekter_db.set_faiss_runtime_parameters("nprobe=15,quantizer_efSearch=45")
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -578,12 +581,12 @@ def test_save_load(tmp_path_factory, test_db):
     vekter_db.set_faiss_runtime_parameters("efSearch=60")
 
     # Get the test query vector
-    query = next(vekter_db.fetch_records("id", ["query"]))
+    query = next(vekter_db.select(vekter_db.Record.id == "query"))
 
     # Quick Test
+    where = vekter_db.Record.idx == query["idx"]
     neighbors = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -595,9 +598,9 @@ def test_save_load(tmp_path_factory, test_db):
     vekter_db.save(config_file)
     vekter_db = VekterDB.load(config_file, url=f"sqlite:///{test_db}")
 
+    where = vekter_db.Record.idx == query["idx"]
     neighbors_after_save = vekter_db.nearest_neighbors(
-        "idx",
-        [query["idx"]],
+        where,
         5,
         "idx",
         "id",
@@ -628,7 +631,8 @@ def test_nearest_neighbor_column_names(tmp_path):
     vekter_db.create_index(faiss_file, "Flat")
 
     # Should have all the columns since none are specified
-    result = vekter_db.nearest_neighbors("idx", [0], 3)[0]
+    where = vekter_db.Record.idx == 0
+    result = vekter_db.nearest_neighbors(where, 3)[0]
     assert "idx" in result, f"{result.keys()} should contain 'idx'"
     assert "id" in result, f"{result.keys()} should contain 'id'"
     assert "vector" in result, f"{result.keys()} should contain 'vector'"
@@ -641,7 +645,8 @@ def test_nearest_neighbor_column_names(tmp_path):
         assert "vector" in neighbor_keys, f"{neighbor_keys} should contain 'vector'"
         assert "metric" in neighbor_keys, f"{neighbor_keys} should contain 'metric'"
 
-    result = vekter_db.nearest_neighbors("idx", [0], 2, "idx", "id")[0]
+    where = vekter_db.Record.idx == 0
+    result = vekter_db.nearest_neighbors(where, 2, "idx", "id")[0]
     assert "idx" in result, f"{result.keys()} should contain 'idx'"
     assert "id" in result, f"{result.keys()} should contain 'id'"
     assert "vector" not in result, f"{result.keys()} should NOT contain 'vector'"
@@ -656,7 +661,8 @@ def test_nearest_neighbor_column_names(tmp_path):
         ), f"{neighbor_keys} should NOT contain 'vector'"
         assert "metric" in neighbor_keys, f"{neighbor_keys} should contain 'metric'"
 
-    result = vekter_db.nearest_neighbors("idx", [0], 2, "id")[0]
+    where = vekter_db.Record.idx == 0
+    result = vekter_db.nearest_neighbors(where, 2, "id")[0]
     assert "idx" not in result, f"{result.keys()} should NOT contain 'idx'"
     assert "id" in result, f"{result.keys()} should contain 'id'"
     assert "vector" not in result, f"{result.keys()} should NOT contain 'vector'"
@@ -693,7 +699,7 @@ def test_serialization(seed: int = None, d: int = 16):
     assert np.all(v1 == v1_roundtrip)
 
     # Starting with bytes
-    v2_bytes = zlib.compress(rng.normal(size=d).astype(np.float32).tobytes(), level=4)
+    v2_bytes = numcodecs.zstd.compress(rng.normal(size=d).astype(np.float32), level=4)
     v2 = VekterDB.deserialize_vector(v2_bytes)
     assert isinstance(v2, np.ndarray)
     assert v2.shape == (d,)

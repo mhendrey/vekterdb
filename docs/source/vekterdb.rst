@@ -205,12 +205,11 @@ neighbors in the database table to an existing record in the table. This is done
 the ``nearest_neighbors()`` method.
 
 So far, we have only added the training data to the database and then used all those
-vectors to train the FAISS index. We begin by getting reading the testing data from the
-file and then using those to query our vector database for similar records.  We will
-compare those to the "neighbors" stored in the HDF5 file. Let's start slow and just
-use the first test vector and get the five nearest neighbors. Since the FAISS
-``index.search()`` requires that the vector shape be at least (n, d), we reshape the
-first vector to match. To easily compare, we only need to see the "idx" column.
+vectors to train the FAISS index. We begin by reading the testing data from the file
+and then using those to query our vector database for similar records.  We will compare
+those to the "neighbors" stored in the HDF5 file. Let's start slow and just use the
+first test vector and get the five nearest neighbors. To easily compare, we only need
+to see the "idx" column.
 
 The ``search()`` returns a list with one element for each of the query vectors. Each
 element of the list is a dictionary with a single key, "neighbors", whose value is a
@@ -287,7 +286,7 @@ neighbor returned from the search?
             found_nearest += 1
     print(f"Recall@1 = {found_nearest / len(search_results):.04f}")
 
-In my running, I get a value of recall@1 = 0.6646. This is ok, but maybe a little
+In my running, I get a value of recall@1 = 0.6566. This is ok, but maybe a little
 disheartening. However, we only allowed FAISS to return the nearest approximate
 neighbor and we have quite a few parameters to tweak if needed as we mentioned above.
 We will start with raising the ``k_extra_neighbors`` value from 0 (default) to 4.
@@ -301,24 +300,23 @@ We will start with raising the ``k_extra_neighbors`` value from 0 (default) to 4
             found_nearest += 1
     print(f"Recall@1 = {found_nearest / len(search_results):.04f}")
 
-Much better. I got 0.9450. In fact, if we increase even further ``k_extra_neighbors=49``,
-then our result goes up to 0.9902. Again, our query time is increasing so it is always
-a trade off. On my machine the query time for ``q_vecs`` went from 0.996s
-(``k_extra_neighbors=0``) to 1.25s (4) to 3.47s (49).
+Much better. I got 0.9469. In fact, if we increase even further ``k_extra_neighbors=49``,
+then our result goes up to 0.9904. Again, our query time is increasing so it is always
+a trade off. On my machine the query time for ``q_vecs`` went from 1.03s
+(``k_extra_neighbors=0``) to 1.37s (4) to 4.41s (49).
 
 Querying for Similar Records
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In this section, we will show how to query for the nearest records of a given record
+In this section, we will show how to query for the nearest neighbors of a given record
 that is already in the database table. We begin by adding in the test vectors to our
 database table and FAISS index. We will then repeat our simple test, but this time
 using the ``nearest_neighbors()`` method.
 
-This method allows you to select records whose nearest neighbors you are querying for
-by specifying which column of the database to use ``fetch_column`` and then a list of
-values whose records you want to use for querying, ``fetch_values``. The rest follows
-the same as ``search()`` since ``nearest_neighbors`` is just combining a
-``fetch_records()`` to retrieve the vectors of the request records and then using
-``search()``. Caution is taken to remove the query record from the neighbors list.
+This method allows you to select your query records by specifying a SQLAlchemy Where
+clause, ``where_clause``. The rest follows the same as ``search()`` since
+``nearest_neighbors`` is just combining a ``select()`` to retrieve the vectors of the
+requested records and then using ``search()``. Care is taken to remove the query record
+from the neighbors list.
 
 The ``nearest_neighbors()`` returns a list of dictionaries with each dictionary list
 the query record's values; either all the column values or just the values of the
@@ -332,9 +330,9 @@ list is sorted in appropriate order with nearest neighbor listed first.
         test_data, batch_size=50_000, faiss_runtime_params="quantizer_efSearch=25"
     )
 
-    neighbors = vekter_db.nearest_neighbors("idx", [1_000_000], 5, "idx")[0][
-        "neighbors"
-    ]
+    neighbors = vekter_db.nearest_neighbors(
+        vekter_db.Record.idx == 1_000_000, 5, "idx"
+    )[0]["neighbors"]
 
     if true_neighbors[0][0] == neighbors[0]["idx"]:
         print("We found the true nearest neighbor!")
@@ -357,8 +355,7 @@ equivalant as using the primary key, ``idx``, of the database table.
 ::
 
     nn_results = vekter_db.nearest_neighbors(
-        "id",
-        [str(i) for i in range(1_000_000, 1_010_000)],
+        vekter_db.Record.id.in_([str(i) for i in range(1_000_000, 1_010_000)]),
         1,
         "idx",
         k_extra_neighbors=4,
@@ -369,10 +366,10 @@ equivalant as using the primary key, ``idx``, of the database table.
             found_nearest += 1
     print(f"{found_nearest / len(nn_results):.04f}")
 
-We get a recall@1 = 0.9303 with these runtime search parameters and
+We get a recall@1 = 0.9323 with these runtime search parameters and
 ``k_extra_neighbors`` of 4. Notice that this value is a little lower than we had
-before, 0.9450. This is caused by the additional 10,000 test vectors added into
-the database table with a small percentage of them being the nearest neighbor for
+before, 0.9469. This is caused by the additional 10,000 test vectors added into
+the database table where a small percentage of them being the nearest neighbor for
 other records in the test data.
 
 Saving & Loading a VekterDB
@@ -409,8 +406,7 @@ be needed to pass in that URL string that we don't want to save to disk in plain
     vekter_db = VekterDB.load("tutorial.json", url="sqlite:///sift1m.db")
 
     nn_results = vekter_db.nearest_neighbors(
-        "id",
-        [str(i) for i in range(1_000_000, 1_010_000)],
+        vekter_db.Record.id.in_([str(i) for i in range(1_000_000, 1_010_000)]),
         1,
         "idx",
         k_extra_neighbors=4,
@@ -421,7 +417,7 @@ be needed to pass in that URL string that we don't want to save to disk in plain
             found_nearest += 1
     print(f"{found_nearest / len(nn_results):.04f}")
 
-And we get back the same 0.9303 for the recall@1.
+And we get back the same 0.9323 for the recall@1.
 
 .. rubric:: Footnotes
 

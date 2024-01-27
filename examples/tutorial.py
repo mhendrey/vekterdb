@@ -101,7 +101,7 @@ def main():
     # Query with all test vectors
     q_vecs = np.vstack([t["vector"] for t in test_data])
 
-    # Do recall@1 metric.  Not great 0.6646
+    # Do recall@1 metric.  Not great 0.6566
     search_results = vekter_db.search(q_vecs, 1, "idx")
     found_nearest = 0
     for i, search_result in enumerate(search_results):
@@ -111,7 +111,7 @@ def main():
 
     # Still doing recall@1, but first getting back 5 neighbors, reranking by true
     # distance and then only returning the top result greatly improves performance
-    # 0.6646 -> 0.9450
+    # 0.6566 -> 0.9469
     search_results = vekter_db.search(q_vecs, 1, "idx", k_extra_neighbors=4)
     found_nearest = 0
     for i, search_result in enumerate(search_results):
@@ -124,9 +124,9 @@ def main():
         test_data, batch_size=50_000, faiss_runtime_params="quantizer_efSearch=25"
     )
 
-    neighbors = vekter_db.nearest_neighbors("idx", [1_000_000], 5, "idx")[0][
-        "neighbors"
-    ]
+    neighbors = vekter_db.nearest_neighbors(
+        vekter_db.Record.idx == 1_000_000, 5, "idx"
+    )[0]["neighbors"]
 
     if true_neighbors[0][0] == neighbors[0]["idx"]:
         print("We found the true nearest neighbor!")
@@ -143,8 +143,7 @@ def main():
 
     # recall@1 test
     nn_results = vekter_db.nearest_neighbors(
-        "id",
-        [str(i) for i in range(1_000_000, 1_010_000)],
+        vekter_db.Record.id.in_([str(i) for i in range(1_000_000, 1_010_000)]),
         1,
         "idx",
         k_extra_neighbors=4,
@@ -161,8 +160,7 @@ def main():
 
     # recall@1 test
     nn_results = vekter_db.nearest_neighbors(
-        "id",
-        [str(i) for i in range(1_000_000, 1_010_000)],
+        vekter_db.Record.id.in_([str(i) for i in range(1_000_000, 1_010_000)]),
         1,
         "idx",
         k_extra_neighbors=4,

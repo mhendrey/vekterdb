@@ -20,13 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
 import logging
+import numcodecs
 import numpy as np
 import sqlalchemy as sa
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 import sqlalchemy.sql.functions as sa_funcs
 from typing import Dict, Iterable, Iterator, List
-import zlib
 
 try:
     import faiss
@@ -202,7 +202,7 @@ class VekterDB:
             self.metric = None
 
     @staticmethod
-    def serialize_vector(vector: np.ndarray) -> bytes:
+    def serialize_vector(vector: np.ndarray, level=1) -> bytes:
         """
         Static method to serialize numpy vector to Python bytes. Uses zlib to
         compress the bytes.
@@ -211,12 +211,14 @@ class VekterDB:
         ----------
         vector : np.ndarray
             1-d numpy array of type np.float32
+        level : int
+            Zstandard compression level [1, 22]. Default is 1 (fastest)
 
         Returns
         -------
         bytes
         """
-        return zlib.compress(vector.tobytes(), level=4)
+        return numcodecs.zstd.compress(vector, level)
 
     @staticmethod
     def deserialize_vector(vector_bytes: bytes) -> np.ndarray:
@@ -233,7 +235,7 @@ class VekterDB:
         np.ndarray
             1-d numpy array of type np.float32
         """
-        return np.frombuffer(zlib.decompress(vector_bytes), dtype=np.float32)
+        return np.frombuffer(numcodecs.zstd.decompress(vector_bytes), dtype=np.float32)
 
     def save(self, config_file: str = None):
         """
@@ -309,6 +311,7 @@ class VekterDB:
         batch_size: int = 10_000,
         serialize_vectors: bool = True,
         faiss_runtime_params: str = None,
+        compression_level: int = 1,
     ) -> int:
         """
         Insert multiple records into the table. Vectors will also be added to the
@@ -336,6 +339,9 @@ class VekterDB:
             example value for the example index given. If used,
             ``self.faiss_runtime_parameters`` is set back to its value before function
             invocation. Default is ``None``
+        compression_level : int, optional
+            Zstandard compression level to apply to vectors before inserting into the
+            database. Default is 1 (fastest)
 
         Returns
         -------
@@ -395,7 +401,7 @@ class VekterDB:
                     if insert_into_faiss:
                         vectors.append(record[self.vector_name].copy())
                     record[self.vector_name] = self.serialize_vector(
-                        record[self.vector_name]
+                        record[self.vector_name], compression_level
                     )
                 elif insert_into_faiss:
                     vectors.append(self.deserialize_vector(record[self.vector_name]))
@@ -456,12 +462,18 @@ class VekterDB:
             sample_idxs = rng.choice(n_total, size=sample_size, replace=False).tolist()
 
         X = np.zeros((sample_size, self.d), dtype=np.float32)
-        for i, record in enumerate(
-            self.fetch_records(
-                self.idx_name, sample_idxs, self.vector_name, batch_size=batch_size
-            )
-        ):
-            X[i] = record[self.vector_name]
+        n_records = len(sample_idxs)
+        n_batches = n_records // batch_size + 1
+        i = 0
+        for n in range(n_batches):
+            begin = n * batch_size
+            end = begin + batch_size
+            for record in self.select(
+                self.columns[self.idx_name].in_(sample_idxs[begin:end]),
+                self.vector_name,
+            ):
+                X[i] = record[self.vector_name]
+                i += 1
 
         return X
 
@@ -712,8 +724,18 @@ class VekterDB:
         if self.vector_name not in tmp_col_names:
             tmp_col_names.append(self.vector_name)
         tmp_col_names = tuple(tmp_col_names)
-        for record in self.fetch_records(self.idx_name, idx_neighbors, *tmp_col_names):
-            neighbor_records[record[self.idx_name]] = record
+
+        batch_size = 10_000
+        n_records = len(idx_neighbors)
+        n_batches = n_records // batch_size + 1
+        for n in range(n_batches):
+            begin = n * batch_size
+            end = begin + batch_size
+            for record in self.select(
+                self.columns[self.idx_name].in_(idx_neighbors[begin:end]),
+                *tmp_col_names,
+            ):
+                neighbor_records[record[self.idx_name]] = record
 
         # For each query, check that neighbors are close enough and reorder accordingly
         results = []
@@ -750,8 +772,7 @@ class VekterDB:
 
     def nearest_neighbors(
         self,
-        fetch_column: str,
-        fetch_values: List,
+        where_clause: sa.sql.ClauseElement,
         k_nearest_neighbors: int,
         *col_names: str,
         k_extra_neighbors: int = 0,
@@ -761,16 +782,14 @@ class VekterDB:
         batch_size: int = 10_000,
     ) -> List[Dict]:
         """
-        Find the nearest neighbors of the query records in the table based on
-        vector similarity. Optionally keep only neighbors whose similarity
-        exceeds the ``threshold``.
+        Return nearest neighbors of the records in the database table that match the
+        ``where_clause``. Optionally keep only neighbors whose similarity exceeds the
+        ``threshold``.
 
         Parameters
         ----------
-        fetch_column : str
-            Column in the database table to use for query record retrieval.
-        fetch_values : List
-            Values to match in the ``fetch_column``.
+        where_clause : sa.sql.ClauseElement
+            Where clause specifying records of interest. Passed to ``select()``
         k_nearest_neighbors : int
             Number of nearest neighbors to return.
         \*col_names : str
@@ -815,12 +834,7 @@ class VekterDB:
 
         results = []
         query_vectors = []
-        for record in self.fetch_records(
-            fetch_column,
-            fetch_values,
-            *tmp_col_names,
-            batch_size=batch_size,
-        ):
+        for record in self.select(where_clause, *tmp_col_names):
             results.append(record)
             query_vectors.append(record[self.vector_name])
 
@@ -858,59 +872,51 @@ class VekterDB:
 
         return results
 
-    def fetch_records(
+    def select(
         self,
-        fetch_column: str,
-        fetch_values: List,
-        *col_names: str,
-        batch_size: int = 10_000,
+        where_clause: sa.sql.ClauseElement,
+        *ret_cols: str,
     ) -> Iterator[Dict]:
         """
-        Fetch records from the database table.
+        Select records from the database table matching the ``where_clause``. The class
+        member ``Record`` is the ORM-mapped class for the database table and should be
+        used to construct the clause. Some examples
+
+        ::
+            where = vekter_db.Record.idx == 0
+            where = vekter_db.Record.idx.in_([100, 200, 300])
+            where = sa.sql.and_(vekter_db.Record.idx>=0, vekter_db.Record.idx<5)
+
+            vekter_db.select(where)                   # Return all columns
+            vekter_db.select(where, "idx", "vector")  # Return idx & vector only
+
 
         Parameters
         ----------
-        fetch_column : str
-            Column in the database table used for record retrieval.
-        fetch_values : List
-            Values to match in the ``fetch_column``.
-        \*col_names : str, optional
+        where_clause : sa.sql.ClauseElement
+            SQLAlchemy Where Clause.
+        \*ret_cols : str, optional
             List columns to return from the database table. Default of ``None`` returns
             all columns.
-        batch_size : int, optional
-            Number of records to fetch from the database table at one time. Default is
-            10,000.
 
         Yields
         ------
         Iterator[Dict]
-            Dictionary containing a fetched record.
+            Dictionary of requested fields that match the where clause
         """
+        if not isinstance(where_clause, sa.sql.ClauseElement):
+            raise ValueError(f"{where_clause=:} is not a sa.sql.ClauseElement")
 
-        if not (
-            self.columns[fetch_column].index or self.columns[fetch_column].primary_key
-        ):
-            self.logger.warning(
-                f"{fetch_column} is not indexed in the database table. This will be slow."
-            )
-        n_records = len(fetch_values)
-        n_batches = n_records // batch_size + 1
-
-        if not col_names:
-            col_names = tuple(self.columns.keys())
+        if not ret_cols:
+            ret_cols = tuple(self.columns.keys())
 
         with self.Session() as session:
-            for n in range(n_batches):
-                begin = n * batch_size
-                end = begin + batch_size
-                stmt = sa.select(self.Record).where(
-                    self.columns[fetch_column].in_(fetch_values[begin:end])
-                )
-                for row in session.scalars(stmt):
-                    record = {}
-                    for col_name in col_names:
-                        value = row.__dict__[col_name]
-                        if col_name == self.vector_name:
-                            value = self.deserialize_vector(value)
-                        record[col_name] = value
-                    yield record
+            stmt = sa.select(self.Record).where(where_clause)
+            for row in session.scalars(stmt):
+                record = {}
+                for col_name in ret_cols:
+                    value = row.__dict__[col_name]
+                    if col_name == self.vector_name:
+                        value = self.deserialize_vector(value)
+                    record[col_name] = value
+                yield record
