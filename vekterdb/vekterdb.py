@@ -35,7 +35,9 @@ except:
 
 
 class VekterDB:
-    """
+    """Turn any SQLAlchemy compliant database into a vector database using the FAISS
+    library to index the vectors.
+
     VekterDB uses a minimum of two columns in the database table: idx_name
     (BigInteger, default 'idx') and vector_name (LargeBinary, default 'vector').
     Vectors are numpy arrays of np.float32, serialized to bytes using tobytes(),
@@ -54,6 +56,23 @@ class VekterDB:
                 "product_category": {"type": Text},
             }
         )
+
+    Attributes
+    ----------
+    idx_name : str
+        Column name in the database table that stores integer [0, N) of the primary key.
+    vector_name : str
+        Column name in the database table that stores the vectors.
+    Session : sa.orm.session.sessionmaker
+        Session factory that gives you a Session object to database table.
+    Record : sa.orm.decl_api.DeclarativeMeta
+        ORM-mapped class for the database table
+    d : int
+        Dimensionality of the vectors
+    index : faiss.Index
+        FAISS index that indexes the ``vector_name`` vectors for similarity search
+    metric : str
+        Specifies the metric used to determine similarity.
 
 
     Parameters
@@ -438,7 +457,7 @@ class VekterDB:
         sample_size : int, optional
             Number of vectors to return. Default 0 returns all vectors
         batch_size : int, optional
-            Number of vectors to retrieve at one time. Default 10_000.
+            Pull vectors in batches of this size. Default is 10,000.
 
         Returns
         -------
@@ -550,12 +569,12 @@ class VekterDB:
         faiss_factory_str: str,
         metric: str = "inner_product",
         sample_size: int = 0,
-        batch_size: int = 10_000,
-        use_gpu: bool = False,
+        batch_size: int = 50_000,
         faiss_runtime_params: str = None,
     ):
         """
-        Create a FAISS index and save to disk when completed.
+        Create a FAISS index. Train, if needed, using ``sample_size`` vectors. Add
+        vectors from database table to index. Save to disk when completed.
 
         Parameters
         ----------
@@ -567,24 +586,16 @@ class VekterDB:
             Metric used by FAISS to determine similarity. Valid values are either
             ``inner_product`` or ``L2``. Default is ``inner_product``
         sample_size : int, optional
-            Number of vectors to sample from the database table to train the FAISS
-            index. If 0, then all vectors are used. Default is 0.
+            Number of training vectors. If 0, uses all vectors. Default is 0.
         batch_size : int, optional
-            Number of vectors to add into the index at one time. Also passed to
-            ``sample_vectors()`` to specify number of vectors to pull back from the
-            database table at a time. Default is 10,000.
-        use_gpu : bool, optional
-            Whether to use GPU(s). Default is ``False``. NOTE: Not implemented yet
+            Passed to ``sample_vectors()`` to pull vectors in batches of this size.
+            Default is 50,000.
         faiss_runtime_params : str, optional
-            Set FAISS index runtime parameters before adding vectors. Likely only
-            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
-            index (HNSW32) will be used during the ``index.add()`` to determine which
-            partition to add the vector to. You may want to change from the default,
-            whether that is the FAISS default (efSearch=16) or the value saved in
-            ``self.faiss_runtime_parameters``. "quantizer_efSearch=40" would be an
-            example value for the example index given. If used,
+            Set FAISS index runtime parameters before adding vectors. Useful if using
+            a quantizer index (e.g., IVF50000_HNSW32) since ``index.add()`` searches
+            against the quantizer index. E.g., "quantizer_efSearch=40".
             ``self.faiss_runtime_parameters`` is set back to its value before function
-            invocation. Default is None
+            invocation. Default is ``None``.
 
         Raises
         ------
@@ -627,30 +638,135 @@ class VekterDB:
 
         # Needs to be trained
         if not self.index.is_trained:
-            X_train = self.sample_vectors(sample_size, batch_size)
-            self.index.train(X_train)
-            # TODO : Add option to train IVF on GPU
-            # TODO : Add ability to save a trained index and then start from there
+            self.train_index(sample_size, batch_size, save_to_disk=True)
+
+        # Add records into the index and then write it to disk.
+        self.sync_index_to_database(batch_size=batch_size)
+
+        if orig_runtime_parameters:
+            self.set_faiss_runtime_parameters(orig_runtime_parameters)
+
+    def train_index(
+        self, sample_size: int = 0, batch_size: int = 50_000, save_to_disk: bool = True
+    ):
+        """
+        Pull vectors from database table to train the FAISS index.
+
+        Parameters
+        ----------
+        sample_size : int, optional
+            Number of training vectors. If 0, uses all vectors. Default is 0.
+        batch_size : int, optional
+            Passed to ``sample_vectors()`` to pull vectors in batches of this size.
+            Default is 50,000.
+        save_to_disk : bool, optional
+            Save trained index to ``self.faiss_index`` on disk. Default is ``True``.
+        """
+        X_train = self.sample_vectors(sample_size, batch_size)
+        self.index.train(X_train)
+
+        if save_to_disk:
+            # Save the index to disk
+            self.logger.info(f"train_index: Start saving {self.faiss_index}")
+            faiss.write_index(self.index, self.faiss_index)
+            self.logger.info(f"train_index: Finished saving {self.faiss_index}")
+
+    def sync_index_to_database(
+        self, batch_size: int = 100_000, faiss_runtime_params: str = None
+    ) -> int:
+        """
+        Add any vectors from the database that are not in the FAISS index.
+
+        Parameters
+        ----------
+        batch_size : int, optional
+            Add vectors in batches of this size. Default is 100_000.
+        faiss_runtime_params : str, optional
+            Set FAISS index runtime parameters before adding vectors. Useful if using
+            a quantizer index (e.g., IVF50000_HNSW32) since ``index.add()`` searches
+            against the quantizer index. E.g., "quantizer_efSearch=40".
+            ``self.faiss_runtime_parameters`` is set back to its value before function
+            invocation. Default is ``None``.
+
+        Returns
+        -------
+        int
+            Number of records added into FAISS index
+
+        Raises
+        ------
+        IndexError
+            Primary key of the records to be added must have consecutive integer values
+        """
+        orig_runtime_parameters = ""
+        if faiss_runtime_params:
+            try:
+                orig_runtime_parameters = self.faiss_runtime_parameters
+            except:
+                pass
+            self.set_faiss_runtime_parameters(faiss_runtime_params)
+
+        start_idx = self.index.ntotal
+
+        # Check that we have consecutive idx in the database
+        with self.Session() as session:
+            idx_col = self.columns[self.idx_name]
+            stmt = sa.select(sa.func.max(idx_col))
+            stop_idx = session.scalar(stmt) + 1
+            stmt = sa.select(
+                sa.func.count(idx_col),
+            ).where(
+                sa.sql.and_(
+                    idx_col >= start_idx,
+                    idx_col < stop_idx,
+                ),
+            )
+            num_new_rows = session.scalar(stmt)
+
+        if num_new_rows != (stop_idx - start_idx):
+            raise IndexError(
+                f"Missing records in database for {self.idx_name} between "
+                + f"[{start_idx}, {stop_idx}). Must have consecutive values "
+                + f"for {self.idx_name}"
+            )
 
         # Add records into the index
+        self.logger.info(f"Starting to add vectors")
+        n_vectors = 0
         with self.Session() as session:
+            idx_col = self.columns[self.idx_name]
+            vector_col = self.columns[self.vector_name]
             vectors = []
-            stmt = sa.select(self.columns[self.vector_name]).order_by(
-                self.columns[self.idx_name]
+            stmt = (
+                sa.select(vector_col)
+                .where(sa.sql.and_(idx_col >= start_idx, idx_col < stop_idx))
+                .order_by(idx_col)
             )
             for vector_bytes in session.scalars(stmt):
                 vectors.append(self.deserialize_vector(vector_bytes))
                 if len(vectors) == batch_size:
                     self.index.add(np.vstack(vectors))
+                    n_vectors += len(vectors)
                     vectors = []
             if vectors:
                 self.index.add(np.vstack(vectors))
+                n_vectors += len(vectors)
+        self.logger.info(f"Finished adding {n_vectors} vectors")
 
         if orig_runtime_parameters:
             self.set_faiss_runtime_parameters(orig_runtime_parameters)
 
+        if num_new_rows != n_vectors:
+            raise ValueError(
+                f"Expected to add {num_new_rows}, but only added {n_vectors}"
+            )
+
         # Save the index to disk
+        self.logger.info(f"Start saving {self.faiss_index} to disk")
         faiss.write_index(self.index, self.faiss_index)
+        self.logger.info(f"Finished saving {self.faiss_index} to disk")
+
+        return num_new_rows
 
     def search(
         self,
