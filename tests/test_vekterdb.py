@@ -277,6 +277,78 @@ def test_insert_bytes():
         assert row.vector == records[1234]["vector"], f"vector retrieved mismatches"
 
 
+def test_sync_index_to_db(tmp_path):
+    # Create table using in-memory SQLite
+    vekter_db = VekterDB(
+        "my_table",
+        columns_dict={
+            "id": {
+                "type": sa.types.Text,
+                "nullable": False,
+                "index": True,
+            }
+        },
+    )
+    records_gen = make_data(
+        "idx", "id", "vector", idx_start=0, normalize=True, n=15_000, d=64, seed=828
+    )
+    n_records = vekter_db.insert(records_gen, batch_size=3_000, serialize_vectors=True)
+
+    # Create FAISS
+    faiss_file = str(tmp_path / "flat.index")
+    vekter_db.create_index(faiss_file, "Flat")
+
+    more_records = make_data(
+        "idx", "id", "vector", idx_start=15_000, normalize=True, n=500, d=64, seed=1117
+    )
+    # Manually compress my data
+    more_records = list(more_records)
+    for r in more_records:
+        r["vector"] = VekterDB.serialize_vector(r["vector"])
+    # Add these additional 500 records to the database directly
+    with vekter_db.Session() as session:
+        session.execute(sa.insert(vekter_db.Record), more_records)
+        session.commit()
+        stmt = sa.select(sa.func.max(vekter_db.columns["idx"]))
+        max_idx = session.scalar(stmt)
+    assert (max_idx + 1) == 15_500, f"{max_idx+1} should be 15_500"
+
+    assert (
+        vekter_db.index.ntotal == 15_000
+    ), f"FAISS index has {vekter_db.index.ntotal}, should be 15_000"
+
+    n_added = vekter_db.sync_index_to_db()
+    assert n_added == 500, f"{n_added=:} but should be 500"
+    assert (
+        vekter_db.index.ntotal == 15_500
+    ), f"FAISS index has {vekter_db.index.ntotal}, should be 15_500"
+
+    # Test that if we have a gap, that we only sync up to that gap
+    more_records = make_data(
+        "idx", "id", "vector", idx_start=15_500, normalize=True, n=500, d=64, seed=513
+    )
+    # Manually compress my data
+    more_records = list(more_records)
+    for r in more_records:
+        r["vector"] = VekterDB.serialize_vector(r["vector"])
+    # Introduce the gap
+    for r in more_records[400:]:
+        r["idx"] = r["idx"] + 5
+    # Add new records into database manually
+    with vekter_db.Session() as session:
+        session.execute(sa.insert(vekter_db.Record), more_records)
+        session.commit()
+        stmt = sa.select(sa.func.max(vekter_db.columns["idx"]))
+        max_idx = session.scalar(stmt)
+    assert (max_idx + 1) == 16_005, f"{max_idx+1} should be 16_005"
+    try:
+        n_added = vekter_db.sync_index_to_db()
+    except IndexError as exc:
+        pass
+    else:
+        assert 1 == 0, "Should have thrown an IndexError if non-consecutive idx values"
+
+
 def check_against_ground_truth(
     neighbors: List[Dict],
     self_included: bool,

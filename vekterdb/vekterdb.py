@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from datetime import datetime
 import json
 import logging
 import numcodecs
@@ -132,7 +133,7 @@ class VekterDB:
 
         # Create the table if it doesn't exist
         if not table_exists:
-            self.logger.warning(f"Creating {table_name} table in the database")
+            self.logger.info(f"Creating {table_name} table in the database")
             # Build up the columns
             self.columns = {
                 idx_name: sa.Column(idx_name, sa.types.BigInteger, primary_key=True)
@@ -186,6 +187,7 @@ class VekterDB:
         metadata_obj.create_all(self.engine, tables=[table])
 
         # Set self.d if there is already some data in existing table
+        max_idx = -1
         if table_exists:
             with self.Session() as session:
                 try:
@@ -199,6 +201,8 @@ class VekterDB:
                     )
                 else:
                     self.d = vector.shape[0]
+                stmt = sa.select(sa.func.max(self.columns[self.idx_name]))
+                max_idx = session.scalar(stmt)
 
         if faiss_index:
             self.index = faiss.read_index(faiss_index)
@@ -214,6 +218,12 @@ class VekterDB:
             else:
                 raise TypeError(
                     "FAISS index's metric type does not match inner_product or L2"
+                )
+            if self.index.ntotal < (max_idx + 1):
+                self.logger.warning(
+                    f"{table_name} has {max_idx+1:,} {self.idx_name} values, but only "
+                    + f"{self.index.ntotal:,} vectors in FAISS index. Call "
+                    + "sync_index_to_db() to add missing vectors into FAISS index."
                 )
         else:
             self.faiss_index = None
@@ -367,6 +377,7 @@ class VekterDB:
         n_records : int
             Number of records added to the table
         """
+        start = datetime.now()
         orig_runtime_parameters = ""
         insert_into_faiss = False
         if self.index is not None and self.index.is_trained:
@@ -432,6 +443,10 @@ class VekterDB:
                     if insert_into_faiss:
                         self.index.add(np.vstack(vectors))
                         vectors = []
+                    self.logger.debug(
+                        f"insert: batch inserted, cumulatively {n_records} have "
+                        + "been inserted"
+                    )
             if len(batch) > 0:
                 session.execute(sa.insert(self.Record), batch)
                 if insert_into_faiss:
@@ -441,9 +456,18 @@ class VekterDB:
         if orig_runtime_parameters:
             self.set_faiss_runtime_parameters(orig_runtime_parameters)
 
+        end = datetime.now()
+        rate = n_records / (end - start).total_seconds()
+        self.logger.info(f"insert: {n_records} inserted at {rate:.2f} records / sec")
+
         if insert_into_faiss:
             # Save the index to disk
+            start = datetime.now()
             faiss.write_index(self.index, self.faiss_index)
+            end = datetime.now()
+            self.logger.info(
+                f"insert: Saving {self.faiss_index} to disk took {end - start}"
+            )
 
         return n_records
 
@@ -560,6 +584,7 @@ class VekterDB:
         try:
             faiss.ParameterSpace().set_index_parameters(self.index, runtime_params_str)
             self.faiss_runtime_parameters = runtime_params_str
+            self.logger.info(f"faiss_runtime_parameters: set to {runtime_params_str}")
         except Exception as exc:
             raise ValueError(f"Unrecognized parameter in {runtime_params_str}. {exc}")
 
@@ -641,7 +666,7 @@ class VekterDB:
             self.train_index(sample_size, batch_size, save_to_disk=True)
 
         # Add records into the index and then write it to disk.
-        self.sync_index_to_database(batch_size=batch_size)
+        self.sync_index_to_db(batch_size=batch_size)
 
         if orig_runtime_parameters:
             self.set_faiss_runtime_parameters(orig_runtime_parameters)
@@ -663,15 +688,22 @@ class VekterDB:
             Save trained index to ``self.faiss_index`` on disk. Default is ``True``.
         """
         X_train = self.sample_vectors(sample_size, batch_size)
+        start = datetime.now()
         self.index.train(X_train)
-
+        end = datetime.now()
+        self.logger.info(
+            f"train_index: Training with {X_train.shape[0]} records took {end-start}"
+        )
         if save_to_disk:
             # Save the index to disk
-            self.logger.info(f"train_index: Start saving {self.faiss_index}")
+            start = datetime.now()
             faiss.write_index(self.index, self.faiss_index)
-            self.logger.info(f"train_index: Finished saving {self.faiss_index}")
+            end = datetime.now()
+            self.logger.info(
+                f"train_index: Saving to {self.faiss_index} took {end-start}"
+            )
 
-    def sync_index_to_database(
+    def sync_index_to_db(
         self, batch_size: int = 100_000, faiss_runtime_params: str = None
     ) -> int:
         """
@@ -726,12 +758,11 @@ class VekterDB:
         if num_new_rows != (stop_idx - start_idx):
             raise IndexError(
                 f"Missing records in database for {self.idx_name} between "
-                + f"[{start_idx}, {stop_idx}). Must have consecutive values "
-                + f"for {self.idx_name}"
+                + f"[{start_idx}, {stop_idx}). Must have consecutive values."
             )
 
         # Add records into the index
-        self.logger.info(f"Starting to add vectors")
+        start = datetime.now()
         n_vectors = 0
         with self.Session() as session:
             idx_col = self.columns[self.idx_name]
@@ -748,13 +779,23 @@ class VekterDB:
                     self.index.add(np.vstack(vectors))
                     n_vectors += len(vectors)
                     vectors = []
+                    self.logger.debug(
+                        f"sync_index_to_db: batch added, cumulatively {n_vectors} have "
+                        + "been added"
+                    )
+
             if vectors:
                 self.index.add(np.vstack(vectors))
                 n_vectors += len(vectors)
-        self.logger.info(f"Finished adding {n_vectors} vectors")
 
         if orig_runtime_parameters:
             self.set_faiss_runtime_parameters(orig_runtime_parameters)
+
+        end = datetime.now()
+        rate = n_vectors / (end - start).total_seconds()
+        self.logger.info(
+            f"sync_index_to_db: {n_vectors} added at {rate:.2f} vectors / sec"
+        )
 
         if num_new_rows != n_vectors:
             raise ValueError(
@@ -762,9 +803,12 @@ class VekterDB:
             )
 
         # Save the index to disk
-        self.logger.info(f"Start saving {self.faiss_index} to disk")
+        start = datetime.now()
         faiss.write_index(self.index, self.faiss_index)
-        self.logger.info(f"Finished saving {self.faiss_index} to disk")
+        end = datetime.now()
+        self.logger.info(
+            f"sync_index_to_db: Saving {self.faiss_index} to disk took {end - start}"
+        )
 
         return num_new_rows
 
@@ -777,6 +821,7 @@ class VekterDB:
         rerank: bool = True,
         threshold: float = None,
         search_parameters=None,
+        batch_size: int = 10_000,
     ) -> List[List[Dict]]:
         """
         Search for the ``k_nearest_neighbors`` records in the database table based
@@ -808,6 +853,9 @@ class VekterDB:
             Use these search parameters instead of the current runtime FAISS
             parameters. Passed to FAISS's ``index.search()``. See
             [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
+        batch_size : int, optional
+            Batch size to use when retrieving neighbors information from the database
+            table. Default is 10,000.
 
         Returns
         -------
@@ -841,7 +889,6 @@ class VekterDB:
             tmp_col_names.append(self.vector_name)
         tmp_col_names = tuple(tmp_col_names)
 
-        batch_size = 10_000
         n_records = len(idx_neighbors)
         n_batches = n_records // batch_size + 1
         for n in range(n_batches):
@@ -928,8 +975,8 @@ class VekterDB:
             parameters. Passed to FAISS's ``index.search()``. See
             [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)
         batch_size : int, optional
-            Number of query records to retrieve from the database table at one time.
-            Passed to ``fetch_records()``. Default is 10,000.
+            Batch size to use when retrieving neighbors information from the database
+            table. Default is 10,000.
 
         Returns
         -------
@@ -970,6 +1017,7 @@ class VekterDB:
                 rerank=rerank,
                 threshold=threshold,
                 search_parameters=search_parameters,
+                batch_size=batch_size,
             ),
         ):
             pop_idx_name = self.idx_name not in col_names
