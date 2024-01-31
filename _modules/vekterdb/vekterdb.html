@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.0 documentation</title>
+  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=b1f64a84"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=158ece9d"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -66,6 +66,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">vekterdb.vekterdb</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB"><code class="docutils literal notranslate"><span class="pre">VekterDB</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.idx_name"><code class="docutils literal notranslate"><span class="pre">VekterDB.idx_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.vector_name"><code class="docutils literal notranslate"><span class="pre">VekterDB.vector_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.Session"><code class="docutils literal notranslate"><span class="pre">VekterDB.Session</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.Record"><code class="docutils literal notranslate"><span class="pre">VekterDB.Record</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.d"><code class="docutils literal notranslate"><span class="pre">VekterDB.d</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.index"><code class="docutils literal notranslate"><span class="pre">VekterDB.index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.metric"><code class="docutils literal notranslate"><span class="pre">VekterDB.metric</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
@@ -78,6 +85,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.serialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.serialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters"><code class="docutils literal notranslate"><span class="pre">VekterDB.set_faiss_runtime_parameters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.similarity"><code class="docutils literal notranslate"><span class="pre">VekterDB.similarity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.sync_index_to_db"><code class="docutils literal notranslate"><span class="pre">VekterDB.sync_index_to_db()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.train_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.train_index()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -139,6 +148,7 @@
 <span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numcodecs</span>
@@ -156,7 +166,9 @@
 
 
 <div class="viewcode-block" id="VekterDB"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB">[docs]</a><span class="k">class</span> <span class="nc">VekterDB</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn any SQLAlchemy compliant database into a vector database using the FAISS</span>
+<span class="sd">    library to index the vectors.</span>
+
 <span class="sd">    VekterDB uses a minimum of two columns in the database table: idx_name</span>
 <span class="sd">    (BigInteger, default &#39;idx&#39;) and vector_name (LargeBinary, default &#39;vector&#39;).</span>
 <span class="sd">    Vectors are numpy arrays of np.float32, serialized to bytes using tobytes(),</span>
@@ -175,6 +187,23 @@
 <span class="sd">                &quot;product_category&quot;: {&quot;type&quot;: Text},</span>
 <span class="sd">            }</span>
 <span class="sd">        )</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    idx_name : str</span>
+<span class="sd">        Column name in the database table that stores integer [0, N) of the primary key.</span>
+<span class="sd">    vector_name : str</span>
+<span class="sd">        Column name in the database table that stores the vectors.</span>
+<span class="sd">    Session : sa.orm.session.sessionmaker</span>
+<span class="sd">        Session factory that gives you a Session object to database table.</span>
+<span class="sd">    Record : sa.orm.decl_api.DeclarativeMeta</span>
+<span class="sd">        ORM-mapped class for the database table</span>
+<span class="sd">    d : int</span>
+<span class="sd">        Dimensionality of the vectors</span>
+<span class="sd">    index : faiss.Index</span>
+<span class="sd">        FAISS index that indexes the ``vector_name`` vectors for similarity search</span>
+<span class="sd">    metric : str</span>
+<span class="sd">        Specifies the metric used to determine similarity.</span>
 
 
 <span class="sd">    Parameters</span>
@@ -234,7 +263,7 @@
 
         <span class="c1"># Create the table if it doesn&#39;t exist</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">table_exists</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> table in the database&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> table in the database&quot;</span><span class="p">)</span>
             <span class="c1"># Build up the columns</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">idx_name</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">idx_name</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">BigInteger</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -288,6 +317,7 @@
         <span class="n">metadata_obj</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">tables</span><span class="o">=</span><span class="p">[</span><span class="n">table</span><span class="p">])</span>
 
         <span class="c1"># Set self.d if there is already some data in existing table</span>
+        <span class="n">max_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="k">if</span> <span class="n">table_exists</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -301,6 +331,8 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]))</span>
+                <span class="n">max_idx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">faiss_index</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">read_index</span><span class="p">(</span><span class="n">faiss_index</span><span class="p">)</span>
@@ -316,6 +348,12 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="s2">&quot;FAISS index&#39;s metric type does not match inner_product or L2&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ntotal</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">max_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">max_idx</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="si">}</span><span class="s2"> values, but only &quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ntotal</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> vectors in FAISS index. Call &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;sync_index_to_db() to add missing vectors into FAISS index.&quot;</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="kc">None</span>
@@ -469,6 +507,7 @@
 <span class="sd">        n_records : int</span>
 <span class="sd">            Number of records added to the table</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">insert_into_faiss</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
@@ -534,6 +573,10 @@
                     <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
                         <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;insert: batch inserted, cumulatively </span><span class="si">{</span><span class="n">n_records</span><span class="si">}</span><span class="s2"> have &quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;been inserted&quot;</span>
+                    <span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Record</span><span class="p">),</span> <span class="n">batch</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
@@ -543,9 +586,18 @@
         <span class="k">if</span> <span class="n">orig_runtime_parameters</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">orig_runtime_parameters</span><span class="p">)</span>
 
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">n_records</span> <span class="o">/</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;insert: </span><span class="si">{</span><span class="n">n_records</span><span class="si">}</span><span class="s2"> inserted at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> records / sec&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
             <span class="c1"># Save the index to disk</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;insert: Saving </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> to disk took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">n_records</span></div>
 
@@ -559,7 +611,7 @@
 <span class="sd">        sample_size : int, optional</span>
 <span class="sd">            Number of vectors to return. Default 0 returns all vectors</span>
 <span class="sd">        batch_size : int, optional</span>
-<span class="sd">            Number of vectors to retrieve at one time. Default 10_000.</span>
+<span class="sd">            Pull vectors in batches of this size. Default is 10,000.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -662,6 +714,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">faiss</span><span class="o">.</span><span class="n">ParameterSpace</span><span class="p">()</span><span class="o">.</span><span class="n">set_index_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">runtime_params_str</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span> <span class="o">=</span> <span class="n">runtime_params_str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;faiss_runtime_parameters: set to </span><span class="si">{</span><span class="n">runtime_params_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized parameter in </span><span class="si">{</span><span class="n">runtime_params_str</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
@@ -671,12 +724,12 @@
         <span class="n">faiss_factory_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;inner_product&quot;</span><span class="p">,</span>
         <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
-        <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50_000</span><span class="p">,</span>
         <span class="n">faiss_runtime_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a FAISS index and save to disk when completed.</span>
+<span class="sd">        Create a FAISS index. Train, if needed, using ``sample_size`` vectors. Add</span>
+<span class="sd">        vectors from database table to index. Save to disk when completed.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -688,24 +741,16 @@
 <span class="sd">            Metric used by FAISS to determine similarity. Valid values are either</span>
 <span class="sd">            ``inner_product`` or ``L2``. Default is ``inner_product``</span>
 <span class="sd">        sample_size : int, optional</span>
-<span class="sd">            Number of vectors to sample from the database table to train the FAISS</span>
-<span class="sd">            index. If 0, then all vectors are used. Default is 0.</span>
+<span class="sd">            Number of training vectors. If 0, uses all vectors. Default is 0.</span>
 <span class="sd">        batch_size : int, optional</span>
-<span class="sd">            Number of vectors to add into the index at one time. Also passed to</span>
-<span class="sd">            ``sample_vectors()`` to specify number of vectors to pull back from the</span>
-<span class="sd">            database table at a time. Default is 10,000.</span>
-<span class="sd">        use_gpu : bool, optional</span>
-<span class="sd">            Whether to use GPU(s). Default is ``False``. NOTE: Not implemented yet</span>
+<span class="sd">            Passed to ``sample_vectors()`` to pull vectors in batches of this size.</span>
+<span class="sd">            Default is 50,000.</span>
 <span class="sd">        faiss_runtime_params : str, optional</span>
-<span class="sd">            Set FAISS index runtime parameters before adding vectors. Likely only</span>
-<span class="sd">            useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer</span>
-<span class="sd">            index (HNSW32) will be used during the ``index.add()`` to determine which</span>
-<span class="sd">            partition to add the vector to. You may want to change from the default,</span>
-<span class="sd">            whether that is the FAISS default (efSearch=16) or the value saved in</span>
-<span class="sd">            ``self.faiss_runtime_parameters``. &quot;quantizer_efSearch=40&quot; would be an</span>
-<span class="sd">            example value for the example index given. If used,</span>
+<span class="sd">            Set FAISS index runtime parameters before adding vectors. Useful if using</span>
+<span class="sd">            a quantizer index (e.g., IVF50000_HNSW32) since ``index.add()`` searches</span>
+<span class="sd">            against the quantizer index. E.g., &quot;quantizer_efSearch=40&quot;.</span>
 <span class="sd">            ``self.faiss_runtime_parameters`` is set back to its value before function</span>
-<span class="sd">            invocation. Default is None</span>
+<span class="sd">            invocation. Default is ``None``.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -748,30 +793,154 @@
 
         <span class="c1"># Needs to be trained</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">is_trained</span><span class="p">:</span>
-            <span class="n">X_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_vectors</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
-            <span class="c1"># TODO : Add option to train IVF on GPU</span>
-            <span class="c1"># TODO : Add ability to save a trained index and then start from there</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train_index</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">save_to_disk</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Add records into the index and then write it to disk.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync_index_to_db</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">orig_runtime_parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">orig_runtime_parameters</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.train_index"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.train_index">[docs]</a>    <span class="k">def</span> <span class="nf">train_index</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50_000</span><span class="p">,</span> <span class="n">save_to_disk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pull vectors from database table to train the FAISS index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_size : int, optional</span>
+<span class="sd">            Number of training vectors. If 0, uses all vectors. Default is 0.</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Passed to ``sample_vectors()`` to pull vectors in batches of this size.</span>
+<span class="sd">            Default is 50,000.</span>
+<span class="sd">        save_to_disk : bool, optional</span>
+<span class="sd">            Save trained index to ``self.faiss_index`` on disk. Default is ``True``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_vectors</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;train_index: Training with </span><span class="si">{</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> records took </span><span class="si">{</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_to_disk</span><span class="p">:</span>
+            <span class="c1"># Save the index to disk</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;train_index: Saving to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> took </span><span class="si">{</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="VekterDB.sync_index_to_db"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.sync_index_to_db">[docs]</a>    <span class="k">def</span> <span class="nf">sync_index_to_db</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100_000</span><span class="p">,</span> <span class="n">faiss_runtime_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add any vectors from the database that are not in the FAISS index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Add vectors in batches of this size. Default is 100_000.</span>
+<span class="sd">        faiss_runtime_params : str, optional</span>
+<span class="sd">            Set FAISS index runtime parameters before adding vectors. Useful if using</span>
+<span class="sd">            a quantizer index (e.g., IVF50000_HNSW32) since ``index.add()`` searches</span>
+<span class="sd">            against the quantizer index. E.g., &quot;quantizer_efSearch=40&quot;.</span>
+<span class="sd">            ``self.faiss_runtime_parameters`` is set back to its value before function</span>
+<span class="sd">            invocation. Default is ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Number of records added into FAISS index</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IndexError</span>
+<span class="sd">            Primary key of the records to be added must have consecutive integer values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">faiss_runtime_params</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">orig_runtime_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_runtime_parameters</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">faiss_runtime_params</span><span class="p">)</span>
+
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">ntotal</span>
+
+        <span class="c1"># Check that we have consecutive idx in the database</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">idx_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">idx_col</span><span class="p">))</span>
+            <span class="n">stop_idx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">idx_col</span><span class="p">),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+                    <span class="n">idx_col</span> <span class="o">&gt;=</span> <span class="n">start_idx</span><span class="p">,</span>
+                    <span class="n">idx_col</span> <span class="o">&lt;</span> <span class="n">stop_idx</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">num_new_rows</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_new_rows</span> <span class="o">!=</span> <span class="p">(</span><span class="n">stop_idx</span> <span class="o">-</span> <span class="n">start_idx</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Missing records in database for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="si">}</span><span class="s2"> between &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">start_idx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">stop_idx</span><span class="si">}</span><span class="s2">). Must have consecutive values.&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Add records into the index</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">n_vectors</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">idx_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span>
+            <span class="n">vector_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">]</span>
             <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">])</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span><span class="p">]</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">vector_col</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">idx_col</span> <span class="o">&gt;=</span> <span class="n">start_idx</span><span class="p">,</span> <span class="n">idx_col</span> <span class="o">&lt;</span> <span class="n">stop_idx</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">idx_col</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">vector_bytes</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">scalars</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
                 <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deserialize_vector</span><span class="p">(</span><span class="n">vector_bytes</span><span class="p">))</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span> <span class="o">==</span> <span class="n">batch_size</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+                    <span class="n">n_vectors</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
                     <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;sync_index_to_db: batch added, cumulatively </span><span class="si">{</span><span class="n">n_vectors</span><span class="si">}</span><span class="s2"> have &quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;been added&quot;</span>
+                    <span class="p">)</span>
+
             <span class="k">if</span> <span class="n">vectors</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">))</span>
+                <span class="n">n_vectors</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">orig_runtime_parameters</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="n">orig_runtime_parameters</span><span class="p">)</span>
 
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">n_vectors</span> <span class="o">/</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;sync_index_to_db: </span><span class="si">{</span><span class="n">n_vectors</span><span class="si">}</span><span class="s2"> added at </span><span class="si">{</span><span class="n">rate</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> vectors / sec&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">num_new_rows</span> <span class="o">!=</span> <span class="n">n_vectors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected to add </span><span class="si">{</span><span class="n">num_new_rows</span><span class="si">}</span><span class="s2">, but only added </span><span class="si">{</span><span class="n">n_vectors</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
         <span class="c1"># Save the index to disk</span>
-        <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span></div>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;sync_index_to_db: Saving </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> to disk took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">num_new_rows</span></div>
 
 <div class="viewcode-block" id="VekterDB.search"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -782,6 +951,7 @@
         <span class="n">rerank</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">search_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for the ``k_nearest_neighbors`` records in the database table based</span>
@@ -813,6 +983,9 @@
 <span class="sd">            Use these search parameters instead of the current runtime FAISS</span>
 <span class="sd">            parameters. Passed to FAISS&#39;s ``index.search()``. See</span>
 <span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Batch size to use when retrieving neighbors information from the database</span>
+<span class="sd">            table. Default is 10,000.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -846,7 +1019,6 @@
             <span class="n">tmp_col_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector_name</span><span class="p">)</span>
         <span class="n">tmp_col_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">tmp_col_names</span><span class="p">)</span>
 
-        <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">10_000</span>
         <span class="n">n_records</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_neighbors</span><span class="p">)</span>
         <span class="n">n_batches</span> <span class="o">=</span> <span class="n">n_records</span> <span class="o">//</span> <span class="n">batch_size</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_batches</span><span class="p">):</span>
@@ -933,8 +1105,8 @@
 <span class="sd">            parameters. Passed to FAISS&#39;s ``index.search()``. See</span>
 <span class="sd">            [FAISS documentation](https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query)</span>
 <span class="sd">        batch_size : int, optional</span>
-<span class="sd">            Number of query records to retrieve from the database table at one time.</span>
-<span class="sd">            Passed to ``fetch_records()``. Default is 10,000.</span>
+<span class="sd">            Batch size to use when retrieving neighbors information from the database</span>
+<span class="sd">            table. Default is 10,000.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -975,6 +1147,7 @@
                 <span class="n">rerank</span><span class="o">=</span><span class="n">rerank</span><span class="p">,</span>
                 <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span>
                 <span class="n">search_parameters</span><span class="o">=</span><span class="n">search_parameters</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">):</span>
             <span class="n">pop_idx_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col_names</span>

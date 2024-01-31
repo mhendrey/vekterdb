@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.0 documentation</title>
+  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b1f64a84"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=158ece9d"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -69,6 +69,13 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">vekterdb.vekterdb</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB"><code class="docutils literal notranslate"><span class="pre">VekterDB</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.idx_name"><code class="docutils literal notranslate"><span class="pre">VekterDB.idx_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.vector_name"><code class="docutils literal notranslate"><span class="pre">VekterDB.vector_name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.Session"><code class="docutils literal notranslate"><span class="pre">VekterDB.Session</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.Record"><code class="docutils literal notranslate"><span class="pre">VekterDB.Record</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.d"><code class="docutils literal notranslate"><span class="pre">VekterDB.d</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.index"><code class="docutils literal notranslate"><span class="pre">VekterDB.index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.metric"><code class="docutils literal notranslate"><span class="pre">VekterDB.metric</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
@@ -81,6 +88,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.serialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.serialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.set_faiss_runtime_parameters"><code class="docutils literal notranslate"><span class="pre">VekterDB.set_faiss_runtime_parameters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.similarity"><code class="docutils literal notranslate"><span class="pre">VekterDB.similarity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.sync_index_to_db"><code class="docutils literal notranslate"><span class="pre">VekterDB.sync_index_to_db()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vekterdb.vekterdb.VekterDB.train_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.train_index()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -142,6 +151,8 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vekterdb.vekterdb.</span></span><span class="sig-name descname"><span class="pre">VekterDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'idx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vector'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sqlite:///:memory:'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Turn any SQLAlchemy compliant database into a vector database using the FAISS
+library to index the vectors.</p>
 <p>VekterDB uses a minimum of two columns in the database table: idx_name
 (BigInteger, default ‘idx’) and vector_name (LargeBinary, default ‘vector’).
 Vectors are numpy arrays of np.float32, serialized to bytes using tobytes(),
@@ -158,6 +169,83 @@ field (str) and a non-unique product_category field (str) with:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.idx_name">
+<span class="sig-name descname"><span class="pre">idx_name</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.idx_name" title="Permalink to this definition"></a></dt>
+<dd><p>Column name in the database table that stores integer [0, N) of the primary key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.vector_name">
+<span class="sig-name descname"><span class="pre">vector_name</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.vector_name" title="Permalink to this definition"></a></dt>
+<dd><p>Column name in the database table that stores the vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.Session">
+<span class="sig-name descname"><span class="pre">Session</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.Session" title="Permalink to this definition"></a></dt>
+<dd><p>Session factory that gives you a Session object to database table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sa.orm.session.sessionmaker</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.Record">
+<span class="sig-name descname"><span class="pre">Record</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.Record" title="Permalink to this definition"></a></dt>
+<dd><p>ORM-mapped class for the database table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sa.orm.decl_api.DeclarativeMeta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.d">
+<span class="sig-name descname"><span class="pre">d</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.d" title="Permalink to this definition"></a></dt>
+<dd><p>Dimensionality of the vectors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.index">
+<span class="sig-name descname"><span class="pre">index</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.index" title="Permalink to this definition"></a></dt>
+<dd><p>FAISS index that indexes the <code class="docutils literal notranslate"><span class="pre">vector_name</span></code> vectors for similarity search</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>faiss.Index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.metric">
+<span class="sig-name descname"><span class="pre">metric</span></span><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.metric" title="Permalink to this definition"></a></dt>
+<dd><p>Specifies the metric used to determine similarity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -181,8 +269,9 @@ is None.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.create_index">
-<span class="sig-name descname"><span class="pre">create_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faiss_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_factory_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'inner_product'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.create_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.create_index" title="Permalink to this definition"></a></dt>
-<dd><p>Create a FAISS index and save to disk when completed.</p>
+<span class="sig-name descname"><span class="pre">create_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faiss_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_factory_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'inner_product'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.create_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.create_index" title="Permalink to this definition"></a></dt>
+<dd><p>Create a FAISS index. Train, if needed, using <code class="docutils literal notranslate"><span class="pre">sample_size</span></code> vectors. Add
+vectors from database table to index. Save to disk when completed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -190,21 +279,14 @@ is None.</p></li>
 <li><p><strong>faiss_factory_str</strong> (<em>str</em>) – FAISS index factory string, passed to <code class="docutils literal notranslate"><span class="pre">faiss.index_factory()</span></code></p></li>
 <li><p><strong>metric</strong> (<em>str</em><em>, </em><em>optional</em>) – Metric used by FAISS to determine similarity. Valid values are either
 <code class="docutils literal notranslate"><span class="pre">inner_product</span></code> or <code class="docutils literal notranslate"><span class="pre">L2</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">inner_product</span></code></p></li>
-<li><p><strong>sample_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of vectors to sample from the database table to train the FAISS
-index. If 0, then all vectors are used. Default is 0.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of vectors to add into the index at one time. Also passed to
-<code class="docutils literal notranslate"><span class="pre">sample_vectors()</span></code> to specify number of vectors to pull back from the
-database table at a time. Default is 10,000.</p></li>
-<li><p><strong>use_gpu</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use GPU(s). Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>. NOTE: Not implemented yet</p></li>
-<li><p><strong>faiss_runtime_params</strong> (<em>str</em><em>, </em><em>optional</em>) – Set FAISS index runtime parameters before adding vectors. Likely only
-useful if using a quantizer index (e.g., IVF12345_HNSW32). The quantizer
-index (HNSW32) will be used during the <code class="docutils literal notranslate"><span class="pre">index.add()</span></code> to determine which
-partition to add the vector to. You may want to change from the default,
-whether that is the FAISS default (efSearch=16) or the value saved in
-<code class="docutils literal notranslate"><span class="pre">self.faiss_runtime_parameters</span></code>. “quantizer_efSearch=40” would be an
-example value for the example index given. If used,
+<li><p><strong>sample_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of training vectors. If 0, uses all vectors. Default is 0.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Passed to <code class="docutils literal notranslate"><span class="pre">sample_vectors()</span></code> to pull vectors in batches of this size.
+Default is 50,000.</p></li>
+<li><p><strong>faiss_runtime_params</strong> (<em>str</em><em>, </em><em>optional</em>) – Set FAISS index runtime parameters before adding vectors. Useful if using
+a quantizer index (e.g., IVF50000_HNSW32) since <code class="docutils literal notranslate"><span class="pre">index.add()</span></code> searches
+against the quantizer index. E.g., “quantizer_efSearch=40”.
 <code class="docutils literal notranslate"><span class="pre">self.faiss_runtime_parameters</span></code> is set back to its value before function
-invocation. Default is None</p></li>
+invocation. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -316,8 +398,8 @@ is <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <li><p><strong>search_parameters</strong> (<em>faiss.SearchParameters</em><em>, </em><em>optional</em>) – Use these search parameters instead of the current runtime FAISS
 parameters. Passed to FAISS’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>. See
 [FAISS documentation](<a class="reference external" href="https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query">https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query</a>)</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of query records to retrieve from the database table at one time.
-Passed to <code class="docutils literal notranslate"><span class="pre">fetch_records()</span></code>. Default is 10,000.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Batch size to use when retrieving neighbors information from the database
+table. Default is 10,000.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -339,7 +421,7 @@ similarity.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sample_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of vectors to return. Default 0 returns all vectors</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of vectors to retrieve at one time. Default 10_000.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Pull vectors in batches of this size. Default is 10,000.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -367,7 +449,7 @@ that setting when loading with <code class="docutils literal notranslate"><span 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_vectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_nearest_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_extra_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rerank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.search" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_vectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_nearest_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">col_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_extra_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rerank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.search" title="Permalink to this definition"></a></dt>
 <dd><p>Search for the <code class="docutils literal notranslate"><span class="pre">k_nearest_neighbors</span></code> records in the database table based
 on the similarity of their vectors to the query vectors. Optionally keep
 only neighbors whose similarity exceeds the <code class="docutils literal notranslate"><span class="pre">threshold</span></code>.</p>
@@ -390,6 +472,8 @@ Default is <code class="docutils literal notranslate"><span class="pre">True</sp
 <li><p><strong>search_parameters</strong> (<em>faiss.SearchParameters</em><em>, </em><em>optional</em>) – Use these search parameters instead of the current runtime FAISS
 parameters. Passed to FAISS’s <code class="docutils literal notranslate"><span class="pre">index.search()</span></code>. See
 [FAISS documentation](<a class="reference external" href="https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query">https://github.com/facebookresearch/faiss/wiki/Setting-search-parameters-for-one-query</a>)</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Batch size to use when retrieving neighbors information from the database
+table. Default is 10,000.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -486,6 +570,49 @@ is <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.sync_index_to_db">
+<span class="sig-name descname"><span class="pre">sync_index_to_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faiss_runtime_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.sync_index_to_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.sync_index_to_db" title="Permalink to this definition"></a></dt>
+<dd><p>Add any vectors from the database that are not in the FAISS index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Add vectors in batches of this size. Default is 100_000.</p></li>
+<li><p><strong>faiss_runtime_params</strong> (<em>str</em><em>, </em><em>optional</em>) – Set FAISS index runtime parameters before adding vectors. Useful if using
+a quantizer index (e.g., IVF50000_HNSW32) since <code class="docutils literal notranslate"><span class="pre">index.add()</span></code> searches
+against the quantizer index. E.g., “quantizer_efSearch=40”.
+<code class="docutils literal notranslate"><span class="pre">self.faiss_runtime_parameters</span></code> is set back to its value before function
+invocation. Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of records added into FAISS index</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>IndexError</strong> – Primary key of the records to be added must have consecutive integer values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vekterdb.vekterdb.VekterDB.train_index">
+<span class="sig-name descname"><span class="pre">train_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_to_disk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/vekterdb/vekterdb.html#VekterDB.train_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vekterdb.vekterdb.VekterDB.train_index" title="Permalink to this definition"></a></dt>
+<dd><p>Pull vectors from database table to train the FAISS index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of training vectors. If 0, uses all vectors. Default is 0.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Passed to <code class="docutils literal notranslate"><span class="pre">sample_vectors()</span></code> to pull vectors in batches of this size.
+Default is 50,000.</p></li>
+<li><p><strong>save_to_disk</strong> (<em>bool</em><em>, </em><em>optional</em>) – Save trained index to <code class="docutils literal notranslate"><span class="pre">self.faiss_index</span></code> on disk. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
