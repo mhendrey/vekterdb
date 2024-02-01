@@ -419,6 +419,55 @@ be needed to pass in that URL string that we don't want to save to disk in plain
 
 And we get back the same 0.9323 for the recall@1.
 
+Using GPUs
+----------------------------------------------------------------------------------------
+VekterDB does not directly support GPU usage at this time. This mainly stems from the
+differences across the different FAISS index types on how to transfer some or all of an
+index. However, this section will show some examples of how you can leverage GPUs that
+are outside VekterDB.
+
+Training on an IVF Index on a GPU
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Since our tutorial worked with an "IVF5000_HNSW32,PQ32" index, we will show how to
+train this on a GPU. This is taken directly from a very helpful
+`FAISS gist <https://gist.github.com/mdouze/46d6bbbaabca0b9778fca37ed2bcccf6>`_.
+
+For this example, we assume that records have already been inserted into the database
+table. Instead of calling the ``create_index()`` we will construct the index directly.
+The following also works if you have a preprocessing step, e.g.,
+"OPQ32,IVF5000_HNSW32,PQ32". Begin by initializing ``VekterDB`` and since the table
+already exists, only the table name and url string are needed.
+
+::
+
+    import faiss
+    from vekter_db import VekterDB
+
+    vekter_db = VekterDB("tutorial", url="sqlite:///sift1m.db")
+
+    index = faiss.index_factory(vekter_db.d, "IVF5000_HNSW32,PQ32", faiss.METRIC_L2)
+
+    # Extract out the IVF index (only really needed if index has preprocessing step)
+    index_ivf = faiss.extract_index_ivf(index)
+
+    # Move the clustering index to the GPU (only thing that needs training)
+    clustering_index = faiss.index_cpu_to_all_gpus(faiss.IndexFlatL2(vekter_db.d))
+
+    # Assign the clustering index now on the GPU to be the one used by index
+    index_ivf.clustering_index = clustering_index
+
+    # Need to assign the following variables that normally get set by create_index()
+    vekter_db.index = index
+    vekter_db.faiss_index = "ivf_hnsw_gpu.index"  # File name to save to disk
+    vekter_db.metric = "l2"  # Must be either inner_product | l2 (case sensitive)
+
+    vekter_db.train_index(sample_size=0) # Use all data to train
+
+    # Add vectors from database table into the FAISS index.
+    vekter_db.sync_index_to_db()
+
+    vekter_db.save("ivf_hnsw_gpu.json")
+
 .. rubric:: Footnotes
 
 .. [#f1] I. Doshi, D. Da, A. Bhutani, R. Kumar, R. Bhatt, N. Balasubramanian,
