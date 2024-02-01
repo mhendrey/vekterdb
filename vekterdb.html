@@ -62,6 +62,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#saving-loading-a-vekterdb">Saving &amp; Loading a VekterDB</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#using-gpus">Using GPUs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#training-on-an-ivf-index-on-a-gpu">Training on an IVF Index on a GPU</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -519,6 +523,53 @@ be needed to pass in that URL string that we don’t want to save to disk in pla
 </pre></div>
 </div>
 <p>And we get back the same 0.9323 for the recall&#64;1.</p>
+</section>
+</section>
+<section id="using-gpus">
+<h2>Using GPUs<a class="headerlink" href="#using-gpus" title="Permalink to this heading"></a></h2>
+<p>VekterDB does not directly support GPU usage at this time. This mainly stems from the
+differences across the different FAISS index types on how to transfer some or all of an
+index. However, this section will show some examples of how you can leverage GPUs that
+are outside VekterDB.</p>
+<section id="training-on-an-ivf-index-on-a-gpu">
+<h3>Training on an IVF Index on a GPU<a class="headerlink" href="#training-on-an-ivf-index-on-a-gpu" title="Permalink to this heading"></a></h3>
+<p>Since our tutorial worked with an “IVF5000_HNSW32,PQ32” index, we will show how to
+train this on a GPU. This is taken directly from a very helpful
+<a class="reference external" href="https://gist.github.com/mdouze/46d6bbbaabca0b9778fca37ed2bcccf6">FAISS gist</a>.</p>
+<p>For this example, we assume that records have already been inserted into the database
+table. Instead of calling the <code class="docutils literal notranslate"><span class="pre">create_index()</span></code> we will construct the index directly.
+The following also works if you have a preprocessing step, e.g.,
+“OPQ32,IVF5000_HNSW32,PQ32”. Begin by initializing <code class="docutils literal notranslate"><span class="pre">VekterDB</span></code> and since the table
+already exists, only the table name and url string are needed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">faiss</span>
+<span class="kn">from</span> <span class="nn">vekter_db</span> <span class="kn">import</span> <span class="n">VekterDB</span>
+
+<span class="n">vekter_db</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="p">(</span><span class="s2">&quot;tutorial&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;sqlite:///sift1m.db&quot;</span><span class="p">)</span>
+
+<span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_factory</span><span class="p">(</span><span class="n">vekter_db</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;IVF5000_HNSW32,PQ32&quot;</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span><span class="p">)</span>
+
+<span class="c1"># Extract out the IVF index (only really needed if index has preprocessing step)</span>
+<span class="n">index_ivf</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">extract_index_ivf</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+<span class="c1"># Move the clustering index to the GPU (only thing that needs training)</span>
+<span class="n">clustering_index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_cpu_to_all_gpus</span><span class="p">(</span><span class="n">faiss</span><span class="o">.</span><span class="n">IndexFlatL2</span><span class="p">(</span><span class="n">vekter_db</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+
+<span class="c1"># Assign the clustering index now on the GPU to be the one used by index</span>
+<span class="n">index_ivf</span><span class="o">.</span><span class="n">clustering_index</span> <span class="o">=</span> <span class="n">clustering_index</span>
+
+<span class="c1"># Need to assign the following variables that normally get set by create_index()</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="s2">&quot;ivf_hnsw_gpu.index&quot;</span>  <span class="c1"># File name to save to disk</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>  <span class="c1"># Must be either inner_product | l2 (case sensitive)</span>
+
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">train_index</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Use all data to train</span>
+
+<span class="c1"># Add vectors from database table into the FAISS index.</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">sync_index_to_db</span><span class="p">()</span>
+
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;ivf_hnsw_gpu.json&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="f1" role="doc-footnote">
