@@ -463,7 +463,11 @@ class VekterDB:
         if insert_into_faiss:
             # Save the index to disk
             start = datetime.now()
-            faiss.write_index(self.index, self.faiss_index)
+            if isinstance(self.index, faiss.GpuIndex):
+                index = faiss.index_gpu_to_cpu(self.index)
+                faiss.write_index(index, self.faiss_index)
+            else:
+                faiss.write_index(self.index, self.faiss_index)
             end = datetime.now()
             self.logger.info(
                 f"insert: Saving {self.faiss_index} to disk took {end - start}"
@@ -697,7 +701,11 @@ class VekterDB:
         if save_to_disk:
             # Save the index to disk
             start = datetime.now()
-            faiss.write_index(self.index, self.faiss_index)
+            if isinstance(self.index, faiss.GpuIndex):
+                index = faiss.index_gpu_to_cpu(self.index)
+                faiss.write_index(index, self.faiss_index)
+            else:
+                faiss.write_index(self.index, self.faiss_index)
             end = datetime.now()
             self.logger.info(
                 f"train_index: Saving to {self.faiss_index} took {end-start}"
@@ -804,13 +812,41 @@ class VekterDB:
 
         # Save the index to disk
         start = datetime.now()
-        faiss.write_index(self.index, self.faiss_index)
+        if isinstance(self.index, faiss.GpuIndex):
+            index = faiss.index_gpu_to_cpu(self.index)
+            faiss.write_index(index, self.faiss_index)
+        else:
+            faiss.write_index(self.index, self.faiss_index)
         end = datetime.now()
         self.logger.info(
             f"sync_index_to_db: Saving {self.faiss_index} to disk took {end - start}"
         )
 
         return num_new_rows
+
+    def attach(self, index, faiss_index: str):
+        """Attach a FAISS index to this VekterDB
+
+        Parameters
+        ----------
+        index : faiss.Index
+            FAISS index
+        faiss_index : str
+            Name of the file where FAISS index resides on disk
+
+        Raises
+        ------
+        ValueError
+            If index.metric_type doesn't match L2 | INNER_PRODUCT
+        """
+        if index.metric_type == faiss.METRIC_L2:
+            self.metric = "l2"
+        elif index.metric_type == faiss.METRIC_INNER_PRODUCT:
+            self.metric = "inner_product"
+        else:
+            raise ValueError("FAISS metric type must be L2 | INNER_PRODUCT")
+        self.index = index
+        self.faiss_index = faiss_index
 
     def search(
         self,

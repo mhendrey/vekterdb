@@ -434,9 +434,8 @@ train this on a GPU. This is taken directly from a very helpful
 
 For this example, we assume that records have already been inserted into the database
 table. Instead of calling the ``create_index()`` we will construct the index directly.
-The following also works if you have a preprocessing step, e.g.,
-"OPQ32,IVF5000_HNSW32,PQ32". Begin by initializing ``VekterDB`` and since the table
-already exists, only the table name and url string are needed.
+Place the needed part(s) onto the GPU and then attach it to ``VekterDB``. After that
+we can use the ``train_index()`` and ``sync_index_to_db()``.
 
 ::
 
@@ -444,6 +443,18 @@ already exists, only the table name and url string are needed.
     from vekter_db import VekterDB
 
     vekter_db = VekterDB("tutorial", url="sqlite:///sift1m.db")
+
+Next we setup the FAISS index. For the "IVF_HNSW,PQ" index that we are doing, the
+call to ``faiss.extract_index_ivf()`` isn't necessary since the index is already an
+IVF index.  However, if we had done a preprocessing step (e.g.,
+"OPQ32,IVF_HNSW,PQ32") then this function call would extract out the needed IVF index
+from the ``faiss.IndexPreTransform``. For an IVF, the main piece that needs to go on
+the GPU is the clustering step. The ``clustering_index`` is not needed after training
+which is why we can just save the index (happens automatically in
+``sync_index_to_db()``) without having to transfer the index back to the CPU before
+saving.
+
+::
 
     index = faiss.index_factory(vekter_db.d, "IVF5000_HNSW32,PQ32", faiss.METRIC_L2)
 
@@ -456,17 +467,20 @@ already exists, only the table name and url string are needed.
     # Assign the clustering index now on the GPU to be the one used by index
     index_ivf.clustering_index = clustering_index
 
-    # Need to assign the following variables that normally get set by create_index()
-    vekter_db.index = index
-    vekter_db.faiss_index = "ivf_hnsw_gpu.index"  # File name to save to disk
-    vekter_db.metric = "l2"  # Must be either inner_product | l2 (case sensitive)
+Lastly, we attach the index to our ``VekterDB`` and proceed with the training.
+Afterwards, we add the vectors from the database table into the FAISS index which
+then saves the FAISS index to disk with filename of ``faiss_index``.
 
+::
+
+    vekter_db.attach(index, "ivf_hnsw_gpu_trained.index")
     vekter_db.train_index(sample_size=0) # Use all data to train
+    vekter_db.sync_index_to_db(faiss_runtime_params="quantizer_efSearch=25")
 
-    # Add vectors from database table into the FAISS index.
-    vekter_db.sync_index_to_db()
+    # Don't forget to set the faiss runtime parameters you like for searching
+    vekter_db.set_faiss_runtime_parameters("nprobe=175,quantizer_efSearch=350")
 
-    vekter_db.save("ivf_hnsw_gpu.json")
+    vekter_db.save("ivf_hnsw_gpu_trained.json")
 
 .. rubric:: Footnotes
 
