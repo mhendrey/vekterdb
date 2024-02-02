@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.1 documentation</title>
+  <title>vekterdb.vekterdb &mdash; VekterDB 0.2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../../_static/jquery.js?v=5d32c60e"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=158ece9d"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=227644f7"></script>
         <script src="../../_static/doctools.js?v=888ff710"></script>
         <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -77,6 +77,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.d"><code class="docutils literal notranslate"><span class="pre">VekterDB.d</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.index"><code class="docutils literal notranslate"><span class="pre">VekterDB.index</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.metric"><code class="docutils literal notranslate"><span class="pre">VekterDB.metric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.attach"><code class="docutils literal notranslate"><span class="pre">VekterDB.attach()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modules.html#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
@@ -597,7 +598,11 @@
         <span class="k">if</span> <span class="n">insert_into_faiss</span><span class="p">:</span>
             <span class="c1"># Save the index to disk</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">GpuIndex</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_gpu_to_cpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;insert: Saving </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> to disk took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -831,7 +836,11 @@
         <span class="k">if</span> <span class="n">save_to_disk</span><span class="p">:</span>
             <span class="c1"># Save the index to disk</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">GpuIndex</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_gpu_to_cpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;train_index: Saving to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> took </span><span class="si">{</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -938,13 +947,41 @@
 
         <span class="c1"># Save the index to disk</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-        <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">GpuIndex</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_gpu_to_cpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">faiss</span><span class="o">.</span><span class="n">write_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;sync_index_to_db: Saving </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span><span class="si">}</span><span class="s2"> to disk took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">num_new_rows</span></div>
+
+<div class="viewcode-block" id="VekterDB.attach"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.attach">[docs]</a>    <span class="k">def</span> <span class="nf">attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">faiss_index</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach a FAISS index to this VekterDB</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : faiss.Index</span>
+<span class="sd">            FAISS index</span>
+<span class="sd">        faiss_index : str</span>
+<span class="sd">            Name of the file where FAISS index resides on disk</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If index.metric_type doesn&#39;t match L2 | INNER_PRODUCT</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">metric_type</span> <span class="o">==</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>
+        <span class="k">elif</span> <span class="n">index</span><span class="o">.</span><span class="n">metric_type</span> <span class="o">==</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_INNER_PRODUCT</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;inner_product&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;FAISS metric type must be L2 | INNER_PRODUCT&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="n">faiss_index</span></div>
 
 <div class="viewcode-block" id="VekterDB.search"><a class="viewcode-back" href="../../modules.html#vekterdb.vekterdb.VekterDB.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VekterDB &mdash; VekterDB 0.2.1 documentation</title>
+  <title>VekterDB &mdash; VekterDB 0.2.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=158ece9d"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=227644f7"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             VekterDB
           </a>
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -80,6 +80,7 @@
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.d"><code class="docutils literal notranslate"><span class="pre">VekterDB.d</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.index"><code class="docutils literal notranslate"><span class="pre">VekterDB.index</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.metric"><code class="docutils literal notranslate"><span class="pre">VekterDB.metric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.attach"><code class="docutils literal notranslate"><span class="pre">VekterDB.attach()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.create_index"><code class="docutils literal notranslate"><span class="pre">VekterDB.create_index()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.deserialize_vector"><code class="docutils literal notranslate"><span class="pre">VekterDB.deserialize_vector()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules.html#vekterdb.vekterdb.VekterDB.insert"><code class="docutils literal notranslate"><span class="pre">VekterDB.insert()</span></code></a></li>
@@ -538,15 +539,24 @@ train this on a GPU. This is taken directly from a very helpful
 <a class="reference external" href="https://gist.github.com/mdouze/46d6bbbaabca0b9778fca37ed2bcccf6">FAISS gist</a>.</p>
 <p>For this example, we assume that records have already been inserted into the database
 table. Instead of calling the <code class="docutils literal notranslate"><span class="pre">create_index()</span></code> we will construct the index directly.
-The following also works if you have a preprocessing step, e.g.,
-“OPQ32,IVF5000_HNSW32,PQ32”. Begin by initializing <code class="docutils literal notranslate"><span class="pre">VekterDB</span></code> and since the table
-already exists, only the table name and url string are needed.</p>
+Place the needed part(s) onto the GPU and then attach it to <code class="docutils literal notranslate"><span class="pre">VekterDB</span></code>. After that
+we can use the <code class="docutils literal notranslate"><span class="pre">train_index()</span></code> and <code class="docutils literal notranslate"><span class="pre">sync_index_to_db()</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">faiss</span>
 <span class="kn">from</span> <span class="nn">vekter_db</span> <span class="kn">import</span> <span class="n">VekterDB</span>
 
 <span class="n">vekter_db</span> <span class="o">=</span> <span class="n">VekterDB</span><span class="p">(</span><span class="s2">&quot;tutorial&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;sqlite:///sift1m.db&quot;</span><span class="p">)</span>
-
-<span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_factory</span><span class="p">(</span><span class="n">vekter_db</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;IVF5000_HNSW32,PQ32&quot;</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next we setup the FAISS index. For the “IVF_HNSW,PQ” index that we are doing, the
+call to <code class="docutils literal notranslate"><span class="pre">faiss.extract_index_ivf()</span></code> isn’t necessary since the index is already an
+IVF index.  However, if we had done a preprocessing step (e.g.,
+“OPQ32,IVF_HNSW,PQ32”) then this function call would extract out the needed IVF index
+from the <code class="docutils literal notranslate"><span class="pre">faiss.IndexPreTransform</span></code>. For an IVF, the main piece that needs to go on
+the GPU is the clustering step. The <code class="docutils literal notranslate"><span class="pre">clustering_index</span></code> is not needed after training
+which is why we can just save the index (happens automatically in
+<code class="docutils literal notranslate"><span class="pre">sync_index_to_db()</span></code>) without having to transfer the index back to the CPU before
+saving.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">index</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">index_factory</span><span class="p">(</span><span class="n">vekter_db</span><span class="o">.</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;IVF5000_HNSW32,PQ32&quot;</span><span class="p">,</span> <span class="n">faiss</span><span class="o">.</span><span class="n">METRIC_L2</span><span class="p">)</span>
 
 <span class="c1"># Extract out the IVF index (only really needed if index has preprocessing step)</span>
 <span class="n">index_ivf</span> <span class="o">=</span> <span class="n">faiss</span><span class="o">.</span><span class="n">extract_index_ivf</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
@@ -556,18 +566,19 @@ already exists, only the table name and url string are needed.</p>
 
 <span class="c1"># Assign the clustering index now on the GPU to be the one used by index</span>
 <span class="n">index_ivf</span><span class="o">.</span><span class="n">clustering_index</span> <span class="o">=</span> <span class="n">clustering_index</span>
-
-<span class="c1"># Need to assign the following variables that normally get set by create_index()</span>
-<span class="n">vekter_db</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
-<span class="n">vekter_db</span><span class="o">.</span><span class="n">faiss_index</span> <span class="o">=</span> <span class="s2">&quot;ivf_hnsw_gpu.index&quot;</span>  <span class="c1"># File name to save to disk</span>
-<span class="n">vekter_db</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;l2&quot;</span>  <span class="c1"># Must be either inner_product | l2 (case sensitive)</span>
-
+</pre></div>
+</div>
+<p>Lastly, we attach the index to our <code class="docutils literal notranslate"><span class="pre">VekterDB</span></code> and proceed with the training.
+Afterwards, we add the vectors from the database table into the FAISS index which
+then saves the FAISS index to disk with filename of <code class="docutils literal notranslate"><span class="pre">faiss_index</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vekter_db</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;ivf_hnsw_gpu_trained.index&quot;</span><span class="p">)</span>
 <span class="n">vekter_db</span><span class="o">.</span><span class="n">train_index</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># Use all data to train</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">sync_index_to_db</span><span class="p">(</span><span class="n">faiss_runtime_params</span><span class="o">=</span><span class="s2">&quot;quantizer_efSearch=25&quot;</span><span class="p">)</span>
 
-<span class="c1"># Add vectors from database table into the FAISS index.</span>
-<span class="n">vekter_db</span><span class="o">.</span><span class="n">sync_index_to_db</span><span class="p">()</span>
+<span class="c1"># Don&#39;t forget to set the faiss runtime parameters you like for searching</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">set_faiss_runtime_parameters</span><span class="p">(</span><span class="s2">&quot;nprobe=175,quantizer_efSearch=350&quot;</span><span class="p">)</span>
 
-<span class="n">vekter_db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;ivf_hnsw_gpu.json&quot;</span><span class="p">)</span>
+<span class="n">vekter_db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;ivf_hnsw_gpu_trained.json&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Footnotes</p>
